@@ -939,8 +939,13 @@ function bateuMetaAleatorio() {
   abrirModal(
     "🚀 Você é demais!",
     "Vamos para a próxima tabuada?",
-    () => avancarParaProximaTabuadaOuFase(),
-    () => resetTudoParaInicio()
+    () => {
+      // ✅ AQUI entra o mestre quando clicar SIM
+      mostrarMestreAntesDeAvancar();
+    },
+    () => {
+      resetTudoParaInicio();
+    }
   );
 }
 
@@ -1136,6 +1141,7 @@ function mostrarMestreAntesDeAvancar(){
     }
   );
 }
+
 
 
 
