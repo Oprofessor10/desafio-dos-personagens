@@ -1,4 +1,4 @@
-const CACHE_NAME = "60-segundos-v104"; // aumenta quando quiser forçar atualização
+const CACHE_NAME = "60-segundos-v105"; // aumenta quando quiser forçar atualização
 
 const urlsToCache = [
   "./",
@@ -74,3 +74,4 @@ self.addEventListener("fetch", (event) => {
     caches.match(req).then((cached) => cached || fetch(req))
   );
 });
+
