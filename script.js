@@ -17,6 +17,17 @@ const mestres = [
 // controla quais já foram usados nessa rodada
 let mestresUsados = [];
 
+function sortearMestre() {
+  const disponiveis = mestres.filter(m => !mestresUsados.includes(m));
+
+  if (disponiveis.length === 0) return null;
+
+  const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+  mestresUsados.push(escolhido);
+
+  return escolhido;
+}
+
 // =======================
 // ESTADO DO JOGO
 // =======================
@@ -1061,4 +1072,5 @@ function debugMestres() {
   console.log("Mestres prontos:", mestres.map(m => m.nome));
 }
 debugMestres();
+
 
