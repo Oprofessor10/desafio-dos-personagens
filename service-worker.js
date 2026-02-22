@@ -1,10 +1,10 @@
-const CACHE_NAME = "60-segundos-v104"; // <-- aumentei de novo pra forçar o PC
+const CACHE_NAME = "60-segundos-v104"; // aumenta quando quiser forçar atualização
 
 const urlsToCache = [
   "./",
   "./index.html",
   "./style.css",
-  "./script.js?v=103",   // <-- igual ao index.html
+  "./script.js?v=104", // ✅ TEM que bater com o index.html
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -29,13 +29,14 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// ✅ Network-first para JS/CSS/HTML (pra nunca “prender” versão antiga no PC)
+// ✅ Network-first para JS/CSS/HTML/JSON (evita prender versões antigas)
 // ✅ Cache-first para imagens (mais rápido)
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
   const isSameOrigin = url.origin === location.origin;
+
   const isAsset =
     url.pathname.endsWith(".js") ||
     url.pathname.endsWith(".css") ||
@@ -69,9 +70,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // padrão
   event.respondWith(
     caches.match(req).then((cached) => cached || fetch(req))
   );
 });
-
