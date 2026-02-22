@@ -146,114 +146,87 @@ function autoStartIfNeeded() {
 }
 
 // =======================
-// SELEÇÃO DE MESTRES ALEATÓRIOS
+// DESAFIO DOS PERSONAGENS (ETAPA 1 - APENAS APARECER O MESTRE)
+// - Mestre só aparece quando o aluno clica SIM para avançar
+// - Sem repetir mestre na mesma "jogada"
+// - Quantidade de mestres = quantidade de tabuadas restantes (ex: começa no 8 => 3 mestres)
 // =======================
-const mestres = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro me vença!", tabuada: 1 },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem ou desista!", tabuada: 2 },
-  { nome: "Isabela rápida", frase: "Você não vai conseguir me vencer!", tabuada: 3 },
-  { nome: "Lúcia esperta", frase: "Que tal um desafio real?", tabuada: 4 },
-  { nome: "Carla veloz", frase: "Você pode ser mais rápido, não?", tabuada: 5 },
-  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!", tabuada: 6 },
-  { nome: "Bruno ágil", frase: "Não vai ser fácil me vencer!", tabuada: 7 },
-  { nome: "André o sábio", frase: "Está pronto para o desafio?", tabuada: 8 },
-  { nome: "Felipe especialista", frase: "Vamos ver se você tem o que é preciso!", tabuada: 9 },
-  { nome: "Roberto o gênio", frase: "Eu vou te derrotar!", tabuada: 10 }
+
+const MESTRES = [
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
+  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!" },
+  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!" },
+  { nome: "Carla veloz", frase: "Duvido você me derrotar!" },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!" },
+  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!" },
+  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?" },
+  { nome: "Felipe especialista", frase: "Você aguenta a pressão?" },
+  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!" }
 ];
 
-function selecionarMestres(tabuadaEscolhida) {
-  const mestresDisponiveis = mestres.filter(mestre => mestre.tabuada >= tabuadaEscolhida && mestre.tabuada <= 10);
-  const mestresSelecionados = [];
+let desafioMestresAtivo = true;          // pode desligar se quiser testar sem mestres
+let mestresPreparados = false;
+let mestrePorTabuada = {};              // ex: {8: mestreX, 9: mestreY, 10: mestreZ}
+let tabuadaInicioDaJogada = 1;
 
-  const numMestres = tabuadaEscolhida === 1 ? 10 : 3;
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
-  for (let i = 0; i < numMestres; i++) {
-    const indexAleatorio = Math.floor(Math.random() * mestresDisponiveis.length);
-    mestresSelecionados.push(mestresDisponiveis[indexAleatorio]);
-    mestresDisponiveis.splice(indexAleatorio, 1); // Remove o mestre selecionado
+function prepararMestresParaJogada() {
+  // monta os mestres para as tabuadas que ainda serão jogadas (sem repetir)
+  tabuadaInicioDaJogada = Number((tabuadaSelect && tabuadaSelect.value) || 1);
+  const restantes = 11 - tabuadaInicioDaJogada; // ex: começa no 8 => 3
+  const pool = shuffleArray(MESTRES).slice(0, Math.max(0, restantes));
+
+  mestrePorTabuada = {};
+  for (let t = tabuadaInicioDaJogada; t <= 10; t++) {
+    const idx = (t - tabuadaInicioDaJogada);
+    mestrePorTabuada[t] = pool[idx]; // 1 mestre por tabuada dessa jogada
   }
 
-  return mestresSelecionados;
+  mestresPreparados = true;
 }
 
-// =======================
-// LÓGICA DE AVANÇO DE FASE E O PROFESSOR
-// =======================
-let faseAtual = "facil"; 
-let respostasOprofessor = 25;
+// Mostra o mestre (placeholder por enquanto)
+function mostrarMestreAntesDeAvancar(proximaTabuada) {
+  const mestre = mestrePorTabuada[proximaTabuada];
 
-function determinarRespostasOprofessor() {
-  if (faseAtual === "facil") {
-    respostasOprofessor = 25;
-  } else if (faseAtual === "media") {
-    respostasOprofessor = 45;
-  } else if (faseAtual === "dificil") {
-    respostasOprofessor = 60;
+  // se não tiver mestre (por algum motivo), só avança normal
+  if (!mestre) {
+    avancarParaProximaTabuadaOuFase();
+    return;
   }
+
+  abrirModal(
+    `🧠 Desafio! ${mestre.nome}`,
+    `${mestre.frase}<br><br><b>Você quer desafiar um dos mestres?</b>`,
+    () => {
+      // ✅ Por enquanto: placeholder (não tem ringue ainda)
+      abrirModal(
+        "🥊 Ringue (em construção)",
+        `Você aceitou o desafio de <b>${mestre.nome}</b>.<br><br>(Na próxima etapa vamos criar o ringue de verdade.)<br><br>Por enquanto, vou te deixar avançar.`,
+        () => { avancarParaProximaTabuadaOuFase(); },
+        () => { resetTudoParaInicio(); }
+      );
+    },
+    () => {
+      // desistiu
+      resetTudoParaInicio();
+    }
+  );
 }
-
-function desafiarOprofessor() {
-  const op = { nome: "Oprofessor", frase: "Agora, prepare-se para o grande desafio!" };
-  determinarRespostasOprofessor();
-  
-  console.log(`Você agora está desafiando o mestre: ${op.nome}`);
-  console.log(`Frase do mestre: ${op.frase}`);
-  console.log(`Oprofessor irá responder ${respostasOprofessor} perguntas aleatórias!`);
-
-  iniciarDesafioFinal(op);
-}
-
-function iniciarDesafioFinal(mestre) {
-  console.log(`Desafio contra ${mestre.nome} com ${respostasOprofessor} perguntas aleatórias!`);
-}
-
-function avancarParaProximaFase() {
-  if (faseAtual === "facil") {
-    faseAtual = "media";
-    console.log("Você avançou para a fase média!");
-  } else if (faseAtual === "media") {
-    faseAtual = "dificil";
-    console.log("Você avançou para a fase difícil!");
-  } else if (faseAtual === "dificil") {
-    console.log("Parabéns, agora você se tornou o mestre dos mestres!");
-  }
-  desafiarOprofessor();
-}
-
-// =======================
-// INICIAR JOGO
-// =======================
-window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
-  const mestresDaFase = selecionarMestres(tabuadaAtual); 
-  console.log(`Você escolheu começar da tabuada ${tabuadaAtual}`);
-  console.log("Os mestres que você enfrentará são:", mestresDaFase);
-  
-  mestresDaFase.forEach(mestre => {
-    console.log(`Desafiante: ${mestre.nome} - ${mestre.frase}`);
-  });
-
-  finalizarDesafio();
-}
-
-// =======================
-// FINALIZAR DESAFIO
-// =======================
-function finalizarDesafio() {
-  if (faseAtual === "facil") {
-    avancarParaProximaFase();
-  } else if (faseAtual === "media") {
-    avancarParaProximaFase();
-  } else if (faseAtual === "dificil") {
-    console.log("Parabéns! Você completou todas as fases!");
-  }
-}
-
-
 
 // Digitação pelo keypad
 function keypadAppend(d) {
   if (!respostaInput) return;
-  if (aguardandoDecisao) return; // <- evita digitar com modal aberto
+  if (aguardandoDecisao) return;
 
   autoStartIfNeeded();
 
@@ -371,7 +344,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 20;
+  if (f === "facil") return 4;
   if (f === "media") return 40;
   return 60;
 }
@@ -461,11 +434,9 @@ function finalizarJogoTempo() {
   cronometroAtivo = false;
 
   if (acertos < meta) {
-    // Mostra carta travada
     virarParaFrente(cartaEsquerda);
     virarParaFrente(cartaDireita);
 
-    // Exibe a mensagem de derrota
     if (fimJogoDiv) {
       fimJogoDiv.innerHTML = ` 
         😢 Você perdeu! <br> Deseja tentar novamente? <br><br>
@@ -473,26 +444,11 @@ function finalizarJogoTempo() {
       `;
     }
 
-    // Definir a imagem de fundo (GIF de choro)
-    if (fxCanvas) {
-      fxCanvas.style.backgroundImage = "url('choro.png')";  // Caminho do arquivo GIF
-      fxCanvas.style.backgroundSize = "contain";
-      fxCanvas.style.backgroundPosition = "center";
-      fxCanvas.style.backgroundRepeat = "no-repeat";
-      fxCanvas.style.position = "fixed";  // Fixa a imagem na tela
-      fxCanvas.style.top = "0";
-      fxCanvas.style.left = "0";
-      fxCanvas.style.width = "100vw";  // Usa a largura total da tela
-      fxCanvas.style.height = "100vh";  // Usa a altura total da tela
-      fxCanvas.style.zIndex = "1";  // Garante que o GIF fique atrás da mensagem
-    }
-
-    // Exibir o modal de confirmação sobre o GIF
     abrirModal(
       "Você perdeu!",
       "Quer tentar novamente?",
-      () => { resetTudoParaInicio(); }, // SIM
-      () => { resetTudoParaInicio(); }  // NÃO
+      () => { resetTudoParaInicio(); },
+      () => { resetTudoParaInicio(); }
     );
   } else {
     if (fimJogoDiv) {
@@ -514,24 +470,21 @@ let onSim = null;
 let onNao = null;
 
 function abrirModal(titulo, textoHtml, simCb, naoCb) {
-  modalArmedAt = performance.now() + 250; // 250ms sem aceitar Enter
+  modalArmedAt = performance.now() + 250;
   aguardandoDecisao = true;
   onSim = simCb;
   onNao = naoCb;
 
-  // ✅ BACKUP: SEMPRE escreve no fimJogo (PC nunca fica sem ver)
   if (fimJogoDiv) {
     fimJogoDiv.innerHTML =
       `${titulo}<br>${textoHtml}<br><br><b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>`;
   }
 
-  // Modal visual (se existir, ótimo — mas o backup já garante)
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
     modalTexto.innerHTML = textoHtml;
     modal.classList.remove("hidden");
     if (btnSim) btnSim.focus();
-    return;
   }
 }
 
@@ -543,7 +496,6 @@ function fecharModal() {
   onSim = null;
   onNao = null;
 
-  // volta keypad se estiver em mobile
   if (isMobileLike()) showKeypad();
 }
 
@@ -585,7 +537,6 @@ function isEnterKey(e){
 document.addEventListener("keydown", (e) => {
   if (!aguardandoDecisao) return;
 
-  // ✅ impede o ENTER que acabou de enviar a resposta de confirmar o modal
   if (performance.now() < modalArmedAt) {
     e.preventDefault();
     return;
@@ -634,7 +585,7 @@ function fanfarraGrande(){
 }
 
 // =======================
-// FX
+// FX (FOGOS)
 // =======================
 let particles = [];
 let rockets = [];
@@ -820,10 +771,10 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
   if (respostaInput) {
-  if (!preservarDigitado) respostaInput.value = "";
-  atualizarPlaceholder();   // 🔥 AQUI
-  focusRespostaSeguro();
-}
+    if (!preservarDigitado) respostaInput.value = "";
+    atualizarPlaceholder();
+    focusRespostaSeguro();
+  }
 };
 
 // =======================
@@ -838,7 +789,6 @@ function proximoNumero() {
 // TRANSIÇÕES
 // =======================
 function iniciarDesafioAleatorio() {
-  // agora só inicia DEPOIS do SIM
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
@@ -866,7 +816,6 @@ function iniciarDesafioAleatorio() {
 }
 
 function avancarParaProximaTabuadaOuFase() {
-  // também só inicia DEPOIS do SIM
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
@@ -929,32 +878,21 @@ function avancarParaProximaTabuadaOuFase() {
 }
 
 // =======================
-// BATEU META (AGORA NÃO INICIA AUTOMÁTICO)
+// BATEU META
 // =======================
-function pausarParaDecisao() {
-  // pausa geral do jogo, aguardando decisão do modal
-  jogoAtivo = false;
-  cronometroAtivo = false;
-  clearInterval(intervalo);
-}
-
 function bateuMetaNormal() {
   setPilhaDireita(0);
 
   fogosMedios();
   clearInterval(intervalo);
   cronometroAtivo = false;
-  jogoAtivo = false; // 🔴 IMPORTANTE: trava o jogo aqui
+  jogoAtivo = false;
 
   abrirModal(
     "🎉 Parabéns!",
     "Deseja continuar para o desafio aleatório?",
-    () => {
-      iniciarDesafioAleatorio();
-    },
-    () => {
-      resetTudoParaInicio();
-    }
+    () => iniciarDesafioAleatorio(),
+    () => resetTudoParaInicio()
   );
 }
 
@@ -964,17 +902,13 @@ function bateuMetaAleatorio() {
   fogosGrandes();
   clearInterval(intervalo);
   cronometroAtivo = false;
-  jogoAtivo = false; // 🔴 trava aqui também
+  jogoAtivo = false;
 
   abrirModal(
     "🚀 Você é demais!",
     "Vamos para a próxima tabuada?",
-    () => {
-      avancarParaProximaTabuadaOuFase();
-    },
-    () => {
-      resetTudoParaInicio();
-    }
+    () => avancarParaProximaTabuadaOuFase(),
+    () => resetTudoParaInicio()
   );
 }
 
@@ -989,7 +923,6 @@ function verificar() {
   const valor = respostaInput.value;
   if (valor === "") return;
 
-  // cronômetro só começa na 1ª resposta enviada
   if (!cronometroAtivo) iniciarCronometro();
 
   const resposta = Number(valor);
@@ -1021,7 +954,6 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./service-worker.js")
       .then((reg) => {
         console.log("PWA ativado");
-        // força buscar versão nova do SW/script
         reg.update();
       })
       .catch(err => console.log("Erro PWA:", err));
@@ -1086,6 +1018,27 @@ document.addEventListener("keydown", (e) => {
   verificar();
 }, { passive: false });
 
+// ======================================================
+// BLOCO MESTRES (DESLIGADO por enquanto — não interfere)
+// ======================================================
+const ENABLE_MESTRES = false;
 
+const mestres = [
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro me vença!" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem ou desista!" },
+  { nome: "Isabela rápida", frase: "Você não vai conseguir me vencer!" },
+  { nome: "Lúcia esperta", frase: "Que tal um desafio real?" },
+  { nome: "Carla veloz", frase: "Você pode ser mais rápido, não?" },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!" },
+  { nome: "Bruno ágil", frase: "Não vai ser fácil me vencer!" },
+  { nome: "André o sábio", frase: "Está pronto para o desafio?" },
+  { nome: "Felipe especialista", frase: "Vamos ver se você tem o que é preciso!" },
+  { nome: "Roberto o gênio", frase: "Eu vou te derrotar!" }
+];
 
-
+// (No próximo passo a gente usa isso para sortear sem repetir)
+function debugMestres() {
+  if (!ENABLE_MESTRES) return;
+  console.log("Mestres prontos:", mestres.map(m => m.nome));
+}
+debugMestres();
