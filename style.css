@@ -20,8 +20,15 @@ body{
 /* melhora toque no celular */
 button, select, input{ touch-action: manipulation; }
 
-/* utilitário */
 .hidden{ display: none !important; }
+
+/* =========================
+   VARIÁVEIS (TAMANHOS CARTAS)
+========================= */
+:root{
+  --cardW: 240px;  /* desktop */
+  --xW: 90px;
+}
 
 /* =========================
    TABULEIRO
@@ -41,8 +48,8 @@ button, select, input{ touch-action: manipulation; }
   display: flex;
   flex-direction: column;
 
-  /* no mobile, vh “normal” corta. svh/dvh resolve melhor */
   min-height: 100svh;
+  z-index: 10;
 }
 
 .tabuleiro::after{
@@ -59,7 +66,7 @@ button, select, input{ touch-action: manipulation; }
 .tabuleiro > *{ position: relative; z-index: 1; }
 
 /* =========================
-   TÍTULO / TOPO
+   TOPO
 ========================= */
 .titulo{
   font-size: 40px;
@@ -108,7 +115,7 @@ button, select, input{ touch-action: manipulation; }
 }
 
 /* =========================
-   ÁREA DAS CARTAS (DESKTOP)
+   ÁREA DAS CARTAS (GRID)
 ========================= */
 .area-cartas{
   flex: 1;
@@ -116,11 +123,10 @@ button, select, input{ touch-action: manipulation; }
   margin: 0 auto;
 
   display: grid;
-  grid-template-columns: 240px 90px 240px;
+  grid-template-columns: var(--cardW) var(--xW) var(--cardW);
   align-items: center;
   justify-content: center;
   justify-items: center;
-
   gap: 20px;
 }
 
@@ -129,7 +135,7 @@ button, select, input{ touch-action: manipulation; }
 ========================= */
 .pilha{
   position: relative;
-  width: 240px;
+  width: var(--cardW);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -185,8 +191,9 @@ button, select, input{ touch-action: manipulation; }
    CARTAS
 ========================= */
 .carta{
-  width: 240px;
-  height: 320px;
+  width: var(--cardW);
+  height: auto;
+  aspect-ratio: 3 / 4;
   position: relative;
   display: grid;
   place-items: center;
@@ -222,7 +229,7 @@ button, select, input{ touch-action: manipulation; }
 }
 .carta.back .numero{ display: block; }
 
-/* camadas do monte (direita) */
+/* “monte” da direita */
 .pilha-direita{ --stack: 20; }
 
 .pilha-direita::before,
@@ -235,7 +242,7 @@ button, select, input{ touch-action: manipulation; }
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
-  opacity: .95;
+  opacity: .75;
   filter: drop-shadow(0 18px 28px rgba(0,0,0,0.55));
   z-index: 0;
 }
@@ -243,13 +250,13 @@ button, select, input{ touch-action: manipulation; }
   transform: translate(calc(6px + (min(var(--stack), 60) / 60) * 18px),
                       calc(8px + (min(var(--stack), 60) / 60) * 22px))
              rotate(2deg);
-  opacity: .85;
+  opacity: .55;
 }
 .pilha-direita::after{
   transform: translate(calc(12px + (min(var(--stack), 60) / 60) * 26px),
                       calc(16px + (min(var(--stack), 60) / 60) * 32px))
              rotate(4deg);
-  opacity: .55;
+  opacity: .28;
 }
 .pilha .carta{ z-index: 1; }
 
@@ -278,8 +285,8 @@ button, select, input{ touch-action: manipulation; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90px;
-  height: 320px;
+  width: var(--xW);
+  height: auto;
   pointer-events: none;
 }
 .x-rabisco{ width: 80%; height: 80%; transform: rotate(-8deg); }
@@ -297,12 +304,13 @@ button, select, input{ touch-action: manipulation; }
 }
 
 /* =========================
-   INPUT
+   INPUT RESPOSTA
 ========================= */
 .resposta-area{
   margin: 10px 0 10px;
   padding-bottom: 8px;
 }
+
 .resposta-area input{
   padding: 12px;
   font-size: 18px;
@@ -311,6 +319,25 @@ button, select, input{ touch-action: manipulation; }
   border: none;
   outline: none;
   text-align: center;
+
+  background: #e6e6e6;
+  color: #000;
+  caret-color: #000;
+  font-weight: 700;
+  border: 2px solid rgba(0,255,136,0.35);
+}
+
+.resposta-area input::placeholder{
+  color: #444;
+  opacity: 1;
+}
+
+/* mantém visual mesmo disabled (mobile usa input desabilitado) */
+#respostaInput:disabled{
+  opacity: 1;
+  -webkit-text-fill-color: #000;
+  color: #000;
+  caret-color: #000;
 }
 
 /* =========================
@@ -330,11 +357,12 @@ button, select, input{ touch-action: manipulation; }
   backdrop-filter: blur(6px);
   font-size: 22px;
   font-weight: 900;
+  z-index: 9000;
 }
 .fim-jogo:empty{ display:none; }
 
 /* =========================
-   FX Canvas
+   FX Canvas (fogos)
 ========================= */
 #fxCanvas{
   position: fixed;
@@ -342,12 +370,12 @@ button, select, input{ touch-action: manipulation; }
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 3000;
+  z-index: 5000;          /* fogos na frente do jogo */
   mix-blend-mode: screen;
 }
 
 /* =========================
-   MODAL
+   MODAL (sempre acima)
 ========================= */
 .modal{
   position: fixed;
@@ -355,10 +383,7 @@ button, select, input{ touch-action: manipulation; }
   display: grid;
   place-items: center;
   background: rgba(0,0,0,.55);
-
-  /* ✅ acima do canvas (5000) e do keypad (6000) */
-  z-index: 8000;
-
+  z-index: 10000;
   backdrop-filter: blur(8px);
 }
 .modal.hidden{ display: none; }
@@ -406,16 +431,60 @@ button, select, input{ touch-action: manipulation; }
 .btn-sec{ background: rgba(255,255,255,.12); color: #fff; }
 
 /* =========================
+   TECLADO VIRTUAL (MOBILE)
+========================= */
+.keypad{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(10px, env(safe-area-inset-bottom));
+  width: min(460px, 94vw);
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(10, 16, 22, .78);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(10px);
+  z-index: 6000; /* acima do canvas */
+  box-shadow: 0 18px 60px rgba(0,0,0,.55);
+}
+.keypad.hidden{ display:none; }
+
+.keypad-row{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.keypad-row:last-child{ margin-bottom: 0; }
+
+.kp{
+  border: none;
+  border-radius: 12px;
+  padding: 12px 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(255,255,255,.10);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.kp:active{ transform: scale(.98); }
+.kp-fn{ background: rgba(255,255,255,.14); }
+.kp-ok{
+  background: linear-gradient(45deg, #00ff88, #00cc66);
+  color: #052b17;
+}
+.kp-wide{ grid-column: span 4; }
+
+/* =========================
    RESPONSIVO (MOBILE)
-   - Mantém 2 cartas + X
-   - Não corta: permite rolagem se precisar
+   2 cartas + X, SEM CORTAR
 ========================= */
 @media (max-width: 900px){
   .tabuleiro{
-    width: 100%;
-    max-width: 100%;
+    width: 100vw;
+    max-width: 100vw;
     margin: 0;
-    border-radius: 18px;
+    border-radius: 0;
     padding: 12px 12px 16px;
     min-height: 100dvh;
     height: auto;
@@ -442,32 +511,18 @@ button, select, input{ touch-action: manipulation; }
 
   .painel{ font-size: 18px; gap: 18px; }
 
-  /* aqui é o principal: 2 cartas + X cabendo */
-  .area-cartas{
-    width: 100%;
-    grid-template-columns: 1fr 48px 1fr;
-    gap: 10px;
-    margin: 10px auto 6px;
-  }
-
-  .pilha{
-    width: 100%;
-    max-width: 42vw; /* cada lado ocupa ~42% */
-  }
-
-  .carta{
-    width: 100%;
-    max-width: 42vw;
-    height: auto;
-    aspect-ratio: 3 / 4; /* mantém proporção de carta */
+  :root{
+    --cardW: min(42vw, 180px);
+    --xW: min(14vw, 60px);
   }
 
   .numero{ font-size: clamp(64px, 18vw, 110px); }
 
-  .multiplicador{
-    width: 48px;
-    height: auto;
-    aspect-ratio: 1 / 2;
+  /* monte mais discreto no celular para não “parecer maior” */
+  .pilha-direita::before,
+  .pilha-direita::after{
+    opacity: .12;
+    filter: none;
   }
 
   .resposta-area input{
@@ -478,644 +533,68 @@ button, select, input{ touch-action: manipulation; }
   }
 }
 
-/* Landscape: compacta mais ainda pra não cortar */
-@media (orientation: landscape) and (max-width: 900px){
-  .titulo{ font-size: 22px; margin: 6px 0 6px; }
-  .painel{ font-size: 16px; margin: 6px 0 8px; }
-  #btnIniciar{ padding: 10px 16px; font-size: 14px; margin: 6px auto 8px; }
-  .area-cartas{ grid-template-columns: 1fr 38px 1fr; gap: 8px; }
-  .multiplicador{ width: 38px; }
-  .pilha-label{ font-size: 12px; }
-  .pilha-contador{ font-size: 14px; min-width: 46px; }
-}
-
-/* =========================================================
-   FIX 1: No mobile, a carta da direita parece maior por causa do "monte".
-   Vamos diminuir (ou sumir) as camadas no mobile.
-========================================================= */
-@media (max-width: 900px){
-  /* deixa o monte bem mais discreto no celular */
-  .pilha-direita::before,
-  .pilha-direita::after{
-    inset: 56px 12px 46px 12px;
-    opacity: .22;           /* bem menor */
-    filter: none;           /* sem sombra extra */
-  }
-  .pilha-direita::before{ transform: translate(10px, 12px) rotate(2deg); }
-  .pilha-direita::after { transform: translate(16px, 20px) rotate(4deg); }
-}
-
-
-/* =========================================================
-   BLOCO MESTRE MOBILE: cartas sempre iguais + cabe em pé e deitado
-   (cole no FINAL do estilo.css)
-========================================================= */
-
-/* Cartas responsivas por variáveis */
-:root{
-  --cardW: 240px;   /* desktop padrão */
-  --xW: 90px;
-}
-
-/* Usa aspect-ratio pra nunca deformar */
-.carta{
-  width: var(--cardW) !important;
-  height: auto !important;
-  aspect-ratio: 3 / 4; /* carta em pé */
-}
-
-/* Grade usa as variáveis */
-.area-cartas{
-  grid-template-columns: var(--cardW) var(--xW) var(--cardW) !important;
-}
-
-/* X acompanha a altura da carta */
-.multiplicador{
-  width: var(--xW) !important;
-  height: auto !important;
-  align-self: center;
-}
-
-/* ======= FIX: “parece maior” por causa do monte (direita) ======= */
-/* No mobile, deixamos o monte quase invisível e sem empurrar visual */
-@media (max-width: 900px){
-  .pilha-direita::before,
-  .pilha-direita::after{
-    opacity: .12 !important;
-    filter: none !important;
-  }
-}
-
-/* =========================================================
-   MOBILE EM PÉ (RETRATO): 2 cartas lado a lado e cabendo
-========================================================= */
-@media (max-width: 900px) and (orientation: portrait){
-  :root{
-    --cardW: min(42vw, 180px);  /* duas cartas + X cabem */
-    --xW: min(14vw, 60px);
-  }
-
-  /* Permite rolar se precisar (mas normalmente vai caber) */
-  html, body{
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .tabuleiro{
-    height: auto !important;
-    min-height: 100svh !important;
-    overflow: visible !important;
-  }
-
-  /* Título e topo menores */
-  .titulo{ font-size: 26px !important; margin: 6px 0 8px !important; }
-  .painel{ font-size: 16px !important; gap: 16px !important; margin: 8px 0 8px !important; }
-  #btnIniciar{ padding: 10px 16px !important; font-size: 16px !important; }
-
-  /* Input grande e central */
-  .resposta-area input{
-    width: min(320px, 88vw) !important;
-    font-size: 18px !important;
-    padding: 12px 14px !important;
-  }
-}
-
-/* =========================================================
-   MOBILE DEITADO (LANDSCAPE): SEM TRAVAR O JOGO
-   -> Aqui a regra é: CABER NA TELA (sem cortar).
-   -> Se ainda faltar espaço, a gente permite rolagem leve.
-========================================================= */
+/* LANDSCAPE: compacta e coloca keypad na direita */
 @media (max-width: 900px) and (orientation: landscape){
   :root{
-    /* base pelo "altura" do celular (deitado altura é pequena) */
     --cardW: min(26vh, 150px);
     --xW: min(10vh, 44px);
   }
 
-  /* NÃO travar totalmente: se algum celular for mais baixo, rola */
-  html, body{
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto; /* <- ESSENCIAL pra não cortar pela metade */
-    -webkit-overflow-scrolling: touch;
-  }
+  .titulo{ font-size: 22px; margin: 6px 0 6px; }
+  .painel{ font-size: 16px; margin: 6px 0 8px; }
+  #btnIniciar{ padding: 10px 16px; font-size: 14px; margin: 6px auto 8px; }
 
-  .tabuleiro{
-    height: auto !important;
-    min-height: 100svh !important;
-    overflow: visible !important;
-    padding: 8px 10px 10px !important;
-  }
+  .numero{ font-size: clamp(40px, 12vh, 90px); }
 
-  .titulo{ font-size: 20px !important; margin: 4px 0 4px !important; }
-  .seletor{ font-size: 13px !important; margin-bottom: 4px !important; }
-  .painel{ font-size: 13px !important; gap: 14px !important; margin: 4px 0 6px !important; }
-  #btnIniciar{ padding: 8px 14px !important; font-size: 14px !important; margin: 4px auto 6px !important; }
+  /* keypad vai pra direita */
+  body.keypad-on .keypad{
+    left: auto;
+    right: max(8px, env(safe-area-inset-right));
+    transform: none;
 
-  .resposta-area input{
-    width: min(280px, 70vw) !important;
-    font-size: 16px !important;
-    padding: 10px 12px !important;
-  }
-}
-/* =========================
-   TECLADO VIRTUAL (MOBILE)
-========================= */
-.keypad{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: max(10px, env(safe-area-inset-bottom));
-  width: min(520px, 96vw);
-  padding: 10px;
-  border-radius: 18px;
-  background: rgba(10, 16, 22, .78);
-  border: 1px solid rgba(255,255,255,.10);
-  backdrop-filter: blur(10px);
-  z-index: 4000;
-  box-shadow: 0 18px 60px rgba(0,0,0,.55);
-}
-
-.keypad.hidden{ display:none; }
-
-.keypad-row{
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.keypad-row:last-child{ margin-bottom: 0; }
-
-.kp{
-  border: none;
-  border-radius: 14px;
-  padding: 14px 0;
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-  background: rgba(255,255,255,.10);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
-}
-
-.kp:active{ transform: scale(.98); }
-
-.kp-fn{
-  background: rgba(255,255,255,.14);
-}
-
-.kp-ok{
-  background: linear-gradient(45deg, #00ff88, #00cc66);
-  color: #052b17;
-}
-
-.kp-wide{
-  grid-column: span 4;
-}
-
-/* Deitado: teclado mais “baixinho” */
-@media (orientation: landscape) and (max-width: 900px){
-  .keypad{
-    width: min(520px, 86vw);
-    padding: 8px;
-    border-radius: 16px;
+    width: min(380px, 42vw);
     bottom: max(8px, env(safe-area-inset-bottom));
   }
-  .kp{
-    padding: 10px 0;
-    font-size: 18px;
-    border-radius: 12px;
-  }
-  .keypad-row{
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-}
 
-/* ===== CORREÇÃO: teclado virtual sempre acima do canvas ===== */
-.keypad{
-  z-index: 6000 !important; /* acima do #fxCanvas (5000) */
-}
-
-/* ===== CORREÇÃO: no landscape NÃO travar rolagem / não cortar tela ===== */
-@media (max-width: 900px) and (orientation: landscape){
-  html, body{
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    height: auto !important;
+  /* barra de resposta fixa no canto inferior esquerdo (sem invadir os selects) */
+  body.keypad-on .resposta-area{
+    position: fixed;
+    left: 10px;
+    right: calc(min(42vw, 380px) + 16px);
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 7000;
+    margin: 0;
+    padding: 0;
   }
-
-  .tabuleiro{
-    height: auto !important;
-    min-height: 100svh !important;
-    overflow: visible !important;
+  body.keypad-on .resposta-area input{
+    width: 100%;
+    max-width: none;
   }
 }
 
-/* mantém o visual do input mesmo desabilitado no celular */
-#respostaInput:disabled{
-  opacity: 1;
-  -webkit-text-fill-color: #000;
-  color: #000;
-}
-
-/* =========================
-   AJUSTE: quando teclado virtual aparece,
-   não esconder cartas nem a área de resposta
-========================= */
-body.keypad-on .tabuleiro{
-  /* dá espaço para o teclado sem cobrir o jogo */
-  padding-bottom: 280px !important;
-}
-
-/* retrato: espaço um pouco maior (teclado ocupa mais) */
-@media (max-width: 900px) and (orientation: portrait){
-  body.keypad-on .tabuleiro{ padding-bottom: 320px !important; }
-}
-
-/* landscape: teclado vai para a DIREITA e o tabuleiro ganha espaço lateral */
-@media (max-width: 900px) and (orientation: landscape){
-  body.keypad-on .tabuleiro{
-    padding-bottom: 140px !important;  /* menos embaixo */
-    padding-right: 46vw !important;    /* abre espaço do lado pro teclado */
-  }
-
-  .keypad{
-    left: auto !important;
-    right: max(10px, env(safe-area-inset-right)) !important;
-    transform: none !important;
-
-    width: min(44vw, 520px) !important;
-    bottom: max(10px, env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* =========================
-   FIX PC: canvas não pode cobrir modal/mensagens
-========================= */
-
-/* 1) Canvas sempre atrás do jogo */
-#fxCanvas{
-  z-index: 0 !important;
-}
-
-/* 2) Tabuleiro e textos acima do canvas */
-.tabuleiro{
-  position: relative;
-  z-index: 10;
-}
-
-/* 3) Mensagem backup (fimJogo) bem acima */
-.fim-jogo{
-  z-index: 9990 !important;
-}
-
-/* 4) Modal acima de tudo */
-#modal{
-  z-index: 10000 !important;
-}
-#modal .modal-box{
-  z-index: 10001 !important;
-}
-
-/* =========================
-   CORREÇÃO FINAL: fogos na frente + modal acima de tudo
-========================= */
-
-/* fogos (canvas) volta para frente */
-#fxCanvas{
-  z-index: 5000 !important;
-}
-
-/* teclado (mobile) pode ficar acima do canvas */
-.keypad{
-  z-index: 6000 !important;
-}
-
-/* mensagem backup (PC) acima do canvas e do teclado */
-.fim-jogo{
-  z-index: 9000 !important;
-}
-
-/* modal sempre acima de TUDO */
-#modal{
-  z-index: 10000 !important;
-}
-#modal .modal-box{
-  position: relative;
-  z-index: 10001 !important;
-}
-
-/* =========================================================
-   FIX MOBILE: resposta sempre aparece (sem rolar)
-   - Evita a área das cartas "empurrar" a resposta para fora
-   - Quando teclado virtual está ON, reduz cartas um pouco
-   - NÃO altera PC
-========================================================= */
-
-@media (max-width: 900px){
-  /* a grade das cartas não pode crescer e empurrar o input */
-  .area-cartas{
-    flex: 0 !important;
-  }
-
-  /* a área de resposta vai para o "fim" do flex e fica visível */
-  .resposta-area{
-    margin-top: auto !important;
-  }
-
-  /* não precisa de um padding-bottom gigante (isso estava forçando rolagem) */
-  body.keypad-on .tabuleiro{
-    padding-bottom: 16px !important;
-  }
-}
-
-/* retrato: quando teclado aparece, encolhe um pouco as cartas pra caber tudo */
+/* RETRATO: barra de resposta fixa acima do keypad quando keypad-on */
 @media (max-width: 900px) and (orientation: portrait){
   body.keypad-on{
-    --cardW: min(38vw, 160px);
-    --xW: min(12vw, 54px);
-  }
-}
-
-/* landscape: quando teclado aparece, encolhe mais ainda (altura é menor) */
-@media (max-width: 900px) and (orientation: landscape){
-  body.keypad-on{
-    --cardW: min(22vh, 130px);
-    --xW: min(8vh, 38px);
-  }
-}
-
-/* =========================================================
-   FIX MOBILE: fogos mais visíveis mesmo com modal aberto
-   - No PC mantém como está
-========================================================= */
-@media (max-width: 900px){
-  body.is-mobile #fxCanvas{
-    z-index: 10500 !important; /* acima do escurecimento do modal */
-  }
-  body.is-mobile #modal{
-    z-index: 10000 !important;
-  }
-  body.is-mobile .keypad{
-    z-index: 11000 !important; /* teclado segue acima de tudo */
-  }
-}
-
-/* =========================================================
-   FIX: número da carta proporcional no mobile DEITADO
-   ========================================================= */
-@media (max-width: 900px) and (orientation: landscape){
-  .numero{
-    font-size: clamp(40px, 12vh, 90px) !important;
-  }
-}
-
-/* =========================================================
-   MOBILE: garantir que a barra de resposta apareça com o teclado
-   ========================================================= */
-
-/* quando o teclado virtual está ligado, devolve espaço embaixo */
-@media (max-width: 900px){
-  body.keypad-on .tabuleiro{
-    padding-bottom: 320px !important;  /* retrato (altura do teclado) */
-  }
-}
-
-/* no landscape o teclado é menor */
-@media (max-width: 900px) and (orientation: landscape){
-  body.keypad-on .tabuleiro{
-    padding-bottom: 180px !important;
-  }
-}
-
-/* =========================================================
-   MOBILE: tabuleiro colado na tela (sem gap)
-   ========================================================= */
-@media (max-width: 900px){
-  .tabuleiro{
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-    border-radius: 0 !important;  /* remove o filetinho nas bordas */
-    min-height: 100dvh !important;
-  }
-}
-
-/* =========================================================
-   TECLADO MENOR (mobile) — sem afetar PC
-========================================================= */
-@media (max-width: 900px){
-  .keypad{
-    width: min(460px, 94vw) !important;
-    padding: 8px !important;
-    border-radius: 16px !important;
-  }
-  .kp{
-    padding: 12px 0 !important;
-    font-size: 18px !important;
-    border-radius: 12px !important;
-  }
-  .keypad-row{ gap: 8px !important; margin-bottom: 8px !important; }
-}
-
-/* deitado: ainda menor */
-@media (max-width: 900px) and (orientation: landscape){
-  .keypad{
-    width: min(380px, 42vw) !important;
-    padding: 6px !important;
-  }
-  .kp{
-    padding: 9px 0 !important;
-    font-size: 16px !important;
-  }
-  .keypad-row{ gap: 6px !important; margin-bottom: 6px !important; }
-}
-
-/* =========================================================
-   BARRA DE RESPOSTA FIXA acima do teclado (mobile)
-========================================================= */
-@media (max-width: 900px){
-  body.keypad-on{
-    --kpH: 240px; /* altura aproximada do teclado (retrato) */
+    --kpH: 240px;
   }
 
-  /* a barra fica sempre visível */
   body.keypad-on .resposta-area{
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: calc(var(--kpH) + 10px + env(safe-area-inset-bottom)) !important;
-    z-index: 7000 !important;
-    margin: 0 !important;
-    padding: 0 12px !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--kpH) + 10px + env(safe-area-inset-bottom));
+    z-index: 7000;
+    margin: 0;
+    padding: 0 12px;
   }
-
   body.keypad-on .resposta-area input{
-    width: min(360px, 92vw) !important;
-    margin: 0 auto !important;
-    display: block !important;
+    width: min(360px, 92vw);
+    margin: 0 auto;
+    display: block;
   }
 
-  /* evita o conteúdo ficar escondido atrás do teclado */
+  /* dá espaço pro conteúdo não ficar atrás do keypad */
   body.keypad-on .tabuleiro{
-    padding-bottom: calc(var(--kpH) + 90px) !important;
-  }
-}
-
-@media (max-width: 900px) and (orientation: landscape){
-  body.keypad-on{
-    --kpH: 170px; /* teclado menor no deitado */
-  }
-}
-
-@media (max-width: 900px) and (orientation: landscape){
-  body.keypad-on .tabuleiro{
-    padding-right: min(44vw, 390px) !important;
-  }
-  body.keypad-on .keypad{
-    right: max(8px, env(safe-area-inset-right)) !important;
-  }
-}
-
-/* =========================================================
-   FIX FINAL (LANDSCAPE): barra de resposta no canto inferior esquerdo
-   - Evita subir e invadir os selects
-   - Funciona com teclado na direita
-========================================================= */
-@media (max-width: 900px) and (orientation: landscape){
-  /* não empurra pra cima no deitado */
-  body.keypad-on .tabuleiro{
-    padding-bottom: 12px !important; /* pequeno */
-  }
-
-  /* barra fixa embaixo, só no lado esquerdo (antes do teclado) */
-  body.keypad-on .resposta-area{
-    position: fixed !important;
-    left: 10px !important;
-    right: calc(min(44vw, 390px) + 16px) !important; /* espaço do teclado */
-    bottom: calc(10px + env(safe-area-inset-bottom)) !important;
-    z-index: 7000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  body.keypad-on .resposta-area input{
-    width: 100% !important;
-    max-width: none !important;
-  }
-}
-
-/* =========================================================
-   INPUT RESPOSTA - MELHOR VISUAL (mobile retrato)
-========================================================= */
-@media (max-width: 900px){
-
-  .resposta-area input{
-    background: #0d0f12 !important;   /* preto suave */
-    color: #ffffff !important;        /* texto branco */
-    font-weight: 700 !important;
-    letter-spacing: 1px;
-    box-shadow: 0 0 0 2px rgba(0,255,136,0.4);
-  }
-
-  .resposta-area input::placeholder{
-    color: rgba(255,255,255,0.6);
-  }
-
-}
-
-/* =========================================================
-   FIX: texto do input (mobile) — estava forçando preto no disabled
-========================================================= */
-@media (max-width: 900px){
-  #respostaInput:disabled{
-    -webkit-text-fill-color: #fff !important;
-    color: #fff !important;
-    caret-color: #fff !important;
-  }
-}
-
-/* =========================================================
-   INPUT RESPOSTA - estilo igual PC, só mais visível
-========================================================= */
-
-.resposta-area input{
-  background: #f2f2f2 !important;   /* cinza claro */
-  color: #000 !important;           /* número preto */
-  font-weight: 600;
-  border: 2px solid rgba(0,255,136,0.4);
-  box-shadow: 0 0 10px rgba(0,0,0,0.15);
-}
-
-.resposta-area input::placeholder{
-  color: #777 !important;           /* cinza mais visível */
-}
-
-/* =========================================================
-   AJUSTE FINAL INPUT - igual PC (melhor contraste)
-========================================================= */
-
-.resposta-area input{
-  background: #e9e9e9 !important;   /* cinza claro suave */
-  color: #000 !important;           /* número preto */
-  caret-color: #000 !important;     /* cursor preto */
-  font-weight: 600;
-}
-
-.resposta-area input::placeholder{
-  color: #555 !important;           /* cinza médio (mais visível) */
-  opacity: 1 !important;            /* garante que não fique apagado */
-}
-
-/* =========================================================
-   AJUSTE DEFINITIVO INPUT (mobile + PC)
-========================================================= */
-
-/* fundo claro padrão */
-.resposta-area input{
-  background: #e6e6e6 !important;   /* levemente mais escuro */
-  color: #000 !important;           /* texto digitado PRETO */
-  caret-color: #000 !important;     /* cursor preto */
-  font-weight: 600;
-}
-
-/* placeholder 30% mais escuro */
-.resposta-area input::placeholder{
-  color: #444 !important;           /* cinza mais escuro */
-  opacity: 1 !important;
-}
-
-/* GARANTE que no mobile (disabled) continue preto */
-#respostaInput:disabled{
-  -webkit-text-fill-color: #000 !important;
-  color: #000 !important;
-}
-
-/* =========================================================
-   FIX PC: fogos (canvas) sempre na frente do jogo
-   mas ainda abaixo do modal
-========================================================= */
-@media (min-width: 901px){
-  #fxCanvas{
-    z-index: 9500 !important; /* acima do tabuleiro e mensagens */
-  }
-
-  /* modal continua acima de tudo */
-  #modal{
-    z-index: 10000 !important;
-  }
-  #modal .modal-box{
-    z-index: 10001 !important;
-  }
-}
-
-/* =========================================================
-   FIX PC (FORÇADO): fogos sempre na frente de tudo
-   - não atrapalha cliques (canvas tem pointer-events: none)
-========================================================= */
-@media (min-width: 901px){
-  #fxCanvas{
-    z-index: 20000 !important;
-    pointer-events: none !important;
+    padding-bottom: calc(var(--kpH) + 90px);
   }
 }
