@@ -1,3 +1,22 @@
+// ===============================
+// LISTA DE MESTRES
+// ===============================
+const mestres = [
+  "Rebeca sabe tudo",
+  "Izadora inteligente",
+  "Isabela rápida",
+  "Lúcia esperta",
+  "Carla veloz",
+  "Lucas mestre",
+  "Bruno ágil",
+  "André o sábio",
+  "Felipe especialista",
+  "Roberto o gênio"
+];
+
+// controla quais já foram usados nessa rodada
+let mestresUsados = [];
+
 // =======================
 // ESTADO DO JOGO
 // =======================
@@ -1042,3 +1061,4 @@ function debugMestres() {
   console.log("Mestres prontos:", mestres.map(m => m.nome));
 }
 debugMestres();
+
