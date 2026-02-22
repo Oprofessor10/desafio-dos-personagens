@@ -1073,4 +1073,66 @@ function debugMestres() {
 }
 debugMestres();
 
+// =======================
+// DESAFIO DOS MESTRES (versão 1 - só aparece o mestre ao clicar SIM)
+// =======================
+const mestres = [
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
+  { nome: "Isabela rápida", frase: "Você vai ter que ser muito rápido!" },
+  { nome: "Lúcia esperta", frase: "Desafio aceito? Então vem!" },
+  { nome: "Carla veloz", frase: "Duvido você me acompanhar!" },
+  { nome: "Lucas mestre", frase: "Vamos ver o que você aprendeu!" },
+  { nome: "Bruno ágil", frase: "Não vai ser fácil passar por mim!" },
+  { nome: "André o sábio", frase: "Concentração total. Agora!" },
+  { nome: "Felipe especialista", frase: "Quero ver você acertar sob pressão!" },
+  { nome: "Roberto o gênio", frase: "Você vai precisar de coragem!" }
+];
+
+// pool de mestres para NÃO repetir dentro da mesma jogada
+let mestresPool = [];
+
+// cria o pool conforme a tabuada inicial escolhida
+function prepararMestresParaJogada(tabuadaInicial){
+  const qtd = (10 - tabuadaInicial) + 1; // ex: começou no 8 => 3 mestres (8,9,10)
+  const copia = [...mestres];
+
+  // embaralha
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+
+  mestresPool = copia.slice(0, qtd);
+}
+
+// pega 1 mestre (sem repetir)
+function pegarProximoMestre(){
+  if (!mestresPool || mestresPool.length === 0) return null;
+  return mestresPool.shift();
+}
+
+// mostra o mestre e só depois deixa avançar
+function mostrarMestreAntesDeAvancar(){
+  const mestre = pegarProximoMestre();
+
+  // se acabou mestre (não deve, mas por segurança), avança normal
+  if (!mestre){
+    avancarParaProximaTabuadaOuFase();
+    return;
+  }
+
+  abrirModal(
+    `⚔️ Desafiante: ${mestre.nome}`,
+    `${mestre.frase}<br><br><b>Quer desafiar um dos mestres?</b>`,
+    () => {
+      // por enquanto: ao aceitar, apenas avança (no próximo passo fazemos o "ringue")
+      avancarParaProximaTabuadaOuFase();
+    },
+    () => {
+      resetTudoParaInicio();
+    }
+  );
+}
+
 
