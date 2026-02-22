@@ -145,6 +145,111 @@ function autoStartIfNeeded() {
   return true;
 }
 
+// =======================
+// SELEÇÃO DE MESTRES ALEATÓRIOS
+// =======================
+const mestres = [
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro me vença!", tabuada: 1 },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem ou desista!", tabuada: 2 },
+  { nome: "Isabela rápida", frase: "Você não vai conseguir me vencer!", tabuada: 3 },
+  { nome: "Lúcia esperta", frase: "Que tal um desafio real?", tabuada: 4 },
+  { nome: "Carla veloz", frase: "Você pode ser mais rápido, não?", tabuada: 5 },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!", tabuada: 6 },
+  { nome: "Bruno ágil", frase: "Não vai ser fácil me vencer!", tabuada: 7 },
+  { nome: "André o sábio", frase: "Está pronto para o desafio?", tabuada: 8 },
+  { nome: "Felipe especialista", frase: "Vamos ver se você tem o que é preciso!", tabuada: 9 },
+  { nome: "Roberto o gênio", frase: "Eu vou te derrotar!", tabuada: 10 }
+];
+
+function selecionarMestres(tabuadaEscolhida) {
+  const mestresDisponiveis = mestres.filter(mestre => mestre.tabuada >= tabuadaEscolhida && mestre.tabuada <= 10);
+  const mestresSelecionados = [];
+
+  const numMestres = tabuadaEscolhida === 1 ? 10 : 3;
+
+  for (let i = 0; i < numMestres; i++) {
+    const indexAleatorio = Math.floor(Math.random() * mestresDisponiveis.length);
+    mestresSelecionados.push(mestresDisponiveis[indexAleatorio]);
+    mestresDisponiveis.splice(indexAleatorio, 1); // Remove o mestre selecionado
+  }
+
+  return mestresSelecionados;
+}
+
+// =======================
+// LÓGICA DE AVANÇO DE FASE E O PROFESSOR
+// =======================
+let faseAtual = "facil"; 
+let respostasOprofessor = 25;
+
+function determinarRespostasOprofessor() {
+  if (faseAtual === "facil") {
+    respostasOprofessor = 25;
+  } else if (faseAtual === "media") {
+    respostasOprofessor = 45;
+  } else if (faseAtual === "dificil") {
+    respostasOprofessor = 60;
+  }
+}
+
+function desafiarOprofessor() {
+  const op = { nome: "Oprofessor", frase: "Agora, prepare-se para o grande desafio!" };
+  determinarRespostasOprofessor();
+  
+  console.log(`Você agora está desafiando o mestre: ${op.nome}`);
+  console.log(`Frase do mestre: ${op.frase}`);
+  console.log(`Oprofessor irá responder ${respostasOprofessor} perguntas aleatórias!`);
+
+  iniciarDesafioFinal(op);
+}
+
+function iniciarDesafioFinal(mestre) {
+  console.log(`Desafio contra ${mestre.nome} com ${respostasOprofessor} perguntas aleatórias!`);
+}
+
+function avancarParaProximaFase() {
+  if (faseAtual === "facil") {
+    faseAtual = "media";
+    console.log("Você avançou para a fase média!");
+  } else if (faseAtual === "media") {
+    faseAtual = "dificil";
+    console.log("Você avançou para a fase difícil!");
+  } else if (faseAtual === "dificil") {
+    console.log("Parabéns, agora você se tornou o mestre dos mestres!");
+  }
+  desafiarOprofessor();
+}
+
+// =======================
+// INICIAR JOGO
+// =======================
+window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
+  const mestresDaFase = selecionarMestres(tabuadaAtual); 
+  console.log(`Você escolheu começar da tabuada ${tabuadaAtual}`);
+  console.log("Os mestres que você enfrentará são:", mestresDaFase);
+  
+  mestresDaFase.forEach(mestre => {
+    console.log(`Desafiante: ${mestre.nome} - ${mestre.frase}`);
+  });
+
+  finalizarDesafio();
+}
+
+// =======================
+// FINALIZAR DESAFIO
+// =======================
+function finalizarDesafio() {
+  if (faseAtual === "facil") {
+    avancarParaProximaFase();
+  } else if (faseAtual === "media") {
+    avancarParaProximaFase();
+  } else if (faseAtual === "dificil") {
+    console.log("Parabéns! Você completou todas as fases!");
+  }
+}
+
+
+
 // Digitação pelo keypad
 function keypadAppend(d) {
   if (!respostaInput) return;
@@ -980,6 +1085,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
