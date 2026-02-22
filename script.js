@@ -779,6 +779,8 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
   tabuadaAtual = Number((tabuadaSelect && tabuadaSelect.value) || 1);
   tabuada = tabuadaAtual;
 
+  prepararMestresParaJogada(tabuadaAtual);
+
   atualizarLabelTabuada();
 
   etapa = "normal";
@@ -1134,5 +1136,6 @@ function mostrarMestreAntesDeAvancar(){
     }
   );
 }
+
 
 
