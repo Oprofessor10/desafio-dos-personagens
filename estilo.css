@@ -1,0 +1,798 @@
+body{
+  body { background: red !important; }
+
+  margin: 0;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  color: white;
+  background: #0b0f14;
+}
+
+/* TABULEIRO */
+.tabuleiro{
+  box-sizing: border-box;
+  max-width: 1300px;
+  width: 96%;
+  height: calc(100vh - 12px);
+  min-height: 0;
+  margin: 6px auto;
+  padding: 18px 24px;
+  border-radius: 26px;
+  position: relative;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.tabuleiro::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0,160,255,0.14), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(0,255,170,0.10), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(255,255,255,0.05), transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+.tabuleiro > *{ position: relative; z-index: 1; }
+
+/* TÍTULO */
+.titulo{
+  font-size: 40px;
+  margin: 4px 0 10px;
+  letter-spacing: 3px;
+  text-shadow:
+    0 0 10px rgba(0,140,255,0.9),
+    0 0 22px rgba(0,140,255,0.6);
+}
+
+/* SELETORES */
+.seletor{
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+.seletor select{
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+}
+
+/* BOTÃO */
+#btnIniciar{
+  display: block;
+  width: fit-content;
+  margin: 4px auto 8px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(45deg, #00ff88, #00cc66);
+  font-weight: bold;
+  font-size: 18px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+#btnIniciar:hover{
+  transform: scale(1.06);
+  box-shadow: 0 0 16px rgba(0,255,136,0.55);
+}
+
+/* PAINEL */
+.painel{
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-size: 20px;
+  margin: 10px 0 10px;
+}
+
+/* =========================
+   ÁREA DAS CARTAS (ALINHADA)
+   ========================= */
+.area-cartas{
+  flex: 1;
+  width: fit-content;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 240px 90px 240px;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+
+  gap: 20px;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* =========================
+   CARTAS
+   ========================= */
+.carta{
+  width: 240px;
+  height: 320px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-shadow: none;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,0.6));
+  transition: transform .2s ease, filter .2s ease;
+
+  /* iguala o miolo */
+  background-size: 96% 96% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  box-sizing: border-box;
+}
+.carta:hover{
+  transform: translateY(-4px);
+  filter: drop-shadow(0 14px 22px rgba(0,0,0,0.55));
+}
+
+/* imagens */
+.carta.front{ background-image: url("frente_carta_borda_azul_transparente.png"); }
+.carta.back{  background-image: url("costa_carta_borda_azul_transparente.png"); }
+
+/* NÚMERO */
+.numero{
+  display: none;
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 150px;
+  font-weight: 900;
+  color: #000;
+  text-shadow: 4px 4px 0 rgba(255,255,255,0.7);
+  user-select: none;
+  pointer-events: none;
+}
+.carta.back .numero{ display: block; }
+
+/* =========================
+   PILHAS (sem empurrar o X)
+   ========================= */
+.pilha{
+  position: relative;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* topo/rodapé ficam fora do “centro” da carta */
+.pilha-topo{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 10px;
+  gap: 10px;
+}
+
+.pilha-label{
+  font-size: 14px;
+  font-weight: 900;
+  opacity: .92;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+
+.pilha-contador{
+  min-width: 52px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 16px;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+
+.pilha-rodape{
+  width: 100%;
+  padding-top: 12px;
+}
+
+.pilha-mini{
+  font-size: 13px;
+  opacity: .85;
+}
+
+/* camadas do monte (direita) */
+.pilha-direita{
+  --stack: 20;
+}
+
+.pilha-direita::before,
+.pilha-direita::after{
+  content:"";
+  position:absolute;
+  inset: 58px 12px 44px 12px;
+  border-radius: 22px;
+  background-image: url("costa_carta_borda_azul_transparente.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: .95;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,0.55));
+  z-index: 0;
+}
+
+.pilha-direita::before{
+  transform: translate(calc(6px + (min(var(--stack), 60) / 60) * 18px),
+                      calc(8px + (min(var(--stack), 60) / 60) * 22px))
+             rotate(2deg);
+  opacity: .85;
+}
+
+.pilha-direita::after{
+  transform: translate(calc(12px + (min(var(--stack), 60) / 60) * 26px),
+                      calc(16px + (min(var(--stack), 60) / 60) * 32px))
+             rotate(4deg);
+  opacity: .55;
+}
+
+.pilha .carta{
+  z-index: 1;
+}
+
+/* Mensagem quando zerar */
+.pilha-zerou{
+  position: absolute;
+  inset: 78px 8px 58px 8px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(8px);
+  font-weight: 900;
+  font-size: 18px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.35);
+  z-index: 2;
+}
+
+/* utilitário */
+.hidden{ display:none; }
+
+/* =========================
+   X CENTRAL PERFEITO
+   ========================= */
+.multiplicador{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 90px;
+  height: 320px;   /* mesma altura da carta */
+
+  pointer-events: none;
+}
+
+.x-rabisco{
+  width: 80%;
+  height: 80%;
+  transform: rotate(-8deg);
+}
+
+.x-rabisco path{
+  stroke: #ffffff;
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.95;
+}
+
+.x-rabisco path:nth-child(2){
+  stroke-width: 7;
+  opacity: 0.35;
+  transform: translate(5px, -4px);
+}
+
+/* INPUT */
+.resposta-area{
+  margin: 10px 0 8px;
+  padding-bottom: 6px;
+}
+.resposta-area input{
+  padding: 12px;
+  font-size: 18px;
+  width: 240px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  text-align: center;
+}
+
+/* FIM (overlay) */
+.fim-jogo{
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: min(900px, 92%);
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(6px);
+  font-size: 24px;
+  font-weight: bold;
+}
+.fim-jogo:empty{ display:none; }
+
+/* FX canvas */
+#fxCanvas{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+
+  z-index: 5000;              /* bem acima do tabuleiro */
+  mix-blend-mode: screen;     /* brilho tipo fogos */
+}
+
+
+/* Modal */
+.modal{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,.55);
+  z-index: 1000;
+}
+.modal.hidden{ display: none; }
+
+.modal-box{
+  width: min(560px, 92vw);
+  background: rgba(12, 20, 26, .92);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.55);
+}
+
+.modal-titulo{
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.modal-texto{
+  font-size: 16px;
+  line-height: 1.35;
+  opacity: .95;
+  margin-bottom: 14px;
+}
+
+.modal-botoes{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-pri, .btn-sec{
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.btn-pri{
+  background: linear-gradient(45deg, #00ff88, #00cc66);
+}
+.btn-sec{
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px){
+  .titulo{ font-size: 34px; letter-spacing: 2px; }
+  .painel{ gap: 14px; font-size: 16px; }
+
+  .area-cartas{
+    grid-template-columns: 180px 65px 180px;
+    gap: 14px;
+  }
+
+  .carta{
+    width: 180px;
+    height: 255px;
+  }
+
+  .multiplicador{
+    width: 65px;
+    height: 255px;
+  }
+
+  .numero{ font-size: 95px; }
+
+  .resposta-area input{ width: 190px; }
+
+  .pilha{
+    width: 180px;
+  }
+
+  .pilha-direita::before,
+  .pilha-direita::after{
+    inset: 50px 10px 42px 10px;
+    border-radius: 18px;
+  }
+
+  .pilha-label{ font-size: 12px; }
+  .pilha-contador{ font-size: 14px; min-width: 46px; }
+  .pilha-zerou{ font-size: 16px; }
+}
+/* Centraliza o topo da pilha ESQUERDA (texto acima da carta) */
+#pilhaEsquerda .pilha-topo{
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+#labelTabuada{
+  width: 100%;
+  text-align: center;
+}
+.modal{
+  backdrop-filter: blur(8px);
+}
+
+.modal-box{
+  text-align: center;
+  animation: surgirModal .25s ease;
+}
+
+@keyframes surgirModal{
+  from{
+    transform: scale(.85);
+    opacity: 0;
+  }
+  to{
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* =========================
+   MOBILE / RESPONSIVO REAL
+   ========================= */
+
+/* evita scroll lateral chato no mobile */
+html, body{
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* melhora toque */
+button, select, input{
+  touch-action: manipulation;
+}
+
+@media (max-width: 700px){
+
+  /* tabuleiro bem “mobile” */
+  .tabuleiro{
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 14px 14px 18px;
+    border-radius: 18px;
+    height: 100svh;              /* melhor que vh no celular */
+    min-height: 100svh;
+  }
+
+  .titulo{
+    font-size: 30px;
+    letter-spacing: 2px;
+    margin: 6px 0 10px;
+  }
+
+  /* seletor vira 2 linhas */
+  .seletor{
+    font-size: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .seletor select{
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  #btnIniciar{
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 18px;
+    margin: 6px auto 10px;
+  }
+
+  /* painel menor e alinhado */
+  .painel{
+    gap: 18px;
+    font-size: 18px;
+    margin: 10px 0 10px;
+  }
+
+  /* ÁREA PRINCIPAL: vira 1 coluna (melhor pra celular) */
+  .area-cartas{
+    flex: 1;
+    width: 100%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+    align-content: center;
+    gap: 10px;
+  }
+
+  /* pilhas ocupam largura total com limite */
+  .pilha{
+    width: min(360px, 92vw);
+  }
+
+  /* label “Tabuada do X” centralizado */
+  #labelTabuada{
+    text-align: center;
+    width: 100%;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* a pilha direita mantém contador visível */
+  .pilha-direita .pilha-topo{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* cartas menores */
+  .carta{
+    width: min(320px, 88vw);
+    height: calc(min(320px, 88vw) * 1.28); /* proporção de carta */
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,0.55));
+  }
+
+  .numero{
+    font-size: 110px;
+  }
+
+  /* X entre as cartas vira menor */
+  .multiplicador{
+    width: 42px;
+    height: 90px;
+    margin: -4px 0;
+    order: 2;
+  }
+
+  /* ordem no mobile: esquerda, X, direita */
+  .pilha-esquerda{ order: 1; }
+  .multiplicador{ order: 2; }
+  .pilha-direita{ order: 3; }
+
+  /* input grandão e fácil de tocar */
+  .resposta-area{
+    margin: 10px 0 6px;
+    padding-bottom: 6px;
+  }
+  .resposta-area input{
+    width: min(360px, 92vw);
+    padding: 14px 16px;
+    font-size: 18px;
+    border-radius: 14px;
+  }
+
+  /* modal cabe em celular */
+  .modal-box{
+    width: min(520px, 92vw);
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .modal-titulo{
+    font-size: 22px;
+  }
+  .modal-texto{
+    font-size: 16px;
+  }
+  .btn-pri, .btn-sec{
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 16px;
+  }
+
+  /* o “fim-jogo” (fallback) não cobre demais no mobile */
+  .fim-jogo{
+    width: min(520px, 92vw);
+    bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    font-size: 18px;
+  }
+}
+
+
+
+/* =========================
+   MOBILE RESPONSIVO
+========================= */
+
+@media (max-width: 900px) {
+
+  .tabuleiro {
+    padding: 10px;
+    height: 100dvh;
+  }
+
+  .titulo {
+    font-size: 26px;
+    letter-spacing: 2px;
+  }
+
+  .seletor {
+    font-size: 14px;
+  }
+
+  #btnIniciar {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  .painel {
+    font-size: 14px;
+    gap: 15px;
+  }
+
+  .area-cartas {
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 6px;
+  }
+
+  .carta {
+    width: 150px;
+    height: 210px;
+  }
+
+  .numero {
+    font-size: 80px;
+  }
+
+  .multiplicador {
+    height: 100px;
+  }
+
+  .resposta-area input {
+    width: 160px;
+    font-size: 16px;
+  }
+
+}
+
+@media (orientation: landscape) and (max-width: 900px) {
+
+  .tabuleiro {
+    justify-content: flex-start;
+  }
+
+  .titulo {
+    font-size: 22px;
+    margin-bottom: 5px;
+  }
+
+  .area-cartas {
+    align-content: center;
+  }
+
+  .carta {
+    width: 140px;
+    height: 190px;
+  }
+
+  .numero {
+    font-size: 70px;
+  }
+
+}
+/* =========================
+   MOBILE: NÃO CORTAR + PERMITIR ROLAGEM
+========================= */
+
+/* base para mobile */
+@media (max-width: 900px){
+  html, body{
+    height: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* O PROBLEMA ERA AQUI: height fixo + overflow hidden */
+  .tabuleiro{
+    height: auto !important;
+    min-height: 100dvh !important;   /* melhor que 100vh no celular */
+    overflow-y: auto !important;      /* libera rolagem */
+    overflow-x: hidden !important;
+    padding: 12px 12px 18px !important;
+  }
+
+  /* garante que nada “empurre” e fique cortado */
+  .area-cartas{
+    flex: 0 0 auto !important;
+    margin: 10px auto 8px !important;
+  }
+
+  /* input sempre visível e sem “sumir” */
+  .resposta-area{
+    padding-bottom: 14px !important;
+  }
+}
+
+/* =========================
+   LANDSCAPE (celular deitado): COMPACTAR
+========================= */
+@media (orientation: landscape) and (max-width: 900px){
+  .titulo{
+    font-size: 22px !important;
+    margin: 2px 0 6px !important;
+    letter-spacing: 2px !important;
+  }
+
+  .seletor{
+    font-size: 14px !important;
+    margin-bottom: 6px !important;
+  }
+
+  #btnIniciar{
+    padding: 8px 14px !important;
+    font-size: 14px !important;
+    margin: 4px auto 6px !important;
+  }
+
+  .painel{
+    font-size: 14px !important;
+    gap: 14px !important;
+    margin: 6px 0 6px !important;
+  }
+
+  .area-cartas{
+    grid-template-columns: 160px 34px 160px !important;
+    gap: 6px !important;
+  }
+
+  .carta{
+    width: 160px !important;
+    height: 220px !important;
+  }
+
+  .multiplicador{
+    width: 34px !important;
+    height: 110px !important;
+  }
+
+  .numero{
+    font-size: 86px !important;
+  }
+
+  .resposta-area input{
+    width: 190px !important;
+    font-size: 16px !important;
+    padding: 10px !important;
+  }
+}

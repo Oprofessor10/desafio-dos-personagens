@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>60 SEGUNDOS</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f2e35">
+</head>
+<body>
+
+  <div class="tabuleiro">
+
+    <h1 class="titulo">🔥 60 SEGUNDOS 🔥</h1>
+
+    <div class="seletor">
+      Fase:
+      <select id="faseSelect">
+        <option value="facil">Fácil</option>
+        <option value="media">Média</option>
+        <option value="dificil">Difícil</option>
+      </select>
+
+      &nbsp;&nbsp; Tabuada:
+      <select id="tabuadaSelect">
+        <option value="" selected>Escolha</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+      </select>
+    </div>
+
+    <button id="btnIniciar" onclick="iniciarJogo()">Iniciar</button>
+
+    <div class="painel">
+      <div>⏰ <span id="tempo">60</span></div>
+      <div>✅ <span id="acertos">0</span></div>
+      <div>❌ <span id="erros">0</span></div>
+    </div>
+
+    <div class="area-cartas">
+
+      <div class="pilha pilha-esquerda" id="pilhaEsquerda">
+        <div class="pilha-topo">
+          <div class="pilha-label" id="labelTabuada"></div>
+        </div>
+
+        <div class="carta front" id="cartaEsquerda">
+          <div class="numero" id="numEsquerda"></div>
+        </div>
+
+        <div class="pilha-rodape">
+          <div class="pilha-mini"></div>
+        </div>
+      </div>
+
+      <div class="multiplicador" aria-hidden="true">
+        <svg class="x-rabisco" viewBox="0 0 120 120" role="img" focusable="false">
+          <path d="M18 20 C35 35, 50 55, 62 64 C78 78, 92 98, 103 108
+                   M100 18 C82 34, 70 50, 58 60 C40 74, 28 92, 18 104"
+                fill="none" />
+          <path d="M22 18 C40 36, 52 50, 66 66 C80 82, 92 96, 106 110
+                   M102 22 C84 38, 72 52, 58 64 C42 78, 30 94, 16 106"
+                fill="none" />
+        </svg>
+      </div>
+
+      <div class="pilha pilha-direita" id="pilhaDireita" style="--stack: 20;">
+        <div class="pilha-topo">
+          <div class="pilha-label">Cartas restantes</div>
+          <div class="pilha-contador" id="contadorCartas">20</div>
+        </div>
+
+        <div class="carta front" id="cartaDireita">
+          <div class="numero" id="numDireita"></div>
+        </div>
+
+        <div class="pilha-zerou hidden" id="pilhaZerouMsg">
+          ✅ Você passou de nível!
+        </div>
+      </div>
+
+    </div>
+
+    <div class="resposta-area">
+      <input
+        type="text"
+        id="respostaInput"
+        placeholder="Digite a resposta"
+        autocomplete="off"
+        inputmode="none"
+        enterkeyhint="done"
+      />
+    </div>
+
+    <div id="fimJogo" class="fim-jogo"></div>
+
+  </div>
+
+  <canvas id="fxCanvas"></canvas>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <div id="modalTitulo" class="modal-titulo">Pronto?</div>
+      <div id="modalTexto" class="modal-texto"></div>
+
+      <div class="modal-botoes">
+        <button id="btnNao" class="btn-sec">Não</button>
+        <button id="btnSim" class="btn-pri">Sim</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="keypad" class="keypad hidden" aria-hidden="true">
+    <div class="keypad-row">
+      <button class="kp" data-k="7">7</button>
+      <button class="kp" data-k="8">8</button>
+      <button class="kp" data-k="9">9</button>
+      <button class="kp kp-fn" data-k="back">⌫</button>
+    </div>
+    <div class="keypad-row">
+      <button class="kp" data-k="4">4</button>
+      <button class="kp" data-k="5">5</button>
+      <button class="kp" data-k="6">6</button>
+      <button class="kp kp-fn" data-k="clear">C</button>
+    </div>
+    <div class="keypad-row">
+      <button class="kp" data-k="1">1</button>
+      <button class="kp" data-k="2">2</button>
+      <button class="kp" data-k="3">3</button>
+      <button class="kp kp-ok" data-k="ok">OK</button>
+    </div>
+    <div class="keypad-row">
+      <button class="kp kp-wide" data-k="0">0</button>
+    </div>
+  </div>
+
+  <script src="script.js?v=104"></script>
+
+</body>
+</html>
+
