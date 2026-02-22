@@ -1,10 +1,6 @@
-// ======================================================
-// 60 SEGUNDOS — SCRIPT COMPLETO (COM MESTRES SEM QUEBRAR)
-// ======================================================
-
-// =======================
-// MESTRES (SEM REPETIR NA MESMA JOGADA)
-// =======================
+// ===============================
+// LISTA DE MESTRES (DESAFIANTES)
+// ===============================
 const MESTRES = [
   { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
   { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
@@ -17,49 +13,6 @@ const MESTRES = [
   { nome: "Felipe especialista", frase: "Você aguenta a pressão?" },
   { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!" }
 ];
-
-let mestresPool = [];
-let tabuadaInicioDaJogada = 1;
-
-function prepararMestresParaJogada(tabuadaInicial) {
-  tabuadaInicioDaJogada = Number(tabuadaInicial || 1);
-  const qtd = Math.max(0, (10 - tabuadaInicioDaJogada) + 1); // ex: 8 => 3 (8,9,10)
-
-  const copia = [...MESTRES];
-  for (let i = copia.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copia[i], copia[j]] = [copia[j], copia[i]];
-  }
-  mestresPool = copia.slice(0, qtd);
-}
-
-function pegarProximoMestre() {
-  if (!mestresPool || mestresPool.length === 0) return null;
-  return mestresPool.shift();
-}
-
-function mostrarMestreAntesDeAvancar() {
-  const mestre = pegarProximoMestre();
-
-  // segurança: se por algum motivo não tiver mestre, avança normal
-  if (!mestre) {
-    avancarParaProximaTabuadaOuFase();
-    return;
-  }
-
-  abrirModal(
-    `⚔️ Desafiante: ${mestre.nome}`,
-    `${mestre.frase}<br><br><b>Antes de avançar, passe por mim!</b>`,
-    () => {
-      // Etapa 1 (agora): só mostrar o mestre e permitir avançar
-      // Próximo passo: aqui vira o "ringue" de verdade
-      avancarParaProximaTabuadaOuFase();
-    },
-    () => {
-      resetTudoParaInicio();
-    }
-  );
-}
 
 // =======================
 // ESTADO DO JOGO
@@ -88,7 +41,7 @@ let faseAtual = "facil";
 let modalArmedAt = 0; // trava Enter logo após abrir modal
 
 // =======================
-// ELEMENTOS
+// ELEMENTOS (com segurança)
 // =======================
 const faseSelect = document.getElementById("faseSelect");
 const tabuadaSelect = document.getElementById("tabuadaSelect");
@@ -104,11 +57,13 @@ const acertosSpan = document.getElementById("acertos");
 const errosSpan = document.getElementById("erros");
 const fimJogoDiv = document.getElementById("fimJogo");
 
+// Pilha direita + label fixa "Tabuada do X"
 const pilhaDireita = document.getElementById("pilhaDireita");
 const contadorCartas = document.getElementById("contadorCartas");
 const pilhaZerouMsg = document.getElementById("pilhaZerouMsg");
 const labelTabuada = document.getElementById("labelTabuada");
 
+// Modal + FX
 const modal = document.getElementById("modal");
 const modalTitulo = document.getElementById("modalTitulo");
 const modalTexto = document.getElementById("modalTexto");
@@ -191,7 +146,7 @@ function ensureMobileInputMode() {
 }
 
 // =======================
-// AUTO-START
+// AUTO-INICIAR (sem clicar em iniciar)
 // =======================
 function tabuadaSelecionadaValida() {
   return !!(tabuadaSelect && tabuadaSelect.value && tabuadaSelect.value !== "");
@@ -202,12 +157,276 @@ function autoStartIfNeeded() {
   if (jogoAtivo) return false;
   if (!tabuadaSelecionadaValida()) return false;
 
-  window.iniciarJogo(true); // sem cronômetro
+  window.iniciarJogo(true);
   return true;
 }
 
 // =======================
-// KEYPAD
+// DESAFIO DOS PERSONAGENS (DUELO)
+// =======================
+let mestresPool = [];
+let mestresAtivos = true;
+
+function prepararMestresParaJogada(tabuadaInicial) {
+  const qtd = (10 - tabuadaInicial) + 1;
+  const copia = [...MESTRES];
+
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  mestresPool = copia.slice(0, qtd);
+}
+
+function pegarProximoMestre() {
+  if (!mestresPool || mestresPool.length === 0) return null;
+  return mestresPool.shift();
+}
+
+// Overlay do duelo (cria via JS pra você não ter que mexer no HTML)
+let dueloEl = null;
+let dueloAtivo = false;
+let duelo = {
+  mestre: null,
+  pontosAluno: 0,
+  pontosMestre: 0,
+  errosAluno: 0,
+  errosMestre: 0,
+  rodadasRestantes: 0,
+  cronMestreTimer: null,
+  perguntaToken: 0,
+  tempoMestreMs: 0
+};
+
+function ensureDueloOverlay() {
+  if (dueloEl) return;
+
+  dueloEl = document.createElement("div");
+  dueloEl.id = "dueloOverlay";
+  dueloEl.className = "duelo hidden";
+  dueloEl.innerHTML = `
+    <div class="duelo-box">
+      <div class="duelo-top">
+        <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
+        <div class="duelo-placar">
+          <div>⭐ Pontos: <span id="dueloMestrePontos">0</span></div>
+          <div>❌ Erros: <span id="dueloMestreErros">0</span></div>
+          <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">--</span></div>
+        </div>
+      </div>
+
+      <div class="duelo-mid">
+        <div class="duelo-versus">VS</div>
+      </div>
+
+      <div class="duelo-bot">
+        <div class="duelo-nome" id="dueloAlunoNome">VOCÊ</div>
+        <div class="duelo-placar">
+          <div>⭐ Pontos: <span id="dueloAlunoPontos">0</span></div>
+          <div>❌ Erros: <span id="dueloAlunoErros">0</span></div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(dueloEl);
+
+  // CSS mínimo injetado (não mexe no seu style)
+  const style = document.createElement("style");
+  style.textContent = `
+    .duelo{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 12000; pointer-events:none; }
+    .duelo.hidden{ display:none; }
+    .duelo-box{
+      pointer-events:none;
+      width: min(720px, 96vw);
+      border-radius: 18px;
+      padding: 10px 12px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(6px);
+    }
+    .duelo-top, .duelo-bot{
+      display:flex; align-items:center; justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.08);
+      font-weight: 900;
+    }
+    .duelo-mid{ display:flex; justify-content:center; padding: 8px 0; }
+    .duelo-versus{
+      width: 64px; height: 32px;
+      display:grid; place-items:center;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    .duelo-nome{ font-size: 16px; text-transform: uppercase; }
+    .duelo-placar{ display:flex; gap: 12px; font-size: 14px; opacity:.95; align-items:center; }
+    .duelo-tempo{ opacity: .95; }
+    @media (max-width: 900px){
+      .duelo-box{ width: 96vw; }
+      .duelo-placar{ gap: 10px; font-size: 13px; flex-wrap: wrap; justify-content:flex-end; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function abrirDuelo(mestre) {
+  ensureDueloOverlay();
+  dueloAtivo = true;
+  duelo.mestre = mestre;
+
+  duelo.pontosAluno = 0;
+  duelo.pontosMestre = 0;
+  duelo.errosAluno = 0;
+  duelo.errosMestre = 0;
+
+  // usa a MESMA pilha/meta da fase atual (pra “marcar ponto no mesmo monte”)
+  duelo.rodadasRestantes = meta; // meta atual (no fácil 4, etc)
+
+  atualizarDueloUI(true);
+
+  dueloEl.classList.remove("hidden");
+}
+
+function fecharDuelo() {
+  dueloAtivo = false;
+  if (duelo.cronMestreTimer) clearTimeout(duelo.cronMestreTimer);
+  duelo.cronMestreTimer = null;
+  if (dueloEl) dueloEl.classList.add("hidden");
+}
+
+function atualizarDueloUI(resetTempo = false) {
+  const mestreNome = document.getElementById("dueloMestreNome");
+  const mestrePontos = document.getElementById("dueloMestrePontos");
+  const mestreErros = document.getElementById("dueloMestreErros");
+  const alunoPontos = document.getElementById("dueloAlunoPontos");
+  const alunoErros = document.getElementById("dueloAlunoErros");
+  const tempoMestre = document.getElementById("dueloTempoMestre");
+
+  if (mestreNome) mestreNome.textContent = duelo.mestre ? duelo.mestre.nome : "MESTRE";
+  if (mestrePontos) mestrePontos.textContent = String(duelo.pontosMestre);
+  if (mestreErros) mestreErros.textContent = String(duelo.errosMestre);
+  if (alunoPontos) alunoPontos.textContent = String(duelo.pontosAluno);
+  if (alunoErros) alunoErros.textContent = String(duelo.errosAluno);
+
+  if (tempoMestre) {
+    if (resetTempo) tempoMestre.textContent = "--";
+    else tempoMestre.textContent = (duelo.tempoMestreMs ? `${Math.round(duelo.tempoMestreMs)}ms` : "--");
+  }
+}
+
+function configurarRodadaDuelo() {
+  if (!dueloAtivo) return;
+
+  // gera um "tempo de resposta" do mestre (mais rápido em fases mais difíceis)
+  const base = (faseAtual === "facil") ? [850, 1400]
+             : (faseAtual === "media") ? [650, 1200]
+             : [500, 1050];
+
+  duelo.tempoMestreMs = Math.random() * (base[1] - base[0]) + base[0];
+  atualizarDueloUI(false);
+
+  // token pra invalidar rodadas antigas
+  const token = ++duelo.perguntaToken;
+
+  if (duelo.cronMestreTimer) clearTimeout(duelo.cronMestreTimer);
+  duelo.cronMestreTimer = setTimeout(() => {
+    // se a rodada mudou, ignora
+    if (!dueloAtivo || token !== duelo.perguntaToken) return;
+
+    // mestre "responde": chance de errar pequena
+    const chanceErro = (faseAtual === "facil") ? 0.12 : (faseAtual === "media") ? 0.10 : 0.08;
+    const mestreErrou = Math.random() < chanceErro;
+
+    if (mestreErrou) {
+      duelo.errosMestre++;
+      atualizarDueloUI(false);
+      return; // errou e não marca ponto
+    }
+
+    // mestre acertou antes do aluno => ponto mestre
+    marcarPontoDuelo("mestre");
+  }, duelo.tempoMestreMs);
+}
+
+function marcarPontoDuelo(quem) {
+  if (!dueloAtivo) return;
+
+  // trava a rodada atual
+  duelo.perguntaToken++;
+
+  if (quem === "aluno") duelo.pontosAluno++;
+  else duelo.pontosMestre++;
+
+  // 1 ponto = 1 carta do mesmo monte
+  duelo.rodadasRestantes = Math.max(0, duelo.rodadasRestantes - 1);
+  setPilhaDireita(duelo.rodadasRestantes);
+
+  atualizarDueloUI(false);
+
+  // acabou o monte do duelo
+  if (duelo.rodadasRestantes <= 0) {
+    const vencedor =
+      (duelo.pontosAluno > duelo.pontosMestre) ? "VOCÊ VENCEU! 🏆" :
+      (duelo.pontosAluno < duelo.pontosMestre) ? `${duelo.mestre.nome} venceu! 😈` :
+      "EMPATE! 🤝";
+
+    fecharDuelo();
+
+    abrirModal(
+      "⚔️ Resultado do Duelo",
+      `${vencedor}<br><br><b>Você:</b> ${duelo.pontosAluno} pts | <b>${duelo.mestre.nome}:</b> ${duelo.pontosMestre} pts<br><br>Quer avançar?`,
+      () => { avancarParaProximaTabuadaOuFase(); },
+      () => { resetTudoParaInicio(); }
+    );
+
+    return;
+  }
+
+  // próxima pergunta normal do jogo
+  proximoNumero();
+  virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
+  focusRespostaSeguro();
+
+  // prepara a próxima rodada do mestre
+  configurarRodadaDuelo();
+}
+
+function mostrarMestreAntesDeAvancar() {
+  if (!mestresAtivos) {
+    avancarParaProximaTabuadaOuFase();
+    return;
+  }
+
+  const mestre = pegarProximoMestre();
+  if (!mestre) {
+    avancarParaProximaTabuadaOuFase();
+    return;
+  }
+
+  abrirModal(
+    `⚔️ Desafiante: ${mestre.nome}`,
+    `${mestre.frase}<br><br><b>Se você vencer, avança!</b><br>Quer lutar agora?`,
+    () => {
+      // abre duelo e começa rodada
+      abrirDuelo(mestre);
+      configurarRodadaDuelo();
+      // mantém o jogo rodando (o aluno precisa digitar)
+      jogoAtivo = true;
+      focusRespostaSeguro();
+    },
+    () => {
+      resetTudoParaInicio();
+    }
+  );
+}
+
+// =======================
+// Digitação pelo keypad
 // =======================
 function keypadAppend(d) {
   if (!respostaInput) return;
@@ -220,7 +439,6 @@ function keypadAppend(d) {
 
   if (s === "0") respostaInput.value = String(d);
   else respostaInput.value = s + String(d);
-
   atualizarPlaceholder();
 }
 
@@ -275,7 +493,6 @@ window.addEventListener("resize", () => {
   ensureMobileInputMode();
   setKeypadLayoutFlags();
 });
-
 ensureMobileInputMode();
 setKeypadLayoutFlags();
 
@@ -287,7 +504,6 @@ function virarParaFrente(carta) {
   carta.classList.remove("back");
   carta.classList.add("front");
 }
-
 function virarParaVersoComNumero(carta, numeroDiv, valor) {
   if (!carta || !numeroDiv) return;
   carta.classList.remove("front");
@@ -296,7 +512,7 @@ function virarParaVersoComNumero(carta, numeroDiv, valor) {
 }
 
 // =======================
-// LABEL
+// LABEL FIXA
 // =======================
 function atualizarLabelTabuada() {
   if (!labelTabuada) return;
@@ -332,7 +548,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 4;     // ✅ teste rápido
+  if (f === "facil") return 4;   // 👈 TESTE RÁPIDO
   if (f === "media") return 40;
   return 60;
 }
@@ -355,7 +571,7 @@ if (faseSelect) {
 }
 
 // =======================
-// PAINEL / RESET
+// UTIL
 // =======================
 function atualizarPainel() {
   if (tempoSpan) tempoSpan.textContent = String(tempo);
@@ -377,6 +593,8 @@ function resetTudoParaInicio() {
   erros = 0;
   etapa = "normal";
   numeroAtual = 1;
+
+  fecharDuelo();
 
   if (fimJogoDiv) fimJogoDiv.innerHTML = "";
 
@@ -421,6 +639,8 @@ function finalizarJogoTempo() {
   jogoAtivo = false;
   cronometroAtivo = false;
 
+  fecharDuelo();
+
   if (acertos < meta) {
     virarParaFrente(cartaEsquerda);
     virarParaFrente(cartaDireita);
@@ -439,7 +659,9 @@ function finalizarJogoTempo() {
       () => { resetTudoParaInicio(); }
     );
   } else {
-    if (fimJogoDiv) fimJogoDiv.innerHTML = `⏰ TEMPO ESGOTADO <br> Pressione ENTER para reiniciar.`;
+    if (fimJogoDiv) {
+      fimJogoDiv.innerHTML = `⏰ TEMPO ESGOTADO <br> Pressione ENTER para reiniciar.`;
+    }
   }
 
   if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
@@ -461,13 +683,11 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   onSim = simCb;
   onNao = naoCb;
 
-  // backup no fimJogo
   if (fimJogoDiv) {
     fimJogoDiv.innerHTML =
       `${titulo}<br>${textoHtml}<br><br><b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>`;
   }
 
-  // modal visual
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
     modalTexto.innerHTML = textoHtml;
@@ -510,7 +730,9 @@ if (btnNao) btnNao.addEventListener("click", (e) => {
   confirmarNao();
 });
 
-// ENTER / ESC no modal
+// =======================
+// ENTER / ESC (Modal)
+// =======================
 function isEnterKey(e){
   return (
     e.key === "Enter" ||
@@ -690,6 +912,7 @@ function fogosMedios(){
   fanfarraCurta();
   for (let i = 0; i < 6; i++) setTimeout(spawnRocket, i * 140);
 }
+
 function fogosGrandes(){
   fanfarraGrande();
   for (let i = 0; i < 16; i++) setTimeout(spawnRocket, i * 95);
@@ -717,6 +940,7 @@ if (tabuadaSelect) {
     numeroAtual = 1;
 
     atualizarLabelTabuada();
+
     virarParaVersoComNumero(cartaEsquerda, numEsquerda, tabuada);
     virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
@@ -733,7 +957,6 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
   tabuadaAtual = Number((tabuadaSelect && tabuadaSelect.value) || 1);
   tabuada = tabuadaAtual;
 
-  // ✅ prepara mestres (não repetir nesta jogada)
   prepararMestresParaJogada(tabuadaAtual);
 
   atualizarLabelTabuada();
@@ -748,6 +971,8 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
+
+  fecharDuelo();
 
   if (fimJogoDiv) fimJogoDiv.innerHTML = "";
   atualizarPainel();
@@ -806,6 +1031,8 @@ function avancarParaProximaTabuadaOuFase() {
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
+
+  fecharDuelo();
 
   tabuadaAtual++;
 
@@ -895,7 +1122,7 @@ function bateuMetaAleatorio() {
     "🚀 Você é demais!",
     "Vamos para a próxima tabuada?",
     () => {
-      // ✅ EXATO: clicou SIM -> aparece o mestre
+      // ✅ Ao clicar SIM, aparece o desafiante e (se aceitar) abre o duelo
       mostrarMestreAntesDeAvancar();
     },
     () => {
@@ -920,7 +1147,28 @@ function verificar() {
   const resposta = Number(valor);
   const correta = tabuada * numeroAtual;
 
-  if (resposta === correta) acertos++;
+  const acertou = (resposta === correta);
+
+  // Se duelo estiver ativo, pontua por velocidade (aluno)
+  if (dueloAtivo) {
+    if (acertou) {
+      // aluno acertou antes do timer do mestre
+      marcarPontoDuelo("aluno");
+    } else {
+      // errou: conta erro do aluno, mas não marca ponto
+      duelo.errosAluno++;
+      atualizarDueloUI(false);
+      // continua a mesma pergunta (pra manter a corrida)
+    }
+
+    respostaInput.value = "";
+    atualizarPlaceholder();
+    focusRespostaSeguro();
+    return;
+  }
+
+  // Jogo normal
+  if (acertou) acertos++;
   else erros++;
 
   respostaInput.value = "";
@@ -1009,3 +1257,4 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
