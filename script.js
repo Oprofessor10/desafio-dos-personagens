@@ -195,7 +195,7 @@ let duelo = {
   errosMestre: 0,
 
   // tempo
-  duracaoMs: 60000,
+  duracaoMs: 10000,
   fimEm: 0,
   tickTimer: null,
 
@@ -317,6 +317,20 @@ function fecharDuelo() {
   if (dueloEl) dueloEl.classList.add("hidden");
 }
 
+function prepararUIParaDuelo() {
+  // Esconde mensagem de "Você passou de nível"
+  if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
+
+  // Garante que a carta direita apareça
+  if (cartaDireita) cartaDireita.classList.remove("hidden");
+
+  // Força a carta direita a mostrar o número
+  if (cartaDireita && numDireita) {
+    cartaDireita.classList.remove("front");
+    cartaDireita.classList.add("back");
+  }
+}
+
 // limite máximo de respostas do mestre por fase (em 60s)
 const LIMITE_MESTRE = {
   facil: 25,
@@ -377,6 +391,8 @@ function abrirDuelo(mestre) {
   configurarDueloPorFase();
 
   duelo.fimEm = performance.now() + duelo.duracaoMs;
+
+  prepararUIParaDuelo();
 
   // nova “rodada”
   duelo.perguntaToken++;
@@ -622,7 +638,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 20;  // ✅ voltou ao correto
+  if (f === "facil") return 4;  // ✅ voltou ao correto
   if (f === "media") return 40;
   return 60;
 }
@@ -1340,6 +1356,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
