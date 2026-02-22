@@ -4,7 +4,7 @@ const urlsToCache = [
   "./",
   "./index.html",
   "./style.css",
-  "./script.js?v=104", // ✅ TEM que bater com o index.html
+  "./script.js?v=105", // ✅ TEM que bater com o index.html
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -74,4 +74,5 @@ self.addEventListener("fetch", (event) => {
     caches.match(req).then((cached) => cached || fetch(req))
   );
 });
+
 
