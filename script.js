@@ -1,31 +1,64 @@
-// ===============================
-// LISTA DE MESTRES
-// ===============================
-const mestres = [
-  "Rebeca sabe tudo",
-  "Izadora inteligente",
-  "Isabela rápida",
-  "Lúcia esperta",
-  "Carla veloz",
-  "Lucas mestre",
-  "Bruno ágil",
-  "André o sábio",
-  "Felipe especialista",
-  "Roberto o gênio"
+// ======================================================
+// 60 SEGUNDOS — SCRIPT COMPLETO (COM MESTRES SEM QUEBRAR)
+// ======================================================
+
+// =======================
+// MESTRES (SEM REPETIR NA MESMA JOGADA)
+// =======================
+const MESTRES = [
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
+  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!" },
+  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!" },
+  { nome: "Carla veloz", frase: "Duvido você me derrotar!" },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!" },
+  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!" },
+  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?" },
+  { nome: "Felipe especialista", frase: "Você aguenta a pressão?" },
+  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!" }
 ];
 
-// controla quais já foram usados nessa rodada
-let mestresUsados = [];
+let mestresPool = [];
+let tabuadaInicioDaJogada = 1;
 
-function sortearMestre() {
-  const disponiveis = mestres.filter(m => !mestresUsados.includes(m));
+function prepararMestresParaJogada(tabuadaInicial) {
+  tabuadaInicioDaJogada = Number(tabuadaInicial || 1);
+  const qtd = Math.max(0, (10 - tabuadaInicioDaJogada) + 1); // ex: 8 => 3 (8,9,10)
 
-  if (disponiveis.length === 0) return null;
+  const copia = [...MESTRES];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  mestresPool = copia.slice(0, qtd);
+}
 
-  const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
-  mestresUsados.push(escolhido);
+function pegarProximoMestre() {
+  if (!mestresPool || mestresPool.length === 0) return null;
+  return mestresPool.shift();
+}
 
-  return escolhido;
+function mostrarMestreAntesDeAvancar() {
+  const mestre = pegarProximoMestre();
+
+  // segurança: se por algum motivo não tiver mestre, avança normal
+  if (!mestre) {
+    avancarParaProximaTabuadaOuFase();
+    return;
+  }
+
+  abrirModal(
+    `⚔️ Desafiante: ${mestre.nome}`,
+    `${mestre.frase}<br><br><b>Antes de avançar, passe por mim!</b>`,
+    () => {
+      // Etapa 1 (agora): só mostrar o mestre e permitir avançar
+      // Próximo passo: aqui vira o "ringue" de verdade
+      avancarParaProximaTabuadaOuFase();
+    },
+    () => {
+      resetTudoParaInicio();
+    }
+  );
 }
 
 // =======================
@@ -55,7 +88,7 @@ let faseAtual = "facil";
 let modalArmedAt = 0; // trava Enter logo após abrir modal
 
 // =======================
-// ELEMENTOS (com segurança)
+// ELEMENTOS
 // =======================
 const faseSelect = document.getElementById("faseSelect");
 const tabuadaSelect = document.getElementById("tabuadaSelect");
@@ -71,13 +104,11 @@ const acertosSpan = document.getElementById("acertos");
 const errosSpan = document.getElementById("erros");
 const fimJogoDiv = document.getElementById("fimJogo");
 
-// Pilha direita + label fixa "Tabuada do X"
 const pilhaDireita = document.getElementById("pilhaDireita");
 const contadorCartas = document.getElementById("contadorCartas");
 const pilhaZerouMsg = document.getElementById("pilhaZerouMsg");
 const labelTabuada = document.getElementById("labelTabuada");
 
-// Modal + FX
 const modal = document.getElementById("modal");
 const modalTitulo = document.getElementById("modalTitulo");
 const modalTexto = document.getElementById("modalTexto");
@@ -160,7 +191,7 @@ function ensureMobileInputMode() {
 }
 
 // =======================
-// AUTO-INICIAR SEM CLICAR EM "INICIAR"
+// AUTO-START
 // =======================
 function tabuadaSelecionadaValida() {
   return !!(tabuadaSelect && tabuadaSelect.value && tabuadaSelect.value !== "");
@@ -171,89 +202,13 @@ function autoStartIfNeeded() {
   if (jogoAtivo) return false;
   if (!tabuadaSelecionadaValida()) return false;
 
-  window.iniciarJogo(true); // sem cronômetro (cronômetro só no verificar)
+  window.iniciarJogo(true); // sem cronômetro
   return true;
 }
 
 // =======================
-// DESAFIO DOS PERSONAGENS (ETAPA 1 - APENAS APARECER O MESTRE)
-// - Mestre só aparece quando o aluno clica SIM para avançar
-// - Sem repetir mestre na mesma "jogada"
-// - Quantidade de mestres = quantidade de tabuadas restantes (ex: começa no 8 => 3 mestres)
+// KEYPAD
 // =======================
-
-const MESTRES = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
-  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!" },
-  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!" },
-  { nome: "Carla veloz", frase: "Duvido você me derrotar!" },
-  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!" },
-  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!" },
-  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?" },
-  { nome: "Felipe especialista", frase: "Você aguenta a pressão?" },
-  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!" }
-];
-
-let desafioMestresAtivo = true;          // pode desligar se quiser testar sem mestres
-let mestresPreparados = false;
-let mestrePorTabuada = {};              // ex: {8: mestreX, 9: mestreY, 10: mestreZ}
-let tabuadaInicioDaJogada = 1;
-
-function shuffleArray(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function prepararMestresParaJogada() {
-  // monta os mestres para as tabuadas que ainda serão jogadas (sem repetir)
-  tabuadaInicioDaJogada = Number((tabuadaSelect && tabuadaSelect.value) || 1);
-  const restantes = 11 - tabuadaInicioDaJogada; // ex: começa no 8 => 3
-  const pool = shuffleArray(MESTRES).slice(0, Math.max(0, restantes));
-
-  mestrePorTabuada = {};
-  for (let t = tabuadaInicioDaJogada; t <= 10; t++) {
-    const idx = (t - tabuadaInicioDaJogada);
-    mestrePorTabuada[t] = pool[idx]; // 1 mestre por tabuada dessa jogada
-  }
-
-  mestresPreparados = true;
-}
-
-// Mostra o mestre (placeholder por enquanto)
-function mostrarMestreAntesDeAvancar(proximaTabuada) {
-  const mestre = mestrePorTabuada[proximaTabuada];
-
-  // se não tiver mestre (por algum motivo), só avança normal
-  if (!mestre) {
-    avancarParaProximaTabuadaOuFase();
-    return;
-  }
-
-  abrirModal(
-    `🧠 Desafio! ${mestre.nome}`,
-    `${mestre.frase}<br><br><b>Você quer desafiar um dos mestres?</b>`,
-    () => {
-      // ✅ Por enquanto: placeholder (não tem ringue ainda)
-      abrirModal(
-        "🥊 Ringue (em construção)",
-        `Você aceitou o desafio de <b>${mestre.nome}</b>.<br><br>(Na próxima etapa vamos criar o ringue de verdade.)<br><br>Por enquanto, vou te deixar avançar.`,
-        () => { avancarParaProximaTabuadaOuFase(); },
-        () => { resetTudoParaInicio(); }
-      );
-    },
-    () => {
-      // desistiu
-      resetTudoParaInicio();
-    }
-  );
-}
-
-// Digitação pelo keypad
 function keypadAppend(d) {
   if (!respostaInput) return;
   if (aguardandoDecisao) return;
@@ -265,6 +220,7 @@ function keypadAppend(d) {
 
   if (s === "0") respostaInput.value = String(d);
   else respostaInput.value = s + String(d);
+
   atualizarPlaceholder();
 }
 
@@ -285,7 +241,7 @@ function keypadClear() {
 
 function keypadOk() {
   if (aguardandoDecisao) {
-    confirmarSim(); // OK = SIM
+    confirmarSim();
     return;
   }
   verificar();
@@ -319,6 +275,7 @@ window.addEventListener("resize", () => {
   ensureMobileInputMode();
   setKeypadLayoutFlags();
 });
+
 ensureMobileInputMode();
 setKeypadLayoutFlags();
 
@@ -330,6 +287,7 @@ function virarParaFrente(carta) {
   carta.classList.remove("back");
   carta.classList.add("front");
 }
+
 function virarParaVersoComNumero(carta, numeroDiv, valor) {
   if (!carta || !numeroDiv) return;
   carta.classList.remove("front");
@@ -338,7 +296,7 @@ function virarParaVersoComNumero(carta, numeroDiv, valor) {
 }
 
 // =======================
-// LABEL FIXA
+// LABEL
 // =======================
 function atualizarLabelTabuada() {
   if (!labelTabuada) return;
@@ -374,7 +332,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 4;
+  if (f === "facil") return 4;     // ✅ teste rápido
   if (f === "media") return 40;
   return 60;
 }
@@ -397,7 +355,7 @@ if (faseSelect) {
 }
 
 // =======================
-// UTIL
+// PAINEL / RESET
 // =======================
 function atualizarPainel() {
   if (tempoSpan) tempoSpan.textContent = String(tempo);
@@ -481,9 +439,7 @@ function finalizarJogoTempo() {
       () => { resetTudoParaInicio(); }
     );
   } else {
-    if (fimJogoDiv) {
-      fimJogoDiv.innerHTML = `⏰ TEMPO ESGOTADO <br> Pressione ENTER para reiniciar.`;
-    }
+    if (fimJogoDiv) fimJogoDiv.innerHTML = `⏰ TEMPO ESGOTADO <br> Pressione ENTER para reiniciar.`;
   }
 
   if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
@@ -505,11 +461,13 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   onSim = simCb;
   onNao = naoCb;
 
+  // backup no fimJogo
   if (fimJogoDiv) {
     fimJogoDiv.innerHTML =
       `${titulo}<br>${textoHtml}<br><br><b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>`;
   }
 
+  // modal visual
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
     modalTexto.innerHTML = textoHtml;
@@ -552,9 +510,7 @@ if (btnNao) btnNao.addEventListener("click", (e) => {
   confirmarNao();
 });
 
-// =======================
-// ENTER / ESC (Modal)
-// =======================
+// ENTER / ESC no modal
 function isEnterKey(e){
   return (
     e.key === "Enter" ||
@@ -734,7 +690,6 @@ function fogosMedios(){
   fanfarraCurta();
   for (let i = 0; i < 6; i++) setTimeout(spawnRocket, i * 140);
 }
-
 function fogosGrandes(){
   fanfarraGrande();
   for (let i = 0; i < 16; i++) setTimeout(spawnRocket, i * 95);
@@ -762,7 +717,6 @@ if (tabuadaSelect) {
     numeroAtual = 1;
 
     atualizarLabelTabuada();
-
     virarParaVersoComNumero(cartaEsquerda, numEsquerda, tabuada);
     virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
@@ -779,6 +733,7 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
   tabuadaAtual = Number((tabuadaSelect && tabuadaSelect.value) || 1);
   tabuada = tabuadaAtual;
 
+  // ✅ prepara mestres (não repetir nesta jogada)
   prepararMestresParaJogada(tabuadaAtual);
 
   atualizarLabelTabuada();
@@ -940,7 +895,7 @@ function bateuMetaAleatorio() {
     "🚀 Você é demais!",
     "Vamos para a próxima tabuada?",
     () => {
-      // ✅ AQUI entra o mestre quando clicar SIM
+      // ✅ EXATO: clicou SIM -> aparece o mestre
       mostrarMestreAntesDeAvancar();
     },
     () => {
@@ -1054,94 +1009,3 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
-
-// ======================================================
-// BLOCO MESTRES (DESLIGADO por enquanto — não interfere)
-// ======================================================
-const ENABLE_MESTRES = false;
-
-const mestres = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro me vença!" },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem ou desista!" },
-  { nome: "Isabela rápida", frase: "Você não vai conseguir me vencer!" },
-  { nome: "Lúcia esperta", frase: "Que tal um desafio real?" },
-  { nome: "Carla veloz", frase: "Você pode ser mais rápido, não?" },
-  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!" },
-  { nome: "Bruno ágil", frase: "Não vai ser fácil me vencer!" },
-  { nome: "André o sábio", frase: "Está pronto para o desafio?" },
-  { nome: "Felipe especialista", frase: "Vamos ver se você tem o que é preciso!" },
-  { nome: "Roberto o gênio", frase: "Eu vou te derrotar!" }
-];
-
-// (No próximo passo a gente usa isso para sortear sem repetir)
-function debugMestres() {
-  if (!ENABLE_MESTRES) return;
-  console.log("Mestres prontos:", mestres.map(m => m.nome));
-}
-debugMestres();
-
-// =======================
-// DESAFIO DOS MESTRES (versão 1 - só aparece o mestre ao clicar SIM)
-// =======================
-const mestres = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
-  { nome: "Isabela rápida", frase: "Você vai ter que ser muito rápido!" },
-  { nome: "Lúcia esperta", frase: "Desafio aceito? Então vem!" },
-  { nome: "Carla veloz", frase: "Duvido você me acompanhar!" },
-  { nome: "Lucas mestre", frase: "Vamos ver o que você aprendeu!" },
-  { nome: "Bruno ágil", frase: "Não vai ser fácil passar por mim!" },
-  { nome: "André o sábio", frase: "Concentração total. Agora!" },
-  { nome: "Felipe especialista", frase: "Quero ver você acertar sob pressão!" },
-  { nome: "Roberto o gênio", frase: "Você vai precisar de coragem!" }
-];
-
-// pool de mestres para NÃO repetir dentro da mesma jogada
-let mestresPool = [];
-
-// cria o pool conforme a tabuada inicial escolhida
-function prepararMestresParaJogada(tabuadaInicial){
-  const qtd = (10 - tabuadaInicial) + 1; // ex: começou no 8 => 3 mestres (8,9,10)
-  const copia = [...mestres];
-
-  // embaralha
-  for (let i = copia.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copia[i], copia[j]] = [copia[j], copia[i]];
-  }
-
-  mestresPool = copia.slice(0, qtd);
-}
-
-// pega 1 mestre (sem repetir)
-function pegarProximoMestre(){
-  if (!mestresPool || mestresPool.length === 0) return null;
-  return mestresPool.shift();
-}
-
-// mostra o mestre e só depois deixa avançar
-function mostrarMestreAntesDeAvancar(){
-  const mestre = pegarProximoMestre();
-
-  // se acabou mestre (não deve, mas por segurança), avança normal
-  if (!mestre){
-    avancarParaProximaTabuadaOuFase();
-    return;
-  }
-
-  abrirModal(
-    `⚔️ Desafiante: ${mestre.nome}`,
-    `${mestre.frase}<br><br><b>Quer desafiar um dos mestres?</b>`,
-    () => {
-      // por enquanto: ao aceitar, apenas avança (no próximo passo fazemos o "ringue")
-      avancarParaProximaTabuadaOuFase();
-    },
-    () => {
-      resetTudoParaInicio();
-    }
-  );
-}
-
-
-
-
