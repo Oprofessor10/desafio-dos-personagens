@@ -598,3 +598,25 @@ button, select, input{ touch-action: manipulation; }
     padding-bottom: calc(var(--kpH) + 90px);
   }
 }
+
+/* =========================
+   FIX: FOGOS NA FRENTE DE TUDO (SEM NÉVOA)
+   Cole no FINAL do style.css
+========================= */
+#fxCanvas{
+  z-index: 30000 !important;         /* acima de modal, fimJogo e keypad */
+  pointer-events: none !important;
+}
+
+/* garante que a “névoa” não cubra o canvas */
+#modal{
+  z-index: 10000 !important;
+}
+
+.fim-jogo{
+  z-index: 12000 !important;
+}
+
+.keypad{
+  z-index: 15000 !important;
+}
