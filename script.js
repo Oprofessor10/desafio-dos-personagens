@@ -286,6 +286,14 @@ function ensureDueloOverlay() {
     }
   `;
   document.head.appendChild(style);
+  .duelo-lado{ display:flex; align-items:center; gap:10px; }
+.duelo-foto{
+  width: 42px; height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,.20);
+  box-shadow: 0 10px 22px rgba(0,0,0,.25);
+}
 }
 
 function atualizarDueloUI() {
@@ -1385,6 +1393,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
