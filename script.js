@@ -415,24 +415,38 @@ function abrirDuelo(mestre) {
 function finalizarDueloTempo() {
   if (!dueloAtivo) return;
 
-  // trava tudo
   const mestreNome = duelo.mestre ? duelo.mestre.nome : "Mestre";
   const a = duelo.pontosAluno;
   const m = duelo.pontosMestre;
 
-  let vencedor =
+  const voceVenceu = a > m;
+
+  let titulo = "⚔️ Resultado do Duelo";
+  let linhaVencedor =
     (a > m) ? "VOCÊ VENCEU! 🏆" :
     (a < m) ? `${mestreNome} venceu! 😈` :
     "EMPATE! 🤝";
 
+  // guarda o mestre atual pra revanche
+  const mestreAtual = duelo.mestre;
+
   fecharDuelo();
 
-  abrirModal(
-    "⚔️ Resultado do Duelo (60s)",
-    `${vencedor}<br><br><b>Você:</b> ${a} pts | <b>${mestreNome}:</b> ${m} pts<br><br>Quer avançar?`,
-    () => { avancarParaProximaTabuadaOuFase(); },
-    () => { resetTudoParaInicio(); }
-  );
+  if (voceVenceu) {
+    abrirModal(
+      titulo,
+      `${linhaVencedor}<br><br><b>Você:</b> ${a} pts | <b>${mestreNome}:</b> ${m} pts<br><br>Quer avançar?`,
+      () => { avancarParaProximaTabuadaOuFase(); },
+      () => { resetTudoParaInicio(); }
+    );
+  } else {
+    abrirModal(
+      titulo,
+      `${linhaVencedor}<br><br><b>Você:</b> ${a} pts | <b>${mestreNome}:</b> ${m} pts<br><br><b>Você perdeu.</b><br>Quer desafiar novamente?`,
+      () => { abrirDuelo(mestreAtual); },  // ✅ revanche
+      () => { resetTudoParaInicio(); }     // ✅ volta pro início
+    );
+  }
 }
 
 // mestre tenta responder “a pergunta atual”
@@ -1359,6 +1373,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
