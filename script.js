@@ -2,16 +2,16 @@
 // LISTA DE MESTRES (DESAFIANTES)
 // ===============================
 const MESTRES = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!" },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!" },
-  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!" },
-  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!" },
-  { nome: "Carla veloz", frase: "Duvido você me derrotar!" },
-  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!" },
-  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!" },
-  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?" },
-  { nome: "Felipe especialista", frase: "Você aguenta a pressão?" },
-  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!" }
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!",img "./mestres/rebeca.png" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!",img "./mestres/izadora.png" },
+  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!",img"./mestres/isabela.png" },
+  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!",img "./mestres/lucia.png" },
+  { nome: "Carla veloz", frase: "Duvido você me derrotar!",img "./mestres/carla.png" },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!",img "./mestres/lucas.png" },
+  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!",img "./mestres/bruno.png" },
+  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?",img "./mestres/andre.png" },
+  { nome: "Felipe especialista", frase: "Você aguenta a pressão?",img "./mestres/felipe.png" },
+  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!",img "./mestres/roberto.png" }
 ];
 
 // =======================
@@ -1373,6 +1373,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
