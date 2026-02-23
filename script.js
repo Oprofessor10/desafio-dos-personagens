@@ -2,16 +2,16 @@
 // LISTA DE MESTRES (DESAFIANTES)
 // ===============================
 const MESTRES = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!",img "./mestres/rebeca.png" },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!",img "./mestres/izadora.png" },
-  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!",img"./mestres/isabela.png" },
-  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!",img "./mestres/lucia.png" },
-  { nome: "Carla veloz", frase: "Duvido você me derrotar!",img "./mestres/carla.png" },
-  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!",img "./mestres/lucas.png" },
-  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!",img "./mestres/bruno.png" },
-  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?",img "./mestres/andre.png" },
-  { nome: "Felipe especialista", frase: "Você aguenta a pressão?",img "./mestres/felipe.png" },
-  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!",img "./mestres/roberto.png" }
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!", img: "./mestres/rebeca.png" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!", img: "./mestres/izadora.png" },
+  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!", img: "./mestres/isabela.png" },
+  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!", img: "./mestres/lucia.png" },
+  { nome: "Carla veloz", frase: "Duvido você me derrotar!", img: "./mestres/carla.png" },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!", img: "./mestres/lucas.png" },
+  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!", img: "./mestres/bruno.png" },
+  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?", img: "./mestres/andre.png" },
+  { nome: "Felipe especialista", frase: "Você aguenta a pressão?", img: "./mestres/felipe.png" },
+  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!", img: "./mestres/roberto.png" }
 ];
 
 // =======================
@@ -182,7 +182,7 @@ function pegarProximoMestre() {
 }
 
 // =======================
-// DUELO (overlay criado via JS) - AGORA POR TEMPO (60s)
+// DUELO (overlay criado via JS) - POR TEMPO
 // =======================
 let dueloEl = null;
 let dueloAtivo = false;
@@ -195,7 +195,7 @@ let duelo = {
   errosMestre: 0,
 
   // tempo
-  duracaoMs: 10000,
+  duracaoMs: 10000, // ✅ TESTE: 10s (depois voltamos pra 60000)
   fimEm: 0,
   tickTimer: null,
 
@@ -205,7 +205,7 @@ let duelo = {
   mestreMaxTentativas: 25,
 
   // pergunta/rodada
-  perguntaToken: 0, // invalida timers quando muda pergunta
+  perguntaToken: 0,
   chanceErro: 0.12
 };
 
@@ -218,17 +218,17 @@ function ensureDueloOverlay() {
   dueloEl.innerHTML = `
     <div class="duelo-box">
       <div class="duelo-top">
-  <div class="duelo-lado">
-    <img id="dueloMestreFoto" class="duelo-foto" src="" alt="">
-    <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
-  </div>
+        <div class="duelo-lado">
+          <img id="dueloMestreFoto" class="duelo-foto" src="" alt="">
+          <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
+        </div>
 
-  <div class="duelo-placar">
-    <div>⭐ Pontos: <span id="dueloMestrePontos">0</span></div>
-    <div>❌ Erros: <span id="dueloMestreErros">0</span></div>
-    <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">--</span></div>
-  </div>
-</div>
+        <div class="duelo-placar">
+          <div>⭐ Pontos: <span id="dueloMestrePontos">0</span></div>
+          <div>❌ Erros: <span id="dueloMestreErros">0</span></div>
+          <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">--</span></div>
+        </div>
+      </div>
 
       <div class="duelo-mid">
         <div class="duelo-versus">VS</div>
@@ -249,6 +249,7 @@ function ensureDueloOverlay() {
   style.textContent = `
     .duelo{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 12000; pointer-events:none; }
     .duelo.hidden{ display:none; }
+
     .duelo-box{
       pointer-events:none;
       width: min(720px, 96vw);
@@ -258,6 +259,7 @@ function ensureDueloOverlay() {
       border: 1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(6px);
     }
+
     .duelo-top, .duelo-bot{
       display:flex; align-items:center; justify-content: space-between;
       gap: 12px;
@@ -267,6 +269,17 @@ function ensureDueloOverlay() {
       border: 1px solid rgba(255,255,255,.08);
       font-weight: 900;
     }
+
+    .duelo-lado{ display:flex; align-items:center; gap:10px; min-width: 240px; }
+    .duelo-foto{
+      width: 42px; height: 42px;
+      border-radius: 999px;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,.20);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      background: rgba(255,255,255,.08);
+    }
+
     .duelo-mid{ display:flex; justify-content:center; padding: 8px 0; }
     .duelo-versus{
       width: 64px; height: 32px;
@@ -277,32 +290,34 @@ function ensureDueloOverlay() {
       font-weight: 900;
       letter-spacing: 2px;
     }
-    .duelo-nome{ font-size: 16px; text-transform: uppercase; }
-    .duelo-placar{ display:flex; gap: 12px; font-size: 14px; opacity:.95; align-items:center; }
+
+    .duelo-nome{ font-size: 16px; text-transform: uppercase; white-space: nowrap; }
+    .duelo-placar{ display:flex; gap: 12px; font-size: 14px; opacity:.95; align-items:center; flex-wrap: wrap; justify-content:flex-end; text-align:right; }
     .duelo-tempo{ opacity: .95; }
+
     @media (max-width: 900px){
       .duelo-box{ width: 96vw; }
-      .duelo-placar{ gap: 10px; font-size: 13px; flex-wrap: wrap; justify-content:flex-end; }
+      .duelo-placar{ gap: 10px; font-size: 13px; }
+      .duelo-lado{ min-width: auto; }
     }
   `;
   document.head.appendChild(style);
-  .duelo-lado{ display:flex; align-items:center; gap:10px; }
-.duelo-foto{
-  width: 42px; height: 42px;
-  border-radius: 999px;
-  object-fit: cover;
-  border: 2px solid rgba(255,255,255,.20);
-  box-shadow: 0 10px 22px rgba(0,0,0,.25);
-}
 }
 
 function atualizarDueloUI() {
+  // FOTO DO MESTRE
   const foto = document.getElementById("dueloMestreFoto");
-if (foto) {
-  const src = (duelo.mestre && duelo.mestre.img) ? duelo.mestre.img : "";
-  foto.src = src;
-  foto.style.display = src ? "block" : "none";
-}
+  if (foto) {
+    const src = (duelo.mestre && duelo.mestre.img) ? duelo.mestre.img : "";
+    if (src) {
+      foto.src = src;
+      foto.style.display = "block";
+    } else {
+      foto.removeAttribute("src");
+      foto.style.display = "none";
+    }
+  }
+
   const mestreNome = document.getElementById("dueloMestreNome");
   const mestrePontos = document.getElementById("dueloMestrePontos");
   const mestreErros = document.getElementById("dueloMestreErros");
@@ -338,14 +353,11 @@ function fecharDuelo() {
 }
 
 function prepararUIParaDuelo() {
-  // Esconde mensagem de "Você passou de nível"
   if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
-
-  // Garante que a carta direita apareça
   if (cartaDireita) cartaDireita.classList.remove("hidden");
 
-  // Força a carta direita a mostrar o número
-  if (cartaDireita && numDireita) {
+  // garante carta direita em back (mostrando número)
+  if (cartaDireita) {
     cartaDireita.classList.remove("front");
     cartaDireita.classList.add("back");
   }
@@ -358,11 +370,9 @@ const LIMITE_MESTRE = {
   dificil: 55
 };
 
-// tempo médio por resposta do mestre (derivado do limite)
-// com variação (jitter) pra parecer humano
 function tempoMestrePorRespostaMs() {
   const max = LIMITE_MESTRE[faseAtual] ?? 25;
-  const base = 60000 / max;           // ex: 2400ms no fácil
+  const base = 60000 / max;
   const min = base * 0.70;
   const maxMs = base * 1.30;
   return Math.random() * (maxMs - min) + min;
@@ -377,7 +387,6 @@ function configurarDueloPorFase() {
     0.08;
 }
 
-// gera pergunta “rápida”: multiplicador aleatório 1..10
 function gerarPerguntaDueloNova() {
   numeroAtual = Math.floor(Math.random() * 10) + 1;
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
@@ -398,6 +407,7 @@ function iniciarTickDuelo() {
 
 function abrirDuelo(mestre) {
   document.body.classList.add("modo-duelo");
+
   ensureDueloOverlay();
   dueloAtivo = true;
   duelo.mestre = mestre;
@@ -415,7 +425,6 @@ function abrirDuelo(mestre) {
 
   prepararUIParaDuelo();
 
-  // nova “rodada”
   duelo.perguntaToken++;
   gerarPerguntaDueloNova();
 
@@ -425,7 +434,6 @@ function abrirDuelo(mestre) {
   iniciarTickDuelo();
   agendarRespostaMestre();
 
-  // aluno pode responder
   jogoAtivo = true;
   focusRespostaSeguro();
 }
@@ -439,13 +447,12 @@ function finalizarDueloTempo() {
 
   const voceVenceu = a > m;
 
-  let titulo = "⚔️ Resultado do Duelo";
-  let linhaVencedor =
+  const titulo = `⚔️ Resultado do Duelo (${Math.round(duelo.duracaoMs/1000)}s)`;
+  const linhaVencedor =
     (a > m) ? "VOCÊ VENCEU! 🏆" :
     (a < m) ? `${mestreNome} venceu! 😈` :
     "EMPATE! 🤝";
 
-  // guarda o mestre atual pra revanche
   const mestreAtual = duelo.mestre;
 
   fecharDuelo();
@@ -461,20 +468,16 @@ function finalizarDueloTempo() {
     abrirModal(
       titulo,
       `${linhaVencedor}<br><br><b>Você:</b> ${a} pts | <b>${mestreNome}:</b> ${m} pts<br><br><b>Você perdeu.</b><br>Quer desafiar novamente?`,
-      () => { abrirDuelo(mestreAtual); },  // ✅ revanche
-      () => { resetTudoParaInicio(); }     // ✅ volta pro início
+      () => { abrirDuelo(mestreAtual); },
+      () => { resetTudoParaInicio(); }
     );
   }
 }
 
-// mestre tenta responder “a pergunta atual”
 function agendarRespostaMestre() {
   if (!dueloAtivo) return;
-
-  // se mestre já bateu limite, para de responder (aluno ainda joga até acabar o tempo)
   if (duelo.mestreTentativas >= duelo.mestreMaxTentativas) return;
 
-  // se já acabou tempo, não agenda
   const restMs = duelo.fimEm - performance.now();
   if (restMs <= 0) return;
 
@@ -484,18 +487,19 @@ function agendarRespostaMestre() {
   if (duelo.mestreTimer) clearTimeout(duelo.mestreTimer);
   duelo.mestreTimer = setTimeout(() => {
     if (!dueloAtivo) return;
+
     if (token !== duelo.perguntaToken) {
-      // pergunta mudou antes do mestre responder, reage na próxima
       agendarRespostaMestre();
       return;
     }
+
     if (performance.now() >= duelo.fimEm) {
       finalizarDueloTempo();
       return;
     }
+
     if (duelo.mestreTentativas >= duelo.mestreMaxTentativas) return;
 
-    // mestre tenta
     duelo.mestreTentativas++;
 
     const mestreErrou = Math.random() < duelo.chanceErro;
@@ -503,17 +507,13 @@ function agendarRespostaMestre() {
     if (mestreErrou) {
       duelo.errosMestre++;
       atualizarDueloUI();
-      // pergunta fica a mesma, aluno pode tentar
-      // agenda outra tentativa (mesma pergunta ainda)
       agendarRespostaMestre();
       return;
     }
 
-    // mestre acertou primeiro => ponto e muda pergunta
     duelo.pontosMestre++;
     atualizarDueloUI();
 
-    // próxima pergunta
     duelo.perguntaToken++;
     gerarPerguntaDueloNova();
 
@@ -523,7 +523,6 @@ function agendarRespostaMestre() {
     }
     focusRespostaSeguro();
 
-    // agenda próxima resposta do mestre
     agendarRespostaMestre();
   }, delay);
 }
@@ -541,17 +540,17 @@ function mostrarMestreAntesDeAvancar() {
   }
 
   abrirModal(
-  `⚔️ Desafiante: ${mestre.nome}`,
-  `
-    <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-      ${mestre.img ? `<img src="${mestre.img}" style="width:110px;height:110px;border-radius:18px;object-fit:cover;border:2px solid rgba(255,255,255,.18);">` : ""}
-      <div>${mestre.frase}</div>
-      <div><b>Duelo de 10s (teste)!</b><br>Quem fizer mais pontos vence.</div>
-    </div>
-  `,
-  () => { abrirDuelo(mestre); },
-  () => { resetTudoParaInicio(); }
-);
+    `⚔️ Desafiante: ${mestre.nome}`,
+    `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+        ${mestre.img ? `<img src="${mestre.img}" style="width:110px;height:110px;border-radius:18px;object-fit:cover;border:2px solid rgba(255,255,255,.18);">` : ""}
+        <div>${mestre.frase}</div>
+        <div><b>Duelo de ${Math.round(duelo.duracaoMs/1000)}s (teste)!</b><br>Quem fizer mais pontos vence.</div>
+      </div>
+    `,
+    () => { abrirDuelo(mestre); },
+    () => { resetTudoParaInicio(); }
+  );
 }
 
 // =======================
@@ -568,6 +567,7 @@ function keypadAppend(d) {
 
   if (s === "0") respostaInput.value = String(d);
   else respostaInput.value = s + String(d);
+
   atualizarPlaceholder();
 }
 
@@ -675,7 +675,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 4;  // ✅ voltou ao correto
+  if (f === "facil") return 4; // ✅ TESTE (depois volta pra 20)
   if (f === "media") return 40;
   return 60;
 }
@@ -773,7 +773,7 @@ function finalizarJogoTempo() {
     virarParaFrente(cartaDireita);
 
     if (fimJogoDiv) {
-      fimJogoDiv.innerHTML = ` 
+      fimJogoDiv.innerHTML = `
         😢 Você perdeu! <br> Deseja tentar novamente? <br><br>
         <b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>
       `;
@@ -1263,7 +1263,7 @@ function verificar() {
   const correta = tabuada * numeroAtual;
   const acertou = (resposta === correta);
 
-  // ====== DUELO (60s) ======
+  // ====== DUELO ======
   if (dueloAtivo) {
     if (performance.now() >= duelo.fimEm) {
       finalizarDueloTempo();
@@ -1271,7 +1271,6 @@ function verificar() {
     }
 
     if (acertou) {
-      // aluno acertou primeiro => ponto e muda pergunta
       duelo.pontosAluno++;
       atualizarDueloUI();
 
@@ -1280,17 +1279,14 @@ function verificar() {
 
       gerarPerguntaDueloNova();
 
-      // limpa e segue
       respostaInput.value = "";
       atualizarPlaceholder();
       focusRespostaSeguro();
 
-      // mestre reage à nova pergunta
       agendarRespostaMestre();
       return;
     }
 
-    // aluno errou -> conta erro e mantém a mesma pergunta
     duelo.errosAluno++;
     atualizarDueloUI();
 
@@ -1301,7 +1297,6 @@ function verificar() {
   }
 
   // ====== JOGO NORMAL ======
-  // cronômetro normal só começa quando envia a primeira resposta (fora do duelo)
   if (!cronometroAtivo) iniciarCronometro();
 
   if (acertou) acertos++;
@@ -1393,6 +1388,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
