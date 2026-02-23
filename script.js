@@ -2,16 +2,16 @@
 // LISTA DE MESTRES (DESAFIANTES)
 // ===============================
 const MESTRES = [
-  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!", img: "./mestres/rebeca.png" },
-  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!", img: "./mestres/izadora.png" },
-  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!", img: "./mestres/isabela.png" },
-  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!", img: "./mestres/lucia.png" },
-  { nome: "Carla veloz", frase: "Duvido você me derrotar!", img: "./mestres/carla.png" },
-  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!", img: "./mestres/lucas.png" },
-  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!", img: "./mestres/bruno.png" },
-  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?", img: "./mestres/andre.png" },
-  { nome: "Felipe especialista", frase: "Você aguenta a pressão?", img: "./mestres/felipe.png" },
-  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!", img: "./mestres/roberto.png" }
+  { nome: "Rebeca sabe tudo", frase: "Quer avançar? Primeiro precisa me vencer!", img: "./rebeca.png" },
+  { nome: "Izadora inteligente", frase: "Mostre que tem coragem... ou desista!", img: "./izadora.png" },
+  { nome: "Isabela rápida", frase: "Você vai ter que ser MUITO rápido pra me vencer!", img: "./isabela.png" },
+  { nome: "Lúcia esperta", frase: "Vamos ver se você é bom mesmo!", img: "./lucia.png" },
+  { nome: "Carla veloz", frase: "Duvido você me derrotar!", img: "./carla.png" },
+  { nome: "Lucas mestre", frase: "Mostre o que você aprendeu!", img: "./lucas.png" },
+  { nome: "Bruno ágil", frase: "Isso não vai ser fácil!", img: "./bruno.png" },
+  { nome: "André o sábio", frase: "Está pronto para um desafio de verdade?", img: "./andre.png" },
+  { nome: "Felipe especialista", frase: "Você aguenta a pressão?", img: "./felipe.png" },
+  { nome: "Roberto o gênio", frase: "Eu sou o gênio… prove o contrário!", img: "./roberto.png" }
 ];
 
 // =======================
@@ -1388,6 +1388,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
