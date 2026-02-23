@@ -533,15 +533,17 @@ function mostrarMestreAntesDeAvancar() {
   }
 
   abrirModal(
-    `⚔️ Desafiante: ${mestre.nome}`,
-    `${mestre.frase}<br><br><b>Duelo de 60 segundos!</b><br>Quem fizer mais pontos vence.<br>Quer lutar agora?`,
-    () => {
-      abrirDuelo(mestre);
-    },
-    () => {
-      resetTudoParaInicio();
-    }
-  );
+  `⚔️ Desafiante: ${mestre.nome}`,
+  `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+      ${mestre.img ? `<img src="${mestre.img}" style="width:110px;height:110px;border-radius:18px;object-fit:cover;border:2px solid rgba(255,255,255,.18);">` : ""}
+      <div>${mestre.frase}</div>
+      <div><b>Duelo de 10s (teste)!</b><br>Quem fizer mais pontos vence.</div>
+    </div>
+  `,
+  () => { abrirDuelo(mestre); },
+  () => { resetTudoParaInicio(); }
+);
 }
 
 // =======================
@@ -1383,6 +1385,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
