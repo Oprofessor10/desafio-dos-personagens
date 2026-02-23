@@ -742,4 +742,7 @@ body.modo-duelo #dueloOverlay .duelo-bot{
 body.modo-duelo .area-cartas{
   margin-top: 90px !important; /* empurra as cartas pra baixo */
 }
+body.modo-duelo .carta{
+  filter: drop-shadow(0 22px 40px rgba(0,0,0,.65)) !important;
+}
 
