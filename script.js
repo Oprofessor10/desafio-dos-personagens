@@ -218,13 +218,17 @@ function ensureDueloOverlay() {
   dueloEl.innerHTML = `
     <div class="duelo-box">
       <div class="duelo-top">
-        <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
-        <div class="duelo-placar">
-          <div>⭐ Pontos: <span id="dueloMestrePontos">0</span></div>
-          <div>❌ Erros: <span id="dueloMestreErros">0</span></div>
-          <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">60s</span></div>
-        </div>
-      </div>
+  <div class="duelo-lado">
+    <img id="dueloMestreFoto" class="duelo-foto" src="" alt="">
+    <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
+  </div>
+
+  <div class="duelo-placar">
+    <div>⭐ Pontos: <span id="dueloMestrePontos">0</span></div>
+    <div>❌ Erros: <span id="dueloMestreErros">0</span></div>
+    <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">--</span></div>
+  </div>
+</div>
 
       <div class="duelo-mid">
         <div class="duelo-versus">VS</div>
@@ -1373,6 +1377,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
