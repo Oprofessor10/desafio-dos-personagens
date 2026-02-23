@@ -620,3 +620,35 @@ button, select, input{ touch-action: manipulation; }
 .keypad{
   z-index: 15000 !important;
 }
+/* =========================
+   MODO DUELO (RINGUE)
+========================= */
+
+body.modo-duelo .pilha-topo,
+body.modo-duelo .pilha-rodape,
+body.modo-duelo .pilha-contador,
+body.modo-duelo .pilha-mini {
+  display: none !important;
+}
+
+body.modo-duelo .pilha-direita::before,
+body.modo-duelo .pilha-direita::after {
+  display: none !important;
+}
+
+/* centraliza mais as cartas */
+body.modo-duelo .area-cartas {
+  gap: 40px;
+}
+
+/* deixa as cartas um pouco maiores no duelo */
+body.modo-duelo {
+  --cardW: 280px;
+  --xW: 110px;
+}
+
+/* efeito de arena */
+body.modo-duelo .tabuleiro {
+  background:
+    radial-gradient(circle at center, #1b2e35 0%, #0b0f14 80%);
+}
