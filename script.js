@@ -15,6 +15,18 @@ const MESTRES = [
 ];
 
 // =======================
+// AVATAR DO ALUNO (por enquanto: escolha de avatar)
+// =======================
+let avatarAluno = "./avatar1.png"; // crie esses arquivos depois (avatar1.png, avatar2.png, avatar3.png)
+const AVATARES_ALUNO = ["./avatar1.png", "./avatar2.png", "./avatar3.png"];
+
+window.setAvatarAluno = function (src) {
+  avatarAluno = src || "./avatar1.png";
+  const fotoAluno = document.getElementById("dueloAlunoFoto");
+  if (fotoAluno) fotoAluno.src = avatarAluno;
+};
+
+// =======================
 // ESTADO DO JOGO
 // =======================
 let tabuada = 1;
@@ -47,9 +59,9 @@ const faseSelect = document.getElementById("faseSelect");
 const tabuadaSelect = document.getElementById("tabuadaSelect");
 
 const cartaEsquerda = document.getElementById("cartaEsquerda");
-const cartaDireita  = document.getElementById("cartaDireita");
-const numEsquerda   = document.getElementById("numEsquerda");
-const numDireita    = document.getElementById("numDireita");
+const cartaDireita = document.getElementById("cartaDireita");
+const numEsquerda = document.getElementById("numEsquerda");
+const numDireita = document.getElementById("numDireita");
 
 const respostaInput = document.getElementById("respostaInput");
 const tempoSpan = document.getElementById("tempo");
@@ -212,16 +224,12 @@ let duelo = {
 function ensureDueloOverlay() {
   if (dueloEl) return;
 
-  // Cria overlay
   dueloEl = document.createElement("div");
   dueloEl.id = "dueloOverlay";
   dueloEl.className = "duelo hidden";
-
-  // HTML do ring (lado a lado)
   dueloEl.innerHTML = `
     <div class="duelo-box">
       <div class="duelo-row">
-
         <div class="duelo-card">
           <div class="duelo-head">
             <img id="dueloMestreFoto" class="duelo-foto" src="" alt="">
@@ -239,6 +247,7 @@ function ensureDueloOverlay() {
 
         <div class="duelo-card duelo-card-aluno">
           <div class="duelo-head">
+            <img id="dueloAlunoFoto" class="duelo-foto" src="${avatarAluno}" alt="">
             <div class="duelo-nome" id="dueloAlunoNome">VOCÊ</div>
           </div>
 
@@ -247,126 +256,131 @@ function ensureDueloOverlay() {
             <div>❌ <span id="dueloAlunoErros">0</span></div>
           </div>
         </div>
-
       </div>
     </div>
   `;
-
   document.body.appendChild(dueloEl);
 
-  // CSS do ring (TEM que estar dentro da string abaixo)
   const style = document.createElement("style");
-  style.id = "dueloStyles";
   style.textContent = `
-    .duelo{
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: start center;
-      padding-top: 14px;
-      z-index: 12000;
-      pointer-events: none;
-    }
+    .duelo{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 12000; pointer-events:none; }
     .duelo.hidden{ display:none; }
 
     .duelo-box{
-      pointer-events: none;
-      width: min(920px, 96vw);
+      pointer-events:none;
+      width: min(980px, 96vw);
       border-radius: 18px;
-      padding: 10px 12px;
+      padding: 12px 14px;
       background: rgba(0,0,0,.18);
       border: 1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(6px);
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
     }
 
     .duelo-row{
       display:flex;
       align-items: stretch;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .duelo-card{
       flex: 1;
-      min-width: 260px;
-      border-radius: 14px;
-      padding: 10px 12px;
+      min-width: 320px;
+      border-radius: 16px;
+      padding: 12px 14px;
       background: rgba(0,0,0,.28);
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
       font-weight: 900;
     }
 
     .duelo-head{
       display:flex;
       align-items:center;
-      gap:10px;
-      margin-bottom: 8px;
+      gap:12px;
+      margin-bottom: 10px;
     }
 
+    /* FOTO MAIOR (sem cortar) */
     .duelo-foto{
-      width: 54px;
-      height: 54px;
+      width: 86px;
+      height: 86px;
       border-radius: 999px;
-      object-fit: contain;               /* ✅ não corta */
+      object-fit: contain;
       background: rgba(255,255,255,.06);
-      padding: 4px;
-      border: 2px solid rgba(255,255,255,.20);
-      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      padding: 6px;
+      border: 3px solid rgba(255,255,255,.25);
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
       flex: 0 0 auto;
     }
 
     .duelo-nome{
-      font-size: 16px;
+      font-size: 20px;
+      letter-spacing: 1px;
       text-transform: uppercase;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 320px;
+      max-width: 420px;
     }
 
+    /* placar maior */
     .duelo-placar{
       display:flex;
-      gap: 12px;
-      font-size: 14px;
-      opacity:.95;
+      gap: 18px;
+      font-size: 18px;
+      opacity: 1;
       align-items:center;
       flex-wrap: wrap;
       justify-content:flex-end;
       text-align:right;
     }
 
-    .duelo-tempo{ opacity: .95; }
-
+    /* VS mais radical */
     .duelo-versus{
       align-self: center;
-      width: 56px;
-      height: 34px;
+      width: 86px;
+      height: 86px;
       display:grid;
       place-items:center;
-      border-radius: 999px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255,60,60,.35), rgba(0,255,160,.25));
+      border: 2px solid rgba(255,255,255,.18);
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
       font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transform: rotate(-6deg);
+      position: relative;
+    }
+    .duelo-versus::before{
+      content:"⚔️";
+      position:absolute;
+      top: 10px;
+      font-size: 20px;
+      opacity: .95;
+    }
+    .duelo-versus::after{
+      content:"RING";
+      position:absolute;
+      bottom: 10px;
+      font-size: 12px;
+      opacity: .85;
       letter-spacing: 2px;
-      flex: 0 0 auto;
     }
 
+    /* mobile: empilha */
     @media (max-width: 700px){
-      .duelo{ place-items: center; padding-top: 0; }
       .duelo-row{ flex-direction: column; }
-      .duelo-versus{ width: 64px; margin: 6px auto; }
+      .duelo-versus{ width: 96px; height: 72px; margin: 8px auto; transform: rotate(-3deg); }
       .duelo-card{ min-width: unset; }
-      .duelo-nome{ max-width: 100%; }
+      .duelo-foto{ width: 76px; height: 76px; }
+      .duelo-nome{ font-size: 18px; }
+      .duelo-placar{ font-size: 16px; }
     }
   `;
-
-  // evita duplicar caso você reinicie o jogo sem recarregar
-  const old = document.getElementById("dueloStyles");
-  if (old) old.remove();
-
   document.head.appendChild(style);
 }
-
 
 function atualizarDueloUI() {
   // FOTO DO MESTRE
@@ -380,6 +394,13 @@ function atualizarDueloUI() {
       foto.removeAttribute("src");
       foto.style.display = "none";
     }
+  }
+
+  // FOTO DO ALUNO
+  const fotoAluno = document.getElementById("dueloAlunoFoto");
+  if (fotoAluno) {
+    fotoAluno.src = avatarAluno || "./avatar1.png";
+    fotoAluno.style.display = "block";
   }
 
   const mestreNome = document.getElementById("dueloMestreNome");
@@ -511,11 +532,11 @@ function finalizarDueloTempo() {
 
   const voceVenceu = a > m;
 
-  const titulo = `⚔️ Resultado do Duelo (${Math.round(duelo.duracaoMs/1000)}s)`;
+  const titulo = `⚔️ Resultado do Duelo (${Math.round(duelo.duracaoMs / 1000)}s)`;
   const linhaVencedor =
     (a > m) ? "VOCÊ VENCEU! 🏆" :
-    (a < m) ? `${mestreNome} venceu! 😈` :
-    "EMPATE! 🤝";
+      (a < m) ? `${mestreNome} venceu! 😈` :
+        "EMPATE! 🤝";
 
   const mestreAtual = duelo.mestre;
 
@@ -603,21 +624,38 @@ function mostrarMestreAntesDeAvancar() {
     return;
   }
 
+  const thumbs = AVATARES_ALUNO.map((a) => `
+    <img src="${a}" style="
+      width:68px;height:68px;border-radius:18px;object-fit:contain;
+      background:rgba(255,255,255,.06);padding:8px;cursor:pointer;
+      border:2px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    " onclick="window.setAvatarAluno('${a}')"/>
+  `).join("");
+
   abrirModal(
     `⚔️ Desafiante: ${mestre.nome}`,
     `
-      <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
         ${mestre.img ? `<img src="${mestre.img}" style="
-  width:150px;height:150px;
-  border-radius:20px;
-  object-fit:contain;      /* ✅ não corta */
-  background: rgba(255,255,255,.06);
-  padding: 8px;
-  border:2px solid rgba(255,255,255,.18);
-  box-shadow: 0 12px 28px rgba(0,0,0,.35);
-">` : ""}
-        <div>${mestre.frase}</div>
-        <div><b>Duelo de ${Math.round(duelo.duracaoMs/1000)}s (teste)!</b><br>Quem fizer mais pontos vence.</div>
+          width:190px;height:190px;
+          border-radius:26px;
+          object-fit:contain;
+          background: rgba(255,255,255,.06);
+          padding: 10px;
+          border:2px solid rgba(255,255,255,.18);
+          box-shadow: 0 14px 34px rgba(0,0,0,.35);
+        ">` : ""}
+        <div style="font-size:18px; font-weight:900;">${mestre.frase}</div>
+
+        <div style="margin-top:4px; font-size:14px; opacity:.95;">
+          Escolha seu avatar:
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:10px; flex-wrap:wrap;">
+          ${thumbs}
+        </div>
+
+        <div style="margin-top:6px;"><b>Duelo de ${Math.round(duelo.duracaoMs / 1000)}s (teste)!</b><br>Quem fizer mais pontos vence.</div>
       </div>
     `,
     () => { abrirDuelo(mestre); },
@@ -932,7 +970,7 @@ if (btnNao) btnNao.addEventListener("click", (e) => {
 // =======================
 // ENTER / ESC (Modal)
 // =======================
-function isEnterKey(e){
+function isEnterKey(e) {
   return (e.key === "Enter" || e.code === "Enter" || e.code === "NumpadEnter" || e.keyCode === 13);
 }
 
@@ -959,8 +997,8 @@ document.addEventListener("keydown", (e) => {
 // =======================
 // SOM
 // =======================
-function beep(freq=880, dur=0.12, vol=0.12) {
-  try{
+function beep(freq = 880, dur = 0.12, vol = 0.12) {
+  try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     const ctx = new AudioCtx();
     const o = ctx.createOscillator();
@@ -973,17 +1011,17 @@ function beep(freq=880, dur=0.12, vol=0.12) {
     o.start();
     o.stop(ctx.currentTime + dur);
     o.onended = () => ctx.close();
-  }catch(e){}
+  } catch (e) { }
 }
-function fanfarraCurta(){
-  beep(740, 0.09); setTimeout(()=>beep(880,0.09), 90);
-  setTimeout(()=>beep(988,0.10), 180);
+function fanfarraCurta() {
+  beep(740, 0.09); setTimeout(() => beep(880, 0.09), 90);
+  setTimeout(() => beep(988, 0.10), 180);
 }
-function fanfarraGrande(){
-  beep(523,0.10); setTimeout(()=>beep(659,0.10), 110);
-  setTimeout(()=>beep(784,0.10), 220);
-  setTimeout(()=>beep(988,0.12), 340);
-  setTimeout(()=>beep(1175,0.14), 480);
+function fanfarraGrande() {
+  beep(523, 0.10); setTimeout(() => beep(659, 0.10), 110);
+  setTimeout(() => beep(784, 0.10), 220);
+  setTimeout(() => beep(988, 0.12), 340);
+  setTimeout(() => beep(1175, 0.14), 480);
 }
 
 // =======================
@@ -992,7 +1030,7 @@ function fanfarraGrande(){
 let particles = [];
 let rockets = [];
 
-function resizeFx(){
+function resizeFx() {
   if (!fxCanvas || !fxCtx) return;
   const dpr = Math.max(1, window.devicePixelRatio || 1);
   fxCanvas.width = Math.floor(window.innerWidth * dpr);
@@ -1004,7 +1042,7 @@ function resizeFx(){
 window.addEventListener("resize", resizeFx);
 resizeFx();
 
-function rand(min, max){ return Math.random() * (max - min) + min; }
+function rand(min, max) { return Math.random() * (max - min) + min; }
 
 function spawnRocket() {
   if (!fxCanvas) return;
@@ -1036,7 +1074,7 @@ function explode(x, y, hue, count = 160, power = 7.5) {
   }
 }
 
-function animateFx(){
+function animateFx() {
   if (!fxCtx || !fxCanvas) return;
 
   fxCtx.globalCompositeOperation = "source-over";
@@ -1102,12 +1140,12 @@ function animateFx(){
 }
 animateFx();
 
-function fogosMedios(){
+function fogosMedios() {
   fanfarraCurta();
   for (let i = 0; i < 6; i++) setTimeout(spawnRocket, i * 140);
 }
 
-function fogosGrandes(){
+function fogosGrandes() {
   fanfarraGrande();
   for (let i = 0; i < 16; i++) setTimeout(spawnRocket, i * 95);
 }
@@ -1460,6 +1498,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
