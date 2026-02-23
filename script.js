@@ -315,6 +315,8 @@ function fecharDuelo() {
   duelo.tickTimer = null;
 
   if (dueloEl) dueloEl.classList.add("hidden");
+
+  document.body.classList.remove("modo-duelo");
 }
 
 function prepararUIParaDuelo() {
@@ -377,6 +379,7 @@ function iniciarTickDuelo() {
 }
 
 function abrirDuelo(mestre) {
+  document.body.classList.add("modo-duelo");
   ensureDueloOverlay();
   dueloAtivo = true;
   duelo.mestre = mestre;
@@ -1356,6 +1359,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
