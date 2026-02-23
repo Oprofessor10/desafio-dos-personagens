@@ -289,6 +289,12 @@ function ensureDueloOverlay() {
 }
 
 function atualizarDueloUI() {
+  const foto = document.getElementById("dueloMestreFoto");
+if (foto) {
+  const src = (duelo.mestre && duelo.mestre.img) ? duelo.mestre.img : "";
+  foto.src = src;
+  foto.style.display = src ? "block" : "none";
+}
   const mestreNome = document.getElementById("dueloMestreNome");
   const mestrePontos = document.getElementById("dueloMestrePontos");
   const mestreErros = document.getElementById("dueloMestreErros");
@@ -1377,6 +1383,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
