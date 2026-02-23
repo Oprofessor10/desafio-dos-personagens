@@ -652,3 +652,54 @@ body.modo-duelo .tabuleiro {
   background:
     radial-gradient(circle at center, #1b2e35 0%, #0b0f14 80%);
 }
+/* =========================
+   ARENA / RINGUE DO DUELO
+========================= */
+
+/* Esconde topo do jogo durante o duelo (pra parecer arena) */
+body.modo-duelo .seletor,
+body.modo-duelo #btnIniciar,
+body.modo-duelo .painel,
+body.modo-duelo #fimJogo {
+  display: none !important;
+}
+
+/* Remove contador/monte durante duelo */
+body.modo-duelo .pilha-topo,
+body.modo-duelo .pilha-rodape,
+body.modo-duelo .pilha-direita::before,
+body.modo-duelo .pilha-direita::after,
+body.modo-duelo .pilha-zerou {
+  display: none !important;
+}
+
+/* Centraliza e “abre espaço” pra arena */
+body.modo-duelo .area-cartas{
+  margin-top: 40px;
+  gap: 60px;
+}
+
+/* Aumenta um pouco as cartas no duelo */
+body.modo-duelo{
+  --cardW: 280px;
+  --xW: 110px;
+}
+
+/* Fundo mais “arena” */
+body.modo-duelo .tabuleiro{
+  background:
+    radial-gradient(circle at center, rgba(0,255,180,0.08), transparent 60%),
+    radial-gradient(circle at center, rgba(0,160,255,0.10), transparent 70%),
+    linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+/* Coloca o placar do duelo no TOPO (não cobrindo as cartas) */
+body.modo-duelo #dueloOverlay{
+  place-items: start center !important;
+  padding-top: 18px;
+}
+
+body.modo-duelo #dueloOverlay .duelo-box{
+  width: min(980px, 96vw) !important;
+  background: rgba(0,0,0,.30) !important;
+}
