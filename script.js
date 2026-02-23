@@ -212,47 +212,66 @@ let duelo = {
 function ensureDueloOverlay() {
   if (dueloEl) return;
 
+  // Cria overlay
   dueloEl = document.createElement("div");
   dueloEl.id = "dueloOverlay";
   dueloEl.className = "duelo hidden";
+
+  // HTML do ring (lado a lado)
   dueloEl.innerHTML = `
     <div class="duelo-box">
-      <div class="duelo-top">
-        <div class="duelo-lado">
-          <img id="dueloMestreFoto" class="duelo-foto" src="" alt="">
-          <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
+      <div class="duelo-row">
+
+        <div class="duelo-card">
+          <div class="duelo-head">
+            <img id="dueloMestreFoto" class="duelo-foto" src="" alt="">
+            <div class="duelo-nome" id="dueloMestreNome">MESTRE</div>
+          </div>
+
+          <div class="duelo-placar">
+            <div>⭐ <span id="dueloMestrePontos">0</span></div>
+            <div>❌ <span id="dueloMestreErros">0</span></div>
+            <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">--</span></div>
+          </div>
         </div>
 
-        <div class="duelo-placar">
-          <div>⭐ Pontos: <span id="dueloMestrePontos">0</span></div>
-          <div>❌ Erros: <span id="dueloMestreErros">0</span></div>
-          <div class="duelo-tempo">⏱️ <span id="dueloTempoMestre">--</span></div>
-        </div>
-      </div>
-
-      <div class="duelo-mid">
         <div class="duelo-versus">VS</div>
-      </div>
 
-      <div class="duelo-bot">
-        <div class="duelo-nome" id="dueloAlunoNome">VOCÊ</div>
-        <div class="duelo-placar">
-          <div>⭐ Pontos: <span id="dueloAlunoPontos">0</span></div>
-          <div>❌ Erros: <span id="dueloAlunoErros">0</span></div>
+        <div class="duelo-card duelo-card-aluno">
+          <div class="duelo-head">
+            <div class="duelo-nome" id="dueloAlunoNome">VOCÊ</div>
+          </div>
+
+          <div class="duelo-placar">
+            <div>⭐ <span id="dueloAlunoPontos">0</span></div>
+            <div>❌ <span id="dueloAlunoErros">0</span></div>
+          </div>
         </div>
+
       </div>
     </div>
   `;
+
   document.body.appendChild(dueloEl);
 
+  // CSS do ring (TEM que estar dentro da string abaixo)
   const style = document.createElement("style");
+  style.id = "dueloStyles";
   style.textContent = `
-    .duelo{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 12000; pointer-events:none; }
+    .duelo{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: start center;
+      padding-top: 14px;
+      z-index: 12000;
+      pointer-events: none;
+    }
     .duelo.hidden{ display:none; }
 
     .duelo-box{
-      pointer-events:none;
-      width: min(720px, 96vw);
+      pointer-events: none;
+      width: min(920px, 96vw);
       border-radius: 18px;
       padding: 10px 12px;
       background: rgba(0,0,0,.18);
@@ -260,49 +279,94 @@ function ensureDueloOverlay() {
       backdrop-filter: blur(6px);
     }
 
-    .duelo-top, .duelo-bot{
-      display:flex; align-items:center; justify-content: space-between;
+    .duelo-row{
+      display:flex;
+      align-items: stretch;
+      justify-content: center;
       gap: 12px;
-      padding: 8px 10px;
+    }
+
+    .duelo-card{
+      flex: 1;
+      min-width: 260px;
       border-radius: 14px;
+      padding: 10px 12px;
       background: rgba(0,0,0,.28);
       border: 1px solid rgba(255,255,255,.08);
       font-weight: 900;
     }
 
-    .duelo-lado{ display:flex; align-items:center; gap:10px; min-width: 240px; }
-    .duelo-foto{
-      width: 42px; height: 42px;
-      border-radius: 999px;
-      object-fit: cover;
-      border: 2px solid rgba(255,255,255,.20);
-      box-shadow: 0 10px 22px rgba(0,0,0,.25);
-      background: rgba(255,255,255,.08);
+    .duelo-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom: 8px;
     }
 
-    .duelo-mid{ display:flex; justify-content:center; padding: 8px 0; }
+    .duelo-foto{
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      object-fit: contain;               /* ✅ não corta */
+      background: rgba(255,255,255,.06);
+      padding: 4px;
+      border: 2px solid rgba(255,255,255,.20);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .duelo-nome{
+      font-size: 16px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+
+    .duelo-placar{
+      display:flex;
+      gap: 12px;
+      font-size: 14px;
+      opacity:.95;
+      align-items:center;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+      text-align:right;
+    }
+
+    .duelo-tempo{ opacity: .95; }
+
     .duelo-versus{
-      width: 64px; height: 32px;
-      display:grid; place-items:center;
+      align-self: center;
+      width: 56px;
+      height: 34px;
+      display:grid;
+      place-items:center;
       border-radius: 999px;
       background: rgba(255,255,255,.10);
       border: 1px solid rgba(255,255,255,.10);
       font-weight: 900;
       letter-spacing: 2px;
+      flex: 0 0 auto;
     }
 
-    .duelo-nome{ font-size: 16px; text-transform: uppercase; white-space: nowrap; }
-    .duelo-placar{ display:flex; gap: 12px; font-size: 14px; opacity:.95; align-items:center; flex-wrap: wrap; justify-content:flex-end; text-align:right; }
-    .duelo-tempo{ opacity: .95; }
-
-    @media (max-width: 900px){
-      .duelo-box{ width: 96vw; }
-      .duelo-placar{ gap: 10px; font-size: 13px; }
-      .duelo-lado{ min-width: auto; }
+    @media (max-width: 700px){
+      .duelo{ place-items: center; padding-top: 0; }
+      .duelo-row{ flex-direction: column; }
+      .duelo-versus{ width: 64px; margin: 6px auto; }
+      .duelo-card{ min-width: unset; }
+      .duelo-nome{ max-width: 100%; }
     }
   `;
+
+  // evita duplicar caso você reinicie o jogo sem recarregar
+  const old = document.getElementById("dueloStyles");
+  if (old) old.remove();
+
   document.head.appendChild(style);
 }
+
 
 function atualizarDueloUI() {
   // FOTO DO MESTRE
@@ -543,7 +607,15 @@ function mostrarMestreAntesDeAvancar() {
     `⚔️ Desafiante: ${mestre.nome}`,
     `
       <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-        ${mestre.img ? `<img src="${mestre.img}" style="width:110px;height:110px;border-radius:18px;object-fit:cover;border:2px solid rgba(255,255,255,.18);">` : ""}
+        ${mestre.img ? `<img src="${mestre.img}" style="
+  width:150px;height:150px;
+  border-radius:20px;
+  object-fit:contain;      /* ✅ não corta */
+  background: rgba(255,255,255,.06);
+  padding: 8px;
+  border:2px solid rgba(255,255,255,.18);
+  box-shadow: 0 12px 28px rgba(0,0,0,.35);
+">` : ""}
         <div>${mestre.frase}</div>
         <div><b>Duelo de ${Math.round(duelo.duracaoMs/1000)}s (teste)!</b><br>Quem fizer mais pontos vence.</div>
       </div>
@@ -1388,6 +1460,7 @@ document.addEventListener("keydown", (e) => {
 
   verificar();
 }, { passive: false });
+
 
 
 
