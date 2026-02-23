@@ -739,4 +739,7 @@ body.modo-duelo #dueloOverlay .duelo-bot{
   background: rgba(255,255,255,.06) !important;
   border: 1px solid rgba(255,255,255,.10) !important;
 }
+body.modo-duelo .area-cartas{
+  margin-top: 90px !important; /* empurra as cartas pra baixo */
+}
 
