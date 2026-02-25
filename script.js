@@ -15,9 +15,9 @@ const MESTRES = [
 ];
 
 // =======================
-// AVATAR DO ALUNO (por enquanto: escolha de avatar)
+// AVATAR DO ALUNO
 // =======================
-let avatarAluno = "./avatar1.png"; // crie esses arquivos depois (avatar1.png, avatar2.png, avatar3.png)
+let avatarAluno = "./avatar1.png";
 const AVATARES_ALUNO = ["./avatar1.png", "./avatar2.png", "./avatar3.png"];
 
 window.setAvatarAluno = function (src) {
@@ -206,8 +206,8 @@ let duelo = {
   errosAluno: 0,
   errosMestre: 0,
 
-  // tempo
-  duracaoMs: 10000, // ✅ TESTE: 10s (depois voltamos pra 60000)
+  // ✅ TESTE: mantém 10s por enquanto (você pediu)
+  duracaoMs: 10000,
   fimEm: 0,
   tickTimer: null,
 
@@ -301,7 +301,6 @@ function ensureDueloOverlay() {
       margin-bottom: 10px;
     }
 
-    /* FOTO MAIOR (sem cortar) */
     .duelo-foto{
       width: 86px;
       height: 86px;
@@ -324,7 +323,6 @@ function ensureDueloOverlay() {
       max-width: 420px;
     }
 
-    /* placar maior */
     .duelo-placar{
       display:flex;
       gap: 18px;
@@ -336,7 +334,6 @@ function ensureDueloOverlay() {
       text-align:right;
     }
 
-    /* VS mais radical */
     .duelo-versus{
       align-self: center;
       width: 86px;
@@ -369,7 +366,6 @@ function ensureDueloOverlay() {
       letter-spacing: 2px;
     }
 
-    /* mobile: empilha */
     @media (max-width: 700px){
       .duelo-row{ flex-direction: column; }
       .duelo-versus{ width: 96px; height: 72px; margin: 8px auto; transform: rotate(-3deg); }
@@ -383,7 +379,6 @@ function ensureDueloOverlay() {
 }
 
 function atualizarDueloUI() {
-  // FOTO DO MESTRE
   const foto = document.getElementById("dueloMestreFoto");
   if (foto) {
     const src = (duelo.mestre && duelo.mestre.img) ? duelo.mestre.img : "";
@@ -396,7 +391,6 @@ function atualizarDueloUI() {
     }
   }
 
-  // FOTO DO ALUNO
   const fotoAluno = document.getElementById("dueloAlunoFoto");
   if (fotoAluno) {
     fotoAluno.src = avatarAluno || "./avatar1.png";
@@ -441,14 +435,15 @@ function prepararUIParaDuelo() {
   if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
   if (cartaDireita) cartaDireita.classList.remove("hidden");
 
-  // garante carta direita em back (mostrando número)
+  // garante modo jogo (explosão) no duelo
+  setModoJogoCartas();
+
   if (cartaDireita) {
     cartaDireita.classList.remove("front");
     cartaDireita.classList.add("back");
   }
 }
 
-// limite máximo de respostas do mestre por fase (em 60s)
 const LIMITE_MESTRE = {
   facil: 25,
   media: 40,
@@ -481,12 +476,8 @@ function iniciarTickDuelo() {
   if (duelo.tickTimer) clearInterval(duelo.tickTimer);
   duelo.tickTimer = setInterval(() => {
     if (!dueloAtivo) return;
-
     atualizarDueloUI();
-
-    if (performance.now() >= duelo.fimEm) {
-      finalizarDueloTempo();
-    }
+    if (performance.now() >= duelo.fimEm) finalizarDueloTempo();
   }, 150);
 }
 
@@ -531,12 +522,11 @@ function finalizarDueloTempo() {
   const m = duelo.pontosMestre;
 
   const voceVenceu = a > m;
-
   const titulo = `⚔️ Resultado do Duelo (${Math.round(duelo.duracaoMs / 1000)}s)`;
   const linhaVencedor =
     (a > m) ? "VOCÊ VENCEU! 🏆" :
-      (a < m) ? `${mestreNome} venceu! 😈` :
-        "EMPATE! 🤝";
+    (a < m) ? `${mestreNome} venceu! 😈` :
+    "EMPATE! 🤝";
 
   const mestreAtual = duelo.mestre;
 
@@ -701,7 +691,7 @@ function keypadOk() {
     confirmarSim();
     return;
   }
-  verificar();
+  if (typeof window.verificar === "function") window.verificar();
 }
 
 if (keypad) {
@@ -738,14 +728,42 @@ setKeypadLayoutFlags();
 // =======================
 function virarParaFrente(carta) {
   if (!carta) return;
-  carta.classList.remove("back");
+  carta.classList.remove("back", "back-prof");
   carta.classList.add("front");
 }
+
 function virarParaVersoComNumero(carta, numeroDiv, valor) {
   if (!carta || !numeroDiv) return;
-  carta.classList.remove("front");
+  carta.classList.remove("front", "back-prof");
   carta.classList.add("back");
   numeroDiv.textContent = String(valor);
+}
+
+// ✅ MODO ESCOLHA = mostra Oprofessor (requer CSS .back-prof)
+function setModoEscolhaCartas() {
+  if (cartaEsquerda) {
+    cartaEsquerda.classList.remove("front", "back");
+    cartaEsquerda.classList.add("back-prof");
+  }
+  if (cartaDireita) {
+    cartaDireita.classList.remove("front", "back");
+    cartaDireita.classList.add("back-prof");
+  }
+
+  if (numEsquerda) numEsquerda.textContent = "";
+  if (numDireita) numDireita.textContent = "";
+}
+
+// ✅ MODO JOGO = explosão + números por cima (classe .back)
+function setModoJogoCartas() {
+  if (cartaEsquerda) {
+    cartaEsquerda.classList.remove("front", "back-prof");
+    cartaEsquerda.classList.add("back");
+  }
+  if (cartaDireita) {
+    cartaDireita.classList.remove("front", "back-prof");
+    cartaDireita.classList.add("back");
+  }
 }
 
 // =======================
@@ -785,7 +803,8 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 4; // ✅ TESTE (depois volta pra 20)
+  // ✅ mantém teste do fácil como você pediu
+  if (f === "facil") return 4;
   if (f === "media") return 40;
   return 60;
 }
@@ -835,11 +854,6 @@ function resetTudoParaInicio() {
 
   if (fimJogoDiv) fimJogoDiv.innerHTML = "";
 
-  virarParaFrente(cartaEsquerda);
-  virarParaFrente(cartaDireita);
-  if (numEsquerda) numEsquerda.textContent = "";
-  if (numDireita) numDireita.textContent = "";
-
   syncFaseEMeta();
   atualizarPainel();
   setPilhaDireita(meta);
@@ -850,6 +864,9 @@ function resetTudoParaInicio() {
     respostaInput.value = "";
     respostaInput.blur();
   }
+
+  if (tabuadaSelect) tabuadaSelect.value = "";
+  setModoEscolhaCartas();
 
   ensureMobileInputMode();
 }
@@ -879,9 +896,6 @@ function finalizarJogoTempo() {
   fecharDuelo();
 
   if (acertos < meta) {
-    virarParaFrente(cartaEsquerda);
-    virarParaFrente(cartaDireita);
-
     if (fimJogoDiv) {
       fimJogoDiv.innerHTML = `
         😢 Você perdeu! <br> Deseja tentar novamente? <br><br>
@@ -904,8 +918,7 @@ function finalizarJogoTempo() {
   if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
   if (cartaDireita) cartaDireita.classList.remove("hidden");
 
-  virarParaFrente(cartaDireita);
-  if (numDireita) numDireita.textContent = "";
+  setModoEscolhaCartas();
 }
 
 // =======================
@@ -1160,19 +1173,44 @@ if (tabuadaSelect) {
     if (v === "") {
       tabuada = 1;
       numeroAtual = 1;
-      virarParaFrente(cartaEsquerda);
-      virarParaFrente(cartaDireita);
-      if (numEsquerda) numEsquerda.textContent = "";
-      if (numDireita) numDireita.textContent = "";
+      tabuadaAtual = 1;
+
       if (labelTabuada) labelTabuada.textContent = "";
+      setModoEscolhaCartas();
+
+      // ✅ para o jogo se voltar pra "Escolha"
+      jogoAtivo = false;
+      cronometroAtivo = false;
+      clearInterval(intervalo);
+
       return;
     }
 
+    // ✅ escolheu tabuada: vira a "tabuada atual" da sequência
     tabuada = Number(v);
+    tabuadaAtual = tabuada; // <-- isso resolve seu problema do "voltar pro 3"
     numeroAtual = 1;
+
+    // ✅ zera placar/tempo da rodada ao trocar tabuada manualmente
+    jogoAtivo = false;
+    cronometroAtivo = false;
+    clearInterval(intervalo);
+
+    tempo = 60;
+    acertos = 0;
+    erros = 0;
+    etapa = "normal";
+
+    // ✅ refaz o pool de mestres baseado na tabuada escolhida
+    prepararMestresParaJogada(tabuadaAtual);
+
+    syncFaseEMeta();
+    atualizarPainel();
+    setPilhaDireita(meta);
 
     atualizarLabelTabuada();
 
+    setModoJogoCartas();
     virarParaVersoComNumero(cartaEsquerda, numEsquerda, tabuada);
     virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
@@ -1186,7 +1224,17 @@ if (tabuadaSelect) {
 window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
   syncFaseEMeta();
 
-  tabuadaAtual = Number((tabuadaSelect && tabuadaSelect.value) || 1);
+  if (!tabuadaSelecionadaValida()) {
+    abrirModal(
+      "Escolha a tabuada",
+      "Selecione uma tabuada (1 a 10) para começar.",
+      () => { if (tabuadaSelect) tabuadaSelect.focus(); },
+      () => { if (tabuadaSelect) tabuadaSelect.focus(); }
+    );
+    return;
+  }
+
+  tabuadaAtual = Number(tabuadaSelect.value);
   tabuada = tabuadaAtual;
 
   prepararMestresParaJogada(tabuadaAtual);
@@ -1211,6 +1259,7 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
 
   setPilhaDireita(meta);
 
+  setModoJogoCartas();
   virarParaVersoComNumero(cartaEsquerda, numEsquerda, tabuada);
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
@@ -1251,6 +1300,8 @@ function iniciarDesafioAleatorio() {
   setPilhaDireita(meta);
 
   numeroAtual = Math.floor(Math.random() * 10) + 1;
+
+  setModoJogoCartas();
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
   if (respostaInput) {
@@ -1259,6 +1310,167 @@ function iniciarDesafioAleatorio() {
   }
 }
 
+// =======================
+// OP R O F E S S O R (Pantera) — só na troca de nível
+// Competição regressiva 60s, tabuadas alternadas (1..10) e número (1..10)
+// Regras ficam escondidas (NÃO mostrar meta na tela final)
+// =======================
+const OPROFESSOR = {
+  nome: "Oprofessor 🐾 (Pantera)",
+  img: "./oprofessor.png" // ajuste se o nome do arquivo for outro
+};
+
+const OP_RULES = {
+  facil:   { alunoMin: 25, opMax: 24 },
+  media:   { alunoMin: 45, opMax: 44 },
+  dificil: { alunoMin: 60, opMax: 59 }
+};
+
+function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
+  const rules = OP_RULES[faseAtual] || OP_RULES.facil;
+
+  let pontosAluno = 0;
+  let pontosOp = 0;
+
+  // trava timers normais
+  jogoAtivo = true;
+  cronometroAtivo = false;
+  clearInterval(intervalo);
+
+  // garante cartas no modo jogo (explosão + números)
+  if (typeof setModoJogoCartas === "function") setModoJogoCartas();
+
+  function novaPerguntaGlobal() {
+    tabuada = Math.floor(Math.random() * 10) + 1;
+    numeroAtual = Math.floor(Math.random() * 10) + 1;
+
+    if (tabuadaSelect) tabuadaSelect.value = String(tabuada);
+    atualizarLabelTabuada();
+
+    virarParaVersoComNumero(cartaEsquerda, numEsquerda, tabuada);
+    virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
+
+    if (respostaInput) respostaInput.value = "";
+    atualizarPlaceholder();
+    focusRespostaSeguro();
+  }
+
+  // cronômetro regressivo real (60s)
+  let acabou = false;
+  let t0 = performance.now();
+  let tick = null;
+
+  function setTempoTela(valor) {
+    tempo = Math.max(0, Math.floor(valor));
+    if (tempoSpan) tempoSpan.textContent = String(tempo);
+  }
+
+  function iniciarTempoRegressivo() {
+    setTempoTela(60);
+    if (tick) clearInterval(tick);
+    tick = setInterval(() => {
+      if (acabou) return;
+      const elapsed = (performance.now() - t0) / 1000;
+      const rest = 60 - elapsed;
+      setTempoTela(rest);
+      if (rest <= 0) finalizar();
+    }, 120);
+  }
+
+  // “respostas” do Oprofessor (até opMax)
+  let opTimers = [];
+
+  function agendarOprofessor() {
+    opTimers.forEach(clearTimeout);
+    opTimers = [];
+
+    const base = 60000 / Math.max(1, rules.opMax);
+    for (let i = 1; i <= rules.opMax; i++) {
+      const ideal = i * base;
+      const jitter = (Math.random() * 0.35 - 0.175) * base;
+      const when = Math.max(80, Math.min(60000, ideal + jitter));
+
+      opTimers.push(setTimeout(() => {
+        if (acabou) return;
+        if (pontosOp < rules.opMax) pontosOp++;
+      }, when));
+    }
+  }
+
+  function finalizar() {
+    if (acabou) return;
+    acabou = true;
+
+    if (tick) clearInterval(tick);
+    tick = null;
+
+    opTimers.forEach(clearTimeout);
+    opTimers = [];
+
+    const alunoBateuMin = pontosAluno >= rules.alunoMin;
+    const alunoGanhouNoPlacar = pontosAluno > pontosOp; // empate não sobe
+    const venceu = alunoBateuMin && alunoGanhouNoPlacar;
+
+    const placar = `<b>Você:</b> ${pontosAluno} | <b>${OPROFESSOR.nome}:</b> ${pontosOp}`;
+
+    if (venceu) {
+      if (typeof fogosGrandes === "function") fogosGrandes();
+
+      setTimeout(() => {
+        abrirModal(
+          "👑 Mestre dos Mestres!",
+          `Você se tornou o <b>MESTRE DOS MESTRES</b> na fase <b>${faseAtual.toUpperCase()}</b>!<br><br>${placar}<br><br>Quer subir de nível?`,
+          () => onVenceu(),
+          () => onPerdeu()
+        );
+      }, 650);
+    } else {
+      abrirModal(
+        "🐾 Oprofessor venceu!",
+        `${placar}<br><br>😈 Você perdeu.<br>Quer tentar novamente?`,
+        () => onPerdeu(),
+        () => onPerdeu()
+      );
+    }
+  }
+
+  // intercepta verificar só durante o desafio
+  const verificarOriginal = window.verificar;
+
+  window.verificar = function () {
+    if (acabou) return;
+    if (!respostaInput) return;
+
+    const v = respostaInput.value;
+    if (v === "") return;
+
+    const resposta = Number(v);
+    const correta = tabuada * numeroAtual;
+
+    if (resposta === correta) {
+      pontosAluno++;
+      novaPerguntaGlobal();
+    } else {
+      respostaInput.value = "";
+      atualizarPlaceholder();
+      focusRespostaSeguro();
+    }
+  };
+
+  const restore = () => { window.verificar = verificarOriginal; };
+
+  // start
+  t0 = performance.now();
+  iniciarTempoRegressivo();
+  agendarOprofessor();
+  novaPerguntaGlobal();
+
+  setTimeout(() => { restore(); }, 60500);
+}
+
+// =======================
+// ✅ AVANÇAR (com Oprofessor antes de subir nível) — CORRETO
+// =======================
 function avancarParaProximaTabuadaOuFase() {
   jogoAtivo = true;
   cronometroAtivo = false;
@@ -1266,42 +1478,91 @@ function avancarParaProximaTabuadaOuFase() {
 
   fecharDuelo();
 
+  // pega a tabuada atual (do select)
+  if (tabuadaSelecionadaValida()) {
+    tabuadaAtual = Number(tabuadaSelect.value);
+  }
+
   tabuadaAtual++;
 
+  // ✅ PASSOU DA 10: chama Oprofessor e SAI (não deixa ir pra 11)
   if (tabuadaAtual > 10) {
-    if (faseAtual === "facil") faseAtual = "media";
-    else if (faseAtual === "media") faseAtual = "dificil";
-    else {
+    const proximoNivel =
+      (faseAtual === "facil") ? "media" :
+      (faseAtual === "media") ? "dificil" :
+      null;
+
+    // se já está no difícil, final definitivo
+    if (!proximoNivel) {
       abrirModal(
-        "🏆 Parabéns!",
-        `Você completou até a tabuada 10 no <b>Difícil</b>!`,
-        () => { resetTudoParaInicio(); },
-        () => { resetTudoParaInicio(); }
+        "👑 Mestre dos Mestres!",
+        `Você me venceu e se tornou o <b>MESTRE DOS MESTRES</b>!<br><br>${OPROFESSOR.nome} se rende diante de você! 🐾🔥`,
+        () => resetTudoParaInicio(),
+        () => resetTudoParaInicio()
       );
       return;
     }
 
-    if (faseSelect) faseSelect.value = faseAtual;
-    meta = setMetaByFase(faseAtual);
-
-    tabuadaAtual = 1;
+    // pré-desafio (provocação + carta do Oprofessor)
     abrirModal(
-      "⬆️ Você subiu de nível!",
-      `Agora você está no nível <b>${faseAtual.toUpperCase()}</b>.<br>Quer começar?`,
+      "🐾 Mestre dos Mestres",
+      `
+        <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+          ${OPROFESSOR.img ? `<img src="${OPROFESSOR.img}" style="
+            width:210px;height:210px;border-radius:26px;object-fit:contain;
+            background: rgba(255,255,255,.06); padding: 10px;
+            border:2px solid rgba(255,255,255,.18);
+            box-shadow: 0 14px 34px rgba(0,0,0,.35);
+          ">` : ""}
+
+          <div style="font-size:18px; font-weight:900; line-height:1.35; text-align:center;">
+            Você acha que é bom? Agora vamos ver.<br>
+            Te desafio a um duelo de verdade!<br>
+            Está pronto para parar de brincar e enfrentar alguém bom de verdade?
+          </div>
+
+          <div style="margin-top:6px; font-size:14px; opacity:.95; text-align:center;">
+            Duelo regressivo de <b>60 segundos</b>. Tabuadas alternadas.
+          </div>
+        </div>
+      `,
       () => {
-        if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
-        window.iniciarJogo(false);
+        iniciarDesafioOprofessor60s(
+          () => {
+            // venceu: sobe nível e reinicia no 1
+            faseAtual = proximoNivel;
+            if (faseSelect) faseSelect.value = faseAtual;
+
+            meta = setMetaByFase(faseAtual);
+            tabuadaAtual = 1;
+
+            abrirModal(
+              "⬆️ Você subiu de nível!",
+              `Agora você está no nível <b>${faseAtual.toUpperCase()}</b>.<br>Quer começar do 1?`,
+              () => {
+                if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
+                window.iniciarJogo(false);
+              },
+              () => resetTudoParaInicio()
+            );
+          },
+          () => resetTudoParaInicio()
+        );
       },
-      () => { resetTudoParaInicio(); }
+      () => resetTudoParaInicio()
     );
-    return;
+
+    return; // 🔥 trava total pra não cair no fluxo normal
   }
 
+  // ✅ fluxo normal (1..10)
   if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
 
   tabuada = tabuadaAtual;
   fase = faseAtual;
   meta = setMetaByFase(faseAtual);
+
+  prepararMestresParaJogada(tabuadaAtual);
 
   atualizarLabelTabuada();
 
@@ -1314,6 +1575,7 @@ function avancarParaProximaTabuadaOuFase() {
   atualizarPainel();
   setPilhaDireita(meta);
 
+  setModoJogoCartas();
   virarParaVersoComNumero(cartaEsquerda, numEsquerda, tabuada);
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
@@ -1384,9 +1646,7 @@ function verificar() {
       duelo.pontosAluno++;
       atualizarDueloUI();
 
-      // invalida resposta do mestre da pergunta anterior
       duelo.perguntaToken++;
-
       gerarPerguntaDueloNova();
 
       respostaInput.value = "";
@@ -1423,9 +1683,12 @@ function verificar() {
   }
 
   proximoNumero();
+  setModoJogoCartas();
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
   focusRespostaSeguro();
 }
+
+window.verificar = verificar;
 
 // =======================
 // PWA REGISTRO
@@ -1473,7 +1736,7 @@ if (respostaInput) {
       respostaInput.value = digitado;
     }
 
-    verificar();
+    if (typeof window.verificar === "function") window.verificar();
   }, { passive: false });
 }
 
@@ -1496,8 +1759,28 @@ document.addEventListener("keydown", (e) => {
     respostaInput.value = digitado;
   }
 
-  verificar();
+  if (typeof window.verificar === "function") window.verificar();
 }, { passive: false });
+
+// =======================
+// ✅ ESTADO INICIAL
+// =======================
+(function initEstadoInicial() {
+  syncFaseEMeta();
+  atualizarPainel();
+
+  if (tabuadaSelect && tabuadaSelect.value === "") {
+    setModoEscolhaCartas();
+  } else if (tabuadaSelecionadaValida()) {
+    atualizarLabelTabuada();
+    setModoJogoCartas();
+    virarParaVersoComNumero(cartaEsquerda, numEsquerda, Number(tabuadaSelect.value));
+    virarParaVersoComNumero(cartaDireita, numDireita, 1);
+  } else {
+    setModoEscolhaCartas();
+  }
+})();
+
 
 
 
