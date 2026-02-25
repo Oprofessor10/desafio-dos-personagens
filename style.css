@@ -89,7 +89,7 @@ button, select, input{ touch-action: manipulation; }
 }
 
 #btnIniciar{
-  display: block;
+  display: none !important;
   width: fit-content;
   margin: 6px auto 10px;
   padding: 10px 22px;
@@ -212,7 +212,12 @@ button, select, input{ touch-action: manipulation; }
 }
 
 .carta.front{ background-image: url("frente_carta_borda_azul_transparente.png"); }
+
+/* ✅ Verso do jogo (onde aparece o número) = EXPLOSÃO */
 .carta.back{  background-image: url("costa_carta_borda_azul_transparente.png"); }
+
+/* ✅ Verso da tela de escolha (só para mostrar o Oprofessor) */
+.carta.back-prof{ background-image: url("oprofessor_carta.png"); }
 
 .numero{
   display: none;
