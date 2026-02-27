@@ -1,10 +1,10 @@
-const CACHE_NAME = "60-segundos-v106"; // aumenta quando quiser forçar atualização
+const CACHE_NAME = "60-segundos-v107"; // aumenta quando quiser forçar atualização
 
 const urlsToCache = [
   "./",
   "./index.html",
-  "./style.css",
-  "./script.js?v=106", // ✅ TEM que bater com o index.html
+  "./style.css?v=107",     // ✅ tem que bater com o index.html
+  "./script.js?v=107",    // ✅ tem que bater com o index.html
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -74,6 +74,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(req).then((cached) => cached || fetch(req))
   );
 });
+
 
 
 
