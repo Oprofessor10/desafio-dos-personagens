@@ -538,7 +538,14 @@ function abrirDuelo(mestre) {
 
   atualizarDueloUI();
   dueloEl.classList.remove("hidden");
-
+  
+setTimeout(() => {
+  const box = dueloEl?.querySelector(".duelo-box");
+  if (box) {
+    const h = Math.ceil(box.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--dueloH", `${h}px`);
+  }
+}, 0);
   iniciarTickDuelo();
   agendarRespostaMestre();
 
@@ -1807,6 +1814,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
