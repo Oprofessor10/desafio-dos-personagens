@@ -148,6 +148,7 @@ function ensureMobileInputMode() {
   if (!respostaInput) return;
 
   if (isMobileLike()) {
+    // mantém como você fez: usa keypad custom
     respostaInput.disabled = true;
     respostaInput.setAttribute("inputmode", "none");
     respostaInput.setAttribute("autocomplete", "off");
@@ -275,20 +276,18 @@ function ensureDueloOverlay() {
     </div>
   `;
   document.body.appendChild(dueloEl);
-function updateDueloOffset() {
-  const box = dueloEl?.querySelector(".duelo-box");
-  if (!box) return;
 
-  // mede altura real do placar
-  const h = Math.ceil(box.getBoundingClientRect().height);
+  function updateDueloOffset() {
+    const box = dueloEl?.querySelector(".duelo-box");
+    if (!box) return;
+    const h = Math.ceil(box.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--dueloH", `${h}px`);
+  }
+  window.addEventListener("resize", updateDueloOffset, { passive: true });
+  window.addEventListener("orientationchange", updateDueloOffset);
+  setTimeout(updateDueloOffset, 0);
 
-  // salva como variável CSS global
-  document.documentElement.style.setProperty("--dueloH", `${h}px`);
-}
-window.addEventListener("resize", updateDueloOffset, { passive: true });
-window.addEventListener("orientationchange", updateDueloOffset);
-setTimeout(updateDueloOffset, 0);
-  // ✅ CSS DO DUELO ajustado (sem min-width quebrando celular)
+  // ✅ CSS DO DUELO (com fallback mobile sem blur pesado)
   const style = document.createElement("style");
   style.textContent = `
     .duelo{
@@ -321,7 +320,7 @@ setTimeout(updateDueloOffset, 0);
 
     .duelo-card{
       flex: 1;
-      min-width: 0;             /* ✅ CRÍTICO: não estoura no celular */
+      min-width: 0;
       width: 100%;
       border-radius: 16px;
       padding: 12px 14px;
@@ -405,10 +404,16 @@ setTimeout(updateDueloOffset, 0);
       letter-spacing: 2px;
     }
 
-    /* ✅ MOBILE: sempre vira coluna em tela estreita */
     @media (max-width: 520px){
       .duelo{ place-items: start center; padding-top: 10px; }
-      .duelo-box{ width: min(94vw, 560px); overflow:auto; -webkit-overflow-scrolling: touch; }
+      .duelo-box{
+        width: min(94vw, 560px);
+        overflow:auto;
+        -webkit-overflow-scrolling: touch;
+        /* no mobile: blur derruba FPS */
+        backdrop-filter: none;
+        background: rgba(0,0,0,.35);
+      }
       .duelo-row{ flex-direction: column; gap: 10px; }
       .duelo-versus{ width: 96px; height: 72px; margin: 6px auto; transform: rotate(-3deg); }
       .duelo-foto{ width: 70px; height: 70px; }
@@ -418,7 +423,6 @@ setTimeout(updateDueloOffset, 0);
   `;
   document.head.appendChild(style);
 
-  // ✅ garante fallback do avatar do aluno já na criação
   const alunoFoto = document.getElementById("dueloAlunoFoto");
   if (alunoFoto) setImgSafe(alunoFoto, avatarAluno, "./avatar1.png");
 }
@@ -454,6 +458,13 @@ function atualizarDueloUI() {
     const restMs = Math.max(0, duelo.fimEm - performance.now());
     const restS = Math.ceil(restMs / 1000);
     tempoEl.textContent = `${restS}s`;
+  }
+
+  // atualiza altura real do placar para empurrar as cartas (CSS usa --dueloH)
+  const box = dueloEl?.querySelector(".duelo-box");
+  if (box) {
+    const h = Math.ceil(box.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--dueloH", `${h}px`);
   }
 }
 
@@ -538,14 +549,7 @@ function abrirDuelo(mestre) {
 
   atualizarDueloUI();
   dueloEl.classList.remove("hidden");
-  
-setTimeout(() => {
-  const box = dueloEl?.querySelector(".duelo-box");
-  if (box) {
-    const h = Math.ceil(box.getBoundingClientRect().height);
-    document.documentElement.style.setProperty("--dueloH", `${h}px`);
-  }
-}, 0);
+
   iniciarTickDuelo();
   agendarRespostaMestre();
 
@@ -755,10 +759,17 @@ function atualizarPlaceholder() {
   respostaInput.placeholder = (respostaInput.value && respostaInput.value.length > 0) ? "" : "Digite a resposta";
 }
 
+// ✅ resize mais leve (evita “resize louco” no Safari)
+let _resizeRaf = 0;
 window.addEventListener("resize", () => {
-  ensureMobileInputMode();
-  setKeypadLayoutFlags();
-});
+  if (_resizeRaf) cancelAnimationFrame(_resizeRaf);
+  _resizeRaf = requestAnimationFrame(() => {
+    ensureMobileInputMode();
+    setKeypadLayoutFlags();
+    resizeFx();
+  });
+}, { passive: true });
+
 ensureMobileInputMode();
 setKeypadLayoutFlags();
 
@@ -1056,12 +1067,25 @@ document.addEventListener("keydown", (e) => {
 }, { passive: false });
 
 // =======================
-// SOM
+// SOM (✅ otimizado: reutiliza AudioContext)
 // =======================
+let _audioCtx = null;
+function getAudioCtx() {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return null;
+  if (_audioCtx && _audioCtx.state !== "closed") return _audioCtx;
+  _audioCtx = new AudioCtx();
+  return _audioCtx;
+}
+
 function beep(freq = 880, dur = 0.12, vol = 0.12) {
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioCtx();
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+
+    // iOS às vezes precisa de "resume" em gesto do usuário; se estiver suspenso, tenta.
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
     const o = ctx.createOscillator();
     const g = ctx.createGain();
     o.type = "sine";
@@ -1071,7 +1095,9 @@ function beep(freq = 880, dur = 0.12, vol = 0.12) {
     g.connect(ctx.destination);
     o.start();
     o.stop(ctx.currentTime + dur);
-    o.onended = () => ctx.close();
+    o.onended = () => {
+      try { o.disconnect(); g.disconnect(); } catch (e) {}
+    };
   } catch (e) { }
 }
 function fanfarraCurta() {
@@ -1086,21 +1112,57 @@ function fanfarraGrande() {
 }
 
 // =======================
-// FX (FOGOS)
+// FX (FOGOS) ✅ Mobile perfeito: só roda quando tem fogos
 // =======================
 let particles = [];
 let rockets = [];
 
+let fxRunning = false;
+let fxRaf = 0;
+let fxLastFrame = 0;
+let fxIdleSince = 0;
+
+function fxIsMobileQuality() {
+  return isMobileLike() || (window.innerWidth <= 900);
+}
+
+// qualidade (automática)
+function fxConfig() {
+  const mobile = fxIsMobileQuality();
+  return {
+    // limita o dpr no mobile (custo cai MUITO)
+    dprCap: mobile ? 1.5 : 3,
+    // fps alvo
+    fps: mobile ? 30 : 60,
+    // opacidade do “fade”
+    fade: mobile ? 0.24 : 0.18,
+    // grossura
+    rocketLine: mobile ? 1.6 : 2.2,
+    particleLine: mobile ? 1.3 : 2.0,
+    // partículas
+    explodeCount: mobile ? 80 : 170,
+    explodePower: mobile ? 6.2 : 8.2,
+    // rockets por show
+    rocketsMedios: mobile ? 4 : 6,
+    rocketsGrandes: mobile ? 10 : 16,
+    rocketIntervalMedios: mobile ? 170 : 140,
+    rocketIntervalGrandes: mobile ? 115 : 95
+  };
+}
+
 function resizeFx() {
   if (!fxCanvas || !fxCtx) return;
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const cfg = fxConfig();
+
+  const dpr = Math.max(1, Math.min(cfg.dprCap, window.devicePixelRatio || 1));
   fxCanvas.width = Math.floor(window.innerWidth * dpr);
   fxCanvas.height = Math.floor(window.innerHeight * dpr);
   fxCanvas.style.width = window.innerWidth + "px";
   fxCanvas.style.height = window.innerHeight + "px";
   fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-window.addEventListener("resize", resizeFx);
+
+// chama uma vez no começo
 resizeFx();
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
@@ -1119,27 +1181,76 @@ function spawnRocket() {
   });
 }
 
-function explode(x, y, hue, count = 160, power = 7.5) {
-  for (let i = 0; i < count; i++) {
+function explode(x, y, hue, count, power) {
+  const cfg = fxConfig();
+  const c = (typeof count === "number") ? count : cfg.explodeCount;
+  const pwr = (typeof power === "number") ? power : cfg.explodePower;
+
+  for (let i = 0; i < c; i++) {
     const a = Math.random() * Math.PI * 2;
-    const s = rand(power * 0.35, power);
+    const s = rand(pwr * 0.35, pwr);
     particles.push({
       x, y,
       px: x, py: y,
       vx: Math.cos(a) * s,
       vy: Math.sin(a) * s,
-      life: rand(55, 95),
-      size: rand(1.6, 3.2),
+      life: rand(50, 90),
+      size: rand(cfg.explodeCount <= 100 ? 1.2 : 1.6, cfg.explodeCount <= 100 ? 2.6 : 3.2),
       hue: (hue + rand(-18, 18) + 360) % 360
     });
   }
 }
 
-function animateFx() {
-  if (!fxCtx || !fxCanvas) return;
+function startFxLoop() {
+  if (fxRunning) return;
+  fxRunning = true;
+  fxLastFrame = 0;
+  fxIdleSince = 0;
+  fxRaf = requestAnimationFrame(animateFx);
+}
+
+function stopFxLoop() {
+  fxRunning = false;
+  if (fxRaf) cancelAnimationFrame(fxRaf);
+  fxRaf = 0;
+  fxLastFrame = 0;
+  fxIdleSince = 0;
+
+  // limpa tela (evita ficar “embaçado” parado)
+  if (fxCtx) {
+    fxCtx.setTransform(1,0,0,1,0,0);
+    fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+    // volta pro dpr correto
+    resizeFx();
+  }
+}
+
+function animateFx(ts) {
+  if (!fxCtx || !fxCanvas) { stopFxLoop(); return; }
+
+  const cfg = fxConfig();
+
+  // throttle fps
+  const minDt = 1000 / cfg.fps;
+  if (fxLastFrame && (ts - fxLastFrame) < minDt) {
+    fxRaf = requestAnimationFrame(animateFx);
+    return;
+  }
+  fxLastFrame = ts;
+
+  // se não tem nada, inicia idle e para
+  if (rockets.length === 0 && particles.length === 0) {
+    if (!fxIdleSince) fxIdleSince = ts;
+    if (ts - fxIdleSince > 850) { // 0.85s sem partículas = desliga loop
+      stopFxLoop();
+      return;
+    }
+  } else {
+    fxIdleSince = 0;
+  }
 
   fxCtx.globalCompositeOperation = "source-over";
-  fxCtx.fillStyle = "rgba(0,0,0,0.18)";
+  fxCtx.fillStyle = `rgba(0,0,0,${cfg.fade})`;
   fxCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   fxCtx.globalCompositeOperation = "lighter";
@@ -1153,7 +1264,7 @@ function animateFx() {
     r.x += r.vx;
     r.y += r.vy;
 
-    fxCtx.lineWidth = 2.2;
+    fxCtx.lineWidth = cfg.rocketLine;
     fxCtx.strokeStyle = `hsla(${r.hue} 95% 70% / 0.95)`;
     fxCtx.beginPath();
     fxCtx.moveTo(px, py);
@@ -1161,7 +1272,7 @@ function animateFx() {
     fxCtx.stroke();
 
     if (r.life <= 0 || r.vy > -2.5) {
-      explode(r.x, r.y, r.hue, 170, 8.2);
+      explode(r.x, r.y, r.hue);
       rockets.splice(i, 1);
     }
   }
@@ -1182,7 +1293,7 @@ function animateFx() {
 
     const a = Math.max(0, p.life / 95);
 
-    fxCtx.lineWidth = 2.0;
+    fxCtx.lineWidth = cfg.particleLine;
     fxCtx.strokeStyle = `hsla(${p.hue} 100% 70% / ${0.55 * a})`;
     fxCtx.beginPath();
     fxCtx.moveTo(p.px, p.py);
@@ -1197,18 +1308,21 @@ function animateFx() {
     if (p.life <= 0) particles.splice(i, 1);
   }
 
-  requestAnimationFrame(animateFx);
+  if (fxRunning) fxRaf = requestAnimationFrame(animateFx);
 }
-animateFx();
 
 function fogosMedios() {
   fanfarraCurta();
-  for (let i = 0; i < 6; i++) setTimeout(spawnRocket, i * 140);
+  const cfg = fxConfig();
+  startFxLoop();
+  for (let i = 0; i < cfg.rocketsMedios; i++) setTimeout(spawnRocket, i * cfg.rocketIntervalMedios);
 }
 
 function fogosGrandes() {
   fanfarraGrande();
-  for (let i = 0; i < 16; i++) setTimeout(spawnRocket, i * 95);
+  const cfg = fxConfig();
+  startFxLoop();
+  for (let i = 0; i < cfg.rocketsGrandes; i++) setTimeout(spawnRocket, i * cfg.rocketIntervalGrandes);
 }
 
 // =======================
@@ -1814,6 +1928,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
