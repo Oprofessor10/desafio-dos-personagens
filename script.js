@@ -941,12 +941,18 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
     modalTexto.innerHTML = textoHtml;
+    // ✅ ativa modo épico só pro Oprofessor
+if (modal) {
+  const isOprofessor = (titulo || "").includes("Mestre dos Mestres");
+  modal.classList.toggle("op-epico", isOprofessor);
+}
     modal.classList.remove("hidden");
     if (btnSim) btnSim.focus();
   }
 }
 
 function fecharModal() {
+  if (modal) modal.classList.remove("op-epico");
   if (modal) modal.classList.add("hidden");
   if (fimJogoDiv) fimJogoDiv.innerHTML = "";
 
@@ -1504,53 +1510,60 @@ function avancarParaProximaTabuadaOuFase() {
     }
 
     // pré-desafio (provocação + carta do Oprofessor)
-    abrirModal(
-      "🐾 Mestre dos Mestres",
-      `
+abrirModal(
+  "🐾 Mestre dos Mestres",
+  `
+    <div class="op-stage">
+      <div class="op-card3d">
         <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-          ${OPROFESSOR.img ? `<img src="${OPROFESSOR.img}" style="
-            width:210px;height:210px;border-radius:26px;object-fit:contain;
+          ${OPROFESSOR.img ? `<img class="op-img" src="${OPROFESSOR.img}" style="
+            width:230px;height:230px;border-radius:26px;object-fit:contain;
             background: rgba(255,255,255,.06); padding: 10px;
             border:2px solid rgba(255,255,255,.18);
-            box-shadow: 0 14px 34px rgba(0,0,0,.35);
           ">` : ""}
 
-          <div style="font-size:18px; font-weight:900; line-height:1.35; text-align:center;">
+          <div class="op-title" style="font-size:22px; font-weight:1000; letter-spacing:1px; text-align:center;">
+            🐾 OPROFESSOR CHEGOU
+          </div>
+
+          <div class="op-sub" style="font-size:18px; font-weight:900; line-height:1.35; text-align:center;">
             Você acha que é bom? Agora vamos ver.<br>
             Te desafio a um duelo de verdade!<br>
             Está pronto para parar de brincar e enfrentar alguém bom de verdade?
           </div>
 
-          <div style="margin-top:6px; font-size:14px; opacity:.95; text-align:center;">
+          <div class="op-sub" style="margin-top:6px; font-size:14px; opacity:.95; text-align:center;">
             Duelo regressivo de <b>60 segundos</b>. Tabuadas alternadas.
           </div>
         </div>
-      `,
+      </div>
+    </div>
+  `,
+  () => {
+    iniciarDesafioOprofessor60s(
       () => {
-        iniciarDesafioOprofessor60s(
+        // venceu: sobe nível e reinicia no 1
+        faseAtual = proximoNivel;
+        if (faseSelect) faseSelect.value = faseAtual;
+
+        meta = setMetaByFase(faseAtual);
+        tabuadaAtual = 1;
+
+        abrirModal(
+          "⬆️ Você subiu de nível!",
+          `Agora você está no nível <b>${faseAtual.toUpperCase()}</b>.<br>Quer começar do 1?`,
           () => {
-            // venceu: sobe nível e reinicia no 1
-            faseAtual = proximoNivel;
-            if (faseSelect) faseSelect.value = faseAtual;
-
-            meta = setMetaByFase(faseAtual);
-            tabuadaAtual = 1;
-
-            abrirModal(
-              "⬆️ Você subiu de nível!",
-              `Agora você está no nível <b>${faseAtual.toUpperCase()}</b>.<br>Quer começar do 1?`,
-              () => {
-                if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
-                window.iniciarJogo(false);
-              },
-              () => resetTudoParaInicio()
-            );
+            if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
+            window.iniciarJogo(false);
           },
           () => resetTudoParaInicio()
         );
       },
       () => resetTudoParaInicio()
     );
+  },
+  () => resetTudoParaInicio()
+);
 
     return; // 🔥 trava total pra não cair no fluxo normal
   }
@@ -1780,6 +1793,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
