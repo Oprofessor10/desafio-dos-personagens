@@ -831,4 +831,37 @@ body.modo-duelo .area-cartas{
   }
 }
 
+/* ==========================================
+   FIX REAL: Espaço correto entre cartas e input
+   MOBILE RETRATO
+========================================== */
+@media (max-width: 900px) and (orientation: portrait){
+
+  /* 1️⃣ Empurra TODA área das cartas para cima */
+  body.keypad-on .area-cartas{
+    margin-bottom: calc(var(--kb-h) + 80px) !important;
+  }
+
+  /* 2️⃣ Barra fixa acima do teclado */
+  body.keypad-on .resposta-area{
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--kb-h) + 16px + env(safe-area-inset-bottom)) !important;
+    padding: 0 16px !important;
+    z-index: 17000;
+  }
+
+  /* 3️⃣ Centraliza perfeitamente */
+  body.keypad-on .resposta-area input{
+    width: min(360px, 92vw) !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  /* 4️⃣ Remove qualquer padding antigo da tabuleiro */
+  body.keypad-on .tabuleiro{
+    padding-bottom: 0 !important;
+  }
+}
 
