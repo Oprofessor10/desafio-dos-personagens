@@ -141,7 +141,7 @@ button, select, input{ touch-action: manipulation; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 0; /* importante pro mobile não empurrar */
+  min-width: 0;
 }
 
 .pilha-topo{
@@ -507,12 +507,6 @@ body.modo-duelo .tabuleiro{
     linear-gradient(135deg, #0f2027, #203a43, #2c5364);
 }
 
-/* placar do duelo no topo */
-body.modo-duelo #dueloOverlay{
-  place-items: start center !important;
-  padding-top: 14px !important;
-}
-
 /* ===========================
    ENTRADA 3D DO OPROFESSOR
 =========================== */
@@ -634,13 +628,38 @@ body.modo-duelo #dueloOverlay{
     font-size: 18px;
     border-radius: 14px;
   }
+
+  /* ✅ PERFORMANCE MOBILE: tira blur e filtros pesados */
+  .modal,
+  .keypad,
+  .fim-jogo,
+  .pilha-zerou{
+    backdrop-filter: none !important;
+  }
+
+  .modal{ background: rgba(0,0,0,.65) !important; }
+  .keypad{ background: rgba(10,16,22,.90) !important; }
+  .fim-jogo{ background: rgba(0,0,0,.40) !important; }
+  .pilha-zerou{ background: rgba(0,0,0,.45) !important; }
+
+  .carta{
+    /* drop-shadow é caro no mobile */
+    filter: none !important;
+    box-shadow: 0 14px 26px rgba(0,0,0,.40);
+  }
+  .carta:hover{
+    transform: none;
+    box-shadow: 0 14px 26px rgba(0,0,0,.40);
+  }
+
+  #fxCanvas{
+    /* blend-mode é caro no mobile */
+    mix-blend-mode: normal !important;
+  }
 }
 
 /* =========================
    MOBILE PATCH (<=520)
-   - cartas nunca saem da tela
-   - modal vira sheet + scroll (avatares aparecem)
-   - duelo: sem min-width quebrando
 ========================= */
 @media (max-width: 520px){
 
@@ -683,32 +702,11 @@ body.modo-duelo #dueloOverlay{
     padding-bottom: 14px !important;
   }
 
-  /* duelo overlay (corrige CSS injetado) */
-  #dueloOverlay{
-    place-items: start center !important;
-    padding-top: 10px !important;
+  /* no modo duelo, empurra cartas pra baixo do placar (usa --dueloH real) */
+  body.modo-duelo .area-cartas{
+    margin-top: 0 !important;
+    padding-top: calc(var(--dueloH, 0px) + 14px) !important;
   }
-  #dueloOverlay .duelo-box{
-    width: min(94vw, 560px) !important;
-    max-height: calc(100svh - var(--kb-h) - var(--safe-bottom) - 18px) !important;
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: 10px !important;
-  }
-  #dueloOverlay .duelo-row{ flex-direction: column !important; gap: 10px !important; }
-  #dueloOverlay .duelo-card{ min-width: 0 !important; width: 100% !important; }
-  #dueloOverlay .duelo-foto{ width: 64px !important; height: 64px !important; }
-  #dueloOverlay .duelo-nome{ font-size: 16px !important; max-width: 80vw !important; }
-  #dueloOverlay .duelo-placar{ font-size: 14px !important; justify-content: space-between !important; }
-  #dueloOverlay .duelo-versus{
-    width: 92px !important;
-    height: 60px !important;
-    margin: 6px auto !important;
-    transform: rotate(-2deg) !important;
-  }
-
-  /* no modo duelo, empurra cartas pra baixo do placar */
-  body.modo-duelo .area-cartas{ margin-top: 140px !important; }
 }
 
 /* EXTRA: telas bem pequenas (<=390) */
@@ -719,7 +717,7 @@ body.modo-duelo #dueloOverlay{
   .x-rabisco{ width: 36px !important; height: 36px !important; }
 }
 
-/* ✅ Quando modal abre no celular, esconda keypad (precisa do JS colocar/remover essa classe) */
+/* ✅ Quando modal abre no celular, esconda keypad */
 body.modal-open .keypad{ display:none !important; }
 @media (max-width: 520px){
   body.modal-open .modal{
@@ -792,59 +790,21 @@ body.modal-open .keypad{ display:none !important; }
 
 /* =========================
    FIX: PLACAR DO DUELO NÃO COBRE AS CARTAS
-   (Cole no FINAL do style.css)
+   (usa a altura real do placar medida no JS)
 ========================= */
-
-/* Placar sempre grudado no topo */
-#dueloOverlay.duelo{
-  place-items: start center !important;
-  padding-top: 10px !important;
-}
-
-/* caixa do placar mais compacta */
-#dueloOverlay .duelo-box{
-  margin-top: 0 !important;
-  max-height: 40vh !important;   /* evita virar “paredão” */
-  overflow: hidden !important;
-}
-
-/* Empurra as cartas pra baixo durante o duelo */
-body.modo-duelo .area-cartas{
-  margin-top: 140px !important;  /* desktop/tablet */
-}
-
-/* Mobile: precisa empurrar mais */
-@media (max-width: 520px){
-  body.modo-duelo .area-cartas{
-    margin-top: 190px !important; /* ajuste fino se quiser: 170~220 */
-  }
-}
-
-/* Mobile muito pequeno */
-@media (max-width: 390px){
-  body.modo-duelo .area-cartas{
-    margin-top: 210px !important;
-  }
-}
-
-/* =========================
-   DUELO RESPONSIVO (funciona em qualquer celular)
-========================= */
-
-/* overlay no topo */
 #dueloOverlay.duelo{
   place-items: start center !important;
   padding-top: calc(10px + env(safe-area-inset-top)) !important;
 }
 
-/* limita o placar pra não virar parede */
 #dueloOverlay .duelo-box{
   max-height: 45svh !important;
   overflow: hidden !important;
 }
 
-/* empurra as cartas exatamente pela altura do placar */
+/* Empurra as cartas pelo tamanho do placar */
 body.modo-duelo .area-cartas{
   margin-top: 0 !important;
   padding-top: calc(var(--dueloH, 0px) + 14px) !important;
 }
+
