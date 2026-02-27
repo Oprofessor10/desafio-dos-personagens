@@ -23,11 +23,14 @@ button, select, input{ touch-action: manipulation; }
 .hidden{ display: none !important; }
 
 /* =========================
-   VARIÁVEIS (TAMANHOS CARTAS)
+   VARIÁVEIS
 ========================= */
 :root{
-  --cardW: 240px;  /* desktop */
+  --cardW: 240px;   /* desktop */
   --xW: 90px;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --kb-h: 290px;    /* altura aproximada do keypad (mobile) */
 }
 
 /* =========================
@@ -47,7 +50,6 @@ button, select, input{ touch-action: manipulation; }
 
   display: flex;
   flex-direction: column;
-
   min-height: 100svh;
   z-index: 10;
 }
@@ -115,7 +117,7 @@ button, select, input{ touch-action: manipulation; }
 }
 
 /* =========================
-   ÁREA DAS CARTAS (GRID)
+   ÁREA DAS CARTAS (DESKTOP = GRID)
 ========================= */
 .area-cartas{
   flex: 1;
@@ -139,6 +141,7 @@ button, select, input{ touch-action: manipulation; }
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 0; /* importante pro mobile não empurrar */
 }
 
 .pilha-topo{
@@ -212,11 +215,7 @@ button, select, input{ touch-action: manipulation; }
 }
 
 .carta.front{ background-image: url("frente_carta_borda_azul_transparente.png"); }
-
-/* ✅ Verso do jogo (onde aparece o número) = EXPLOSÃO */
 .carta.back{  background-image: url("costa_carta_borda_azul_transparente.png"); }
-
-/* ✅ Verso da tela de escolha (só para mostrar o Oprofessor) */
 .carta.back-prof{ background-image: url("oprofessor_carta.png"); }
 
 .numero{
@@ -265,7 +264,6 @@ button, select, input{ touch-action: manipulation; }
 }
 .pilha .carta{ z-index: 1; }
 
-/* Mensagem quando zerar */
 .pilha-zerou{
   position: absolute;
   inset: 78px 8px 58px 8px;
@@ -337,7 +335,6 @@ button, select, input{ touch-action: manipulation; }
   opacity: 1;
 }
 
-/* mantém visual mesmo disabled (mobile usa input desabilitado) */
 #respostaInput:disabled{
   opacity: 1;
   -webkit-text-fill-color: #000;
@@ -362,7 +359,7 @@ button, select, input{ touch-action: manipulation; }
   backdrop-filter: blur(6px);
   font-size: 22px;
   font-weight: 900;
-  z-index: 9000;
+  z-index: 12000;
 }
 .fim-jogo:empty{ display:none; }
 
@@ -375,12 +372,12 @@ button, select, input{ touch-action: manipulation; }
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  z-index: 5000;          /* fogos na frente do jogo */
+  z-index: 30000;
   mix-blend-mode: screen;
 }
 
 /* =========================
-   MODAL (sempre acima)
+   MODAL
 ========================= */
 .modal{
   position: fixed;
@@ -388,7 +385,7 @@ button, select, input{ touch-action: manipulation; }
   display: grid;
   place-items: center;
   background: rgba(0,0,0,.55);
-  z-index: 10000;
+  z-index: 20000;
   backdrop-filter: blur(8px);
 }
 .modal.hidden{ display: none; }
@@ -436,7 +433,7 @@ button, select, input{ touch-action: manipulation; }
 .btn-sec{ background: rgba(255,255,255,.12); color: #fff; }
 
 /* =========================
-   TECLADO VIRTUAL (MOBILE)
+   TECLADO VIRTUAL
 ========================= */
 .keypad{
   position: fixed;
@@ -449,7 +446,7 @@ button, select, input{ touch-action: manipulation; }
   background: rgba(10, 16, 22, .78);
   border: 1px solid rgba(255,255,255,.10);
   backdrop-filter: blur(10px);
-  z-index: 6000; /* acima do canvas */
+  z-index: 15000;
   box-shadow: 0 18px 60px rgba(0,0,0,.55);
 }
 .keypad.hidden{ display:none; }
@@ -481,8 +478,112 @@ button, select, input{ touch-action: manipulation; }
 .kp-wide{ grid-column: span 4; }
 
 /* =========================
-   RESPONSIVO (MOBILE)
-   2 cartas + X, SEM CORTAR
+   MODO DUELO (ARENA)
+========================= */
+body.modo-duelo .seletor,
+body.modo-duelo #btnIniciar,
+body.modo-duelo .painel,
+body.modo-duelo #fimJogo{
+  display:none !important;
+}
+
+body.modo-duelo .pilha-topo,
+body.modo-duelo .pilha-rodape,
+body.modo-duelo .pilha-direita::before,
+body.modo-duelo .pilha-direita::after,
+body.modo-duelo .pilha-zerou{
+  display:none !important;
+}
+
+body.modo-duelo{
+  --cardW: 280px;
+  --xW: 110px;
+}
+
+body.modo-duelo .tabuleiro{
+  background:
+    radial-gradient(circle at center, rgba(0,255,180,0.08), transparent 60%),
+    radial-gradient(circle at center, rgba(0,160,255,0.10), transparent 70%),
+    linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+/* placar do duelo no topo */
+body.modo-duelo #dueloOverlay{
+  place-items: start center !important;
+  padding-top: 14px !important;
+}
+
+/* ===========================
+   ENTRADA 3D DO OPROFESSOR
+=========================== */
+#modal.op-epico{ overflow: hidden; }
+
+#modal.op-epico::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.20), transparent 60%);
+  opacity: 0;
+  animation: opFlash 520ms ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes opFlash{
+  0%{ opacity: 0; transform: scale(.9); }
+  35%{ opacity: 1; transform: scale(1.02); }
+  100%{ opacity: 0; transform: scale(1.08); }
+}
+
+#modal.op-epico .modal-box{
+  animation: opShake 320ms ease-out 1;
+}
+
+@keyframes opShake{
+  0%,100%{ transform: translateX(0); }
+  20%{ transform: translateX(-2px); }
+  40%{ transform: translateX(2px); }
+  60%{ transform: translateX(-1px); }
+  80%{ transform: translateX(1px); }
+}
+
+#modal.op-epico .op-stage{
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
+}
+
+#modal.op-epico .op-card3d{
+  transform-style: preserve-3d;
+  will-change: transform, filter, opacity;
+  opacity: 0;
+  transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
+  filter: blur(10px) brightness(.88);
+  animation: opEntrada3D 900ms cubic-bezier(.12,.9,.18,1.02) forwards;
+}
+
+@keyframes opEntrada3D{
+  0%{
+    opacity: 0;
+    transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
+    filter: blur(10px) brightness(.88);
+  }
+  60%{
+    opacity: 1;
+    transform: translateZ(120px) rotateX(-6deg) rotateY(10deg) scale(1.04);
+    filter: blur(0px) brightness(1.18);
+  }
+  100%{
+    opacity: 1;
+    transform: translateZ(0px) rotateX(0deg) rotateY(0deg) scale(1);
+    filter: blur(0px) brightness(1);
+  }
+}
+
+#modal.op-epico .op-img{ transform: translateZ(70px); box-shadow: 0 18px 55px rgba(0,0,0,.55); }
+#modal.op-epico .op-title{ transform: translateZ(45px); text-shadow: 0 10px 30px rgba(0,0,0,.65); }
+#modal.op-epico .op-sub{ transform: translateZ(25px); }
+
+/* =========================
+   RESPONSIVO (<=900)
 ========================= */
 @media (max-width: 900px){
   .tabuleiro{
@@ -512,8 +613,6 @@ button, select, input{ touch-action: manipulation; }
   }
   .seletor select{ font-size: 16px; padding: 10px 12px; }
 
-  #btnIniciar{ font-size: 17px; padding: 12px 20px; }
-
   .painel{ font-size: 18px; gap: 18px; }
 
   :root{
@@ -523,7 +622,6 @@ button, select, input{ touch-action: manipulation; }
 
   .numero{ font-size: clamp(64px, 18vw, 110px); }
 
-  /* monte mais discreto no celular para não “parecer maior” */
   .pilha-direita::before,
   .pilha-direita::after{
     opacity: .12;
@@ -538,7 +636,104 @@ button, select, input{ touch-action: manipulation; }
   }
 }
 
-/* LANDSCAPE: compacta e coloca keypad na direita */
+/* =========================
+   MOBILE PATCH (<=520)
+   - cartas nunca saem da tela
+   - modal vira sheet + scroll (avatares aparecem)
+   - duelo: sem min-width quebrando
+========================= */
+@media (max-width: 520px){
+
+  .area-cartas{
+    width: 100% !important;
+    max-width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr) !important;
+    gap: 10px !important;
+    justify-items: center !important;
+    overflow: hidden !important;
+    padding: 6px 0 0 !important;
+  }
+
+  .pilha{ width: 100% !important; min-width: 0 !important; }
+  .carta{
+    width: 100% !important;
+    max-width: 190px !important;
+    aspect-ratio: 3 / 4 !important;
+  }
+
+  .multiplicador{ width: 46px !important; height: 46px !important; }
+  .x-rabisco{ width: 42px !important; height: 42px !important; }
+
+  /* modal como sheet (scroll interno) */
+  .modal{
+    align-items: flex-start !important;
+    padding-top: 12px !important;
+    padding-bottom: calc(var(--kb-h) + var(--safe-bottom) + 14px) !important;
+  }
+  .modal-box{
+    width: min(94vw, 560px) !important;
+    max-height: calc(100svh - var(--kb-h) - var(--safe-bottom) - 22px) !important;
+    overflow: hidden !important;
+  }
+  .modal-texto{
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(100svh - var(--kb-h) - 190px) !important;
+    padding-bottom: 14px !important;
+  }
+
+  /* duelo overlay (corrige CSS injetado) */
+  #dueloOverlay{
+    place-items: start center !important;
+    padding-top: 10px !important;
+  }
+  #dueloOverlay .duelo-box{
+    width: min(94vw, 560px) !important;
+    max-height: calc(100svh - var(--kb-h) - var(--safe-bottom) - 18px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 10px !important;
+  }
+  #dueloOverlay .duelo-row{ flex-direction: column !important; gap: 10px !important; }
+  #dueloOverlay .duelo-card{ min-width: 0 !important; width: 100% !important; }
+  #dueloOverlay .duelo-foto{ width: 64px !important; height: 64px !important; }
+  #dueloOverlay .duelo-nome{ font-size: 16px !important; max-width: 80vw !important; }
+  #dueloOverlay .duelo-placar{ font-size: 14px !important; justify-content: space-between !important; }
+  #dueloOverlay .duelo-versus{
+    width: 92px !important;
+    height: 60px !important;
+    margin: 6px auto !important;
+    transform: rotate(-2deg) !important;
+  }
+
+  /* no modo duelo, empurra cartas pra baixo do placar */
+  body.modo-duelo .area-cartas{ margin-top: 140px !important; }
+}
+
+/* EXTRA: telas bem pequenas (<=390) */
+@media (max-width: 390px){
+  :root{ --kb-h: 300px; }
+  .area-cartas{ grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) !important; }
+  .multiplicador{ width: 40px !important; height: 40px !important; }
+  .x-rabisco{ width: 36px !important; height: 36px !important; }
+}
+
+/* ✅ Quando modal abre no celular, esconda keypad (precisa do JS colocar/remover essa classe) */
+body.modal-open .keypad{ display:none !important; }
+@media (max-width: 520px){
+  body.modal-open .modal{
+    padding-bottom: var(--safe-bottom) !important;
+  }
+  body.modal-open .modal-box{
+    max-height: calc(100svh - var(--safe-bottom) - 16px) !important;
+  }
+  body.modal-open .modal-texto{
+    max-height: calc(100svh - 190px) !important;
+  }
+}
+
+/* LANDSCAPE: keypad na direita + resposta no canto */
 @media (max-width: 900px) and (orientation: landscape){
   :root{
     --cardW: min(26vh, 150px);
@@ -547,27 +742,23 @@ button, select, input{ touch-action: manipulation; }
 
   .titulo{ font-size: 22px; margin: 6px 0 6px; }
   .painel{ font-size: 16px; margin: 6px 0 8px; }
-  #btnIniciar{ padding: 10px 16px; font-size: 14px; margin: 6px auto 8px; }
 
   .numero{ font-size: clamp(40px, 12vh, 90px); }
 
-  /* keypad vai pra direita */
   body.keypad-on .keypad{
     left: auto;
     right: max(8px, env(safe-area-inset-right));
     transform: none;
-
     width: min(380px, 42vw);
     bottom: max(8px, env(safe-area-inset-bottom));
   }
 
-  /* barra de resposta fixa no canto inferior esquerdo (sem invadir os selects) */
   body.keypad-on .resposta-area{
     position: fixed;
     left: 10px;
     right: calc(min(42vw, 380px) + 16px);
     bottom: calc(10px + env(safe-area-inset-bottom));
-    z-index: 7000;
+    z-index: 17000;
     margin: 0;
     padding: 0;
   }
@@ -577,18 +768,14 @@ button, select, input{ touch-action: manipulation; }
   }
 }
 
-/* RETRATO: barra de resposta fixa acima do keypad quando keypad-on */
+/* RETRATO: resposta fixa acima do keypad */
 @media (max-width: 900px) and (orientation: portrait){
-  body.keypad-on{
-    --kpH: 240px;
-  }
-
   body.keypad-on .resposta-area{
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(var(--kpH) + 10px + env(safe-area-inset-bottom));
-    z-index: 7000;
+    bottom: calc(var(--kb-h) + 10px + env(safe-area-inset-bottom));
+    z-index: 17000;
     margin: 0;
     padding: 0 12px;
   }
@@ -598,665 +785,8 @@ button, select, input{ touch-action: manipulation; }
     display: block;
   }
 
-  /* dá espaço pro conteúdo não ficar atrás do keypad */
   body.keypad-on .tabuleiro{
-    padding-bottom: calc(var(--kpH) + 90px);
+    padding-bottom: calc(var(--kb-h) + 90px);
   }
 }
 
-/* =========================
-   FIX: FOGOS NA FRENTE DE TUDO (SEM NÉVOA)
-   Cole no FINAL do style.css
-========================= */
-#fxCanvas{
-  z-index: 30000 !important;         /* acima de modal, fimJogo e keypad */
-  pointer-events: none !important;
-}
-
-/* garante que a “névoa” não cubra o canvas */
-#modal{
-  z-index: 10000 !important;
-}
-
-.fim-jogo{
-  z-index: 12000 !important;
-}
-
-.keypad{
-  z-index: 15000 !important;
-}
-/* =========================
-   MODO DUELO (RINGUE)
-========================= */
-
-body.modo-duelo .pilha-topo,
-body.modo-duelo .pilha-rodape,
-body.modo-duelo .pilha-contador,
-body.modo-duelo .pilha-mini {
-  display: none !important;
-}
-
-body.modo-duelo .pilha-direita::before,
-body.modo-duelo .pilha-direita::after {
-  display: none !important;
-}
-
-/* centraliza mais as cartas */
-body.modo-duelo .area-cartas {
-  gap: 40px;
-}
-
-/* deixa as cartas um pouco maiores no duelo */
-body.modo-duelo {
-  --cardW: 280px;
-  --xW: 110px;
-}
-
-/* efeito de arena */
-body.modo-duelo .tabuleiro {
-  background:
-    radial-gradient(circle at center, #1b2e35 0%, #0b0f14 80%);
-}
-/* =========================
-   ARENA / RINGUE DO DUELO
-========================= */
-
-/* Esconde topo do jogo durante o duelo (pra parecer arena) */
-body.modo-duelo .seletor,
-body.modo-duelo #btnIniciar,
-body.modo-duelo .painel,
-body.modo-duelo #fimJogo {
-  display: none !important;
-}
-
-/* Remove contador/monte durante duelo */
-body.modo-duelo .pilha-topo,
-body.modo-duelo .pilha-rodape,
-body.modo-duelo .pilha-direita::before,
-body.modo-duelo .pilha-direita::after,
-body.modo-duelo .pilha-zerou {
-  display: none !important;
-}
-
-/* Centraliza e “abre espaço” pra arena */
-body.modo-duelo .area-cartas{
-  margin-top: 40px;
-  gap: 60px;
-}
-
-/* Aumenta um pouco as cartas no duelo */
-body.modo-duelo{
-  --cardW: 280px;
-  --xW: 110px;
-}
-
-/* Fundo mais “arena” */
-body.modo-duelo .tabuleiro{
-  background:
-    radial-gradient(circle at center, rgba(0,255,180,0.08), transparent 60%),
-    radial-gradient(circle at center, rgba(0,160,255,0.10), transparent 70%),
-    linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-}
-
-/* Coloca o placar do duelo no TOPO (não cobrindo as cartas) */
-body.modo-duelo #dueloOverlay{
-  place-items: start center !important;
-  padding-top: 18px;
-}
-
-body.modo-duelo #dueloOverlay .duelo-box{
-  width: min(980px, 96vw) !important;
-  background: rgba(0,0,0,.30) !important;
-}
-/* =========================
-   RINGUE: PLACAR COMO FAIXA NO TOPO
-========================= */
-
-body.modo-duelo #dueloOverlay{
-  place-items: start center !important;
-  padding-top: 14px !important;
-}
-
-/* tira o "caixão" grande e transforma em barra */
-body.modo-duelo #dueloOverlay .duelo-box{
-  width: min(980px, 96vw) !important;
-  padding: 10px 14px !important;
-  border-radius: 16px !important;
-  background: rgba(0,0,0,.55) !important;
-  border: 1px solid rgba(255,255,255,.14) !important;
-  box-shadow: 0 18px 50px rgba(0,0,0,.35) !important;
-}
-
-/* deixa o meio (VS) menor e sem ocupar espaço */
-body.modo-duelo #dueloOverlay .duelo-mid{
-  padding: 6px 0 !important;
-}
-body.modo-duelo #dueloOverlay .duelo-versus{
-  width: 54px !important;
-  height: 28px !important;
-  opacity: .95 !important;
-}
-
-/* deixa as faixas de cima/baixo mais compactas */
-body.modo-duelo #dueloOverlay .duelo-top,
-body.modo-duelo #dueloOverlay .duelo-bot{
-  padding: 8px 10px !important;
-  background: rgba(255,255,255,.06) !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
-}
-body.modo-duelo .area-cartas{
-  margin-top: 90px !important; /* empurra as cartas pra baixo */
-}
-body.modo-duelo .carta{
-  filter: drop-shadow(0 22px 40px rgba(0,0,0,.65)) !important;
-}
-
-/* ===========================
-   ENTRADA 3D DO OPROFESSOR
-   =========================== */
-
-#modal.op-epico{
-  overflow: hidden;
-}
-
-/* flash radial no fundo */
-#modal.op-epico::before{
-  content:"";
-  position:absolute;
-  inset:-40px;
-  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.20), transparent 60%);
-  opacity: 0;
-  animation: opFlash 520ms ease-out forwards;
-  pointer-events:none;
-}
-
-@keyframes opFlash{
-  0%{ opacity: 0; transform: scale(.9); }
-  35%{ opacity: 1; transform: scale(1.02); }
-  100%{ opacity: 0; transform: scale(1.08); }
-}
-
-/* tremor leve do box */
-#modal.op-epico .modal-box{
-  animation: opShake 320ms ease-out 1;
-}
-
-@keyframes opShake{
-  0%,100%{ transform: translateX(0); }
-  20%{ transform: translateX(-2px); }
-  40%{ transform: translateX(2px); }
-  60%{ transform: translateX(-1px); }
-  80%{ transform: translateX(1px); }
-}
-
-/* palco 3D dentro do texto do modal */
-#modal.op-epico .op-stage{
-  perspective: 1200px;
-  perspective-origin: 50% 40%;
-}
-
-/* a “carta” 3D */
-#modal.op-epico .op-card3d{
-  transform-style: preserve-3d;
-  will-change: transform, filter, opacity;
-  opacity: 0;
-  transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
-  filter: blur(10px) brightness(.88);
-  animation: opEntrada3D 900ms cubic-bezier(.12,.9,.18,1.02) forwards;
-}
-
-@keyframes opEntrada3D{
-  0%{
-    opacity: 0;
-    transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
-    filter: blur(10px) brightness(.88);
-  }
-  60%{
-    opacity: 1;
-    transform: translateZ(120px) rotateX(-6deg) rotateY(10deg) scale(1.04);
-    filter: blur(0px) brightness(1.18);
-  }
-  100%{
-    opacity: 1;
-    transform: translateZ(0px) rotateX(0deg) rotateY(0deg) scale(1);
-    filter: blur(0px) brightness(1);
-  }
-}
-
-/* “camadas” dando profundidade */
-#modal.op-epico .op-img{ transform: translateZ(70px); box-shadow: 0 18px 55px rgba(0,0,0,.55); }
-#modal.op-epico .op-title{ transform: translateZ(45px); text-shadow: 0 10px 30px rgba(0,0,0,.65); }
-#modal.op-epico .op-sub{ transform: translateZ(25px); }
-
-/* =========================================================
-   MOBILE FIXES (não afeta desktop) — 60 SEGUNDOS
-   Cole no FINAL do style.css
-========================================================= */
-
-/* melhora área útil no mobile (endereço/navegador) */
-:root{
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --kp-h: 290px; /* altura aproximada do teclado do jogo */
-}
-
-/* ----------- CARTAS: não deixar sair da tela ----------- */
-@media (max-width: 520px){
-
-  .tabuleiro{
-    width: 100%;
-    max-width: 100%;
-    padding: 10px 10px calc(10px + var(--safe-bottom));
-    box-sizing: border-box;
-  }
-
-  .area-cartas{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden; /* corta qualquer sobra lateral */
-  }
-
-  /* faz as 2 pilhas caberem SEM estourar */
-  .pilha{
-    flex: 1 1 0;
-    min-width: 0; /* ESSENCIAL pra não “empurrar” pra fora */
-  }
-
-  /* reduz um pouco as cartas */
-  .carta{
-    width: min(42vw, 170px);
-    height: auto;
-    aspect-ratio: 3 / 4; /* mantém proporção legal */
-  }
-
-  /* o X no meio não pode roubar espaço */
-  .multiplicador{
-    flex: 0 0 auto;
-    width: 40px;
-    height: 40px;
-  }
-
-  .x-rabisco{
-    width: 40px;
-    height: 40px;
-  }
-
-  /* contador e labels compactos */
-  .pilha-label{ font-size: 12px; }
-  .pilha-contador{ font-size: 16px; }
-}
-
-
-/* ----------- MODAL: não ficar atrás do teclado ----------- */
-@media (max-width: 520px){
-
-  .modal{
-    align-items: flex-start; /* sobe o modal */
-    padding-top: 10px;
-  }
-
-  .modal-box{
-    width: min(92vw, 520px);
-    max-height: calc(100svh - 16px - var(--safe-bottom));
-    overflow: hidden;
-    border-radius: 18px;
-  }
-
-  .modal-texto{
-    max-height: calc(100svh - 190px); /* título + botões */
-    overflow: auto;                   /* rolagem dentro do modal */
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 12px;
-  }
-
-  /* quando o teclado do jogo está ativo, empurra o conteúdo pra cima */
-  body.keypad-on .modal-box{
-    max-height: calc(100svh - var(--kp-h) - 18px - var(--safe-bottom));
-  }
-
-  body.keypad-on .modal-texto{
-    max-height: calc(100svh - var(--kp-h) - 190px);
-    padding-bottom: 18px;
-  }
-
-  /* miniaturas de avatar: maiores e com quebra de linha */
-  .modal-texto img{
-    max-width: 100%;
-  }
-}
-
-
-/* ----------- DUELO (overlay): ficar bom no celular ----------- */
-/* (o duelo injeta CSS via JS, então aqui a gente SOBRESCREVE) */
-@media (max-width: 520px){
-  #dueloOverlay.duelo{
-    place-items: start center;
-    padding-top: 10px;
-  }
-
-  #dueloOverlay .duelo-box{
-    width: min(94vw, 560px);
-    margin: 0 auto;
-    padding: 10px 10px;
-  }
-
-  #dueloOverlay .duelo-row{
-    flex-direction: column; /* empilha mestre e você */
-    gap: 10px;
-  }
-
-  #dueloOverlay .duelo-card{
-    min-width: unset;
-    padding: 10px 10px;
-  }
-
-  #dueloOverlay .duelo-foto{
-    width: 64px;
-    height: 64px;
-    padding: 5px;
-  }
-
-  #dueloOverlay .duelo-nome{
-    font-size: 16px;
-    max-width: 80vw;
-  }
-
-  #dueloOverlay .duelo-placar{
-    font-size: 14px;
-    justify-content: space-between;
-  }
-
-  #dueloOverlay .duelo-versus{
-    width: 90px;
-    height: 60px;
-    margin: 0 auto;
-    transform: rotate(-2deg);
-  }
-
-  /* com teclado aberto, evita ficar "espremido" embaixo */
-  body.keypad-on #dueloOverlay .duelo-box{
-    max-height: calc(100svh - var(--kp-h) - 18px - var(--safe-bottom));
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* ================================
-   FIX MOBILE (não altera desktop)
-   ================================ */
-@media (max-width: 520px) {
-
-  /* --- 1) Cartas: impedir sair da tela --- */
-  .area-cartas{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-    padding: 6px 6px 0;
-  }
-
-  /* cada pilha ocupa metade da tela (aprox) */
-  .pilha{
-    width: min(46vw, 210px);
-  }
-
-  /* o X vai pra linha do meio e não empurra as cartas */
-  .multiplicador{
-    flex: 0 0 100%;
-    display: grid;
-    place-items: center;
-    order: 2;
-    margin: 2px 0;
-  }
-
-  .pilha-esquerda{ order: 1; }
-  .pilha-direita { order: 3; }
-
-  /* --- 2) Keypad: reserva espaço para ele --- */
-  body.keypad-on{
-    /* altura “padrão” do teclado do seu jogo */
-    --kb-h: 290px;
-  }
-
-  /* garante que o teclado não cubra conteúdo importante */
-  .keypad{
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  /* --- 3) Modal: virar “sheet” com scroll acima do teclado --- */
-  .modal{
-    align-items: flex-start;            /* não centraliza (evita ficar atrás do keypad) */
-    padding-top: 12px;
-    padding-bottom: calc(var(--kb-h, 0px) + env(safe-area-inset-bottom) + 10px);
-  }
-
-  .modal-box{
-    width: min(94vw, 520px);
-    max-height: calc(100vh - var(--kb-h, 0px) - env(safe-area-inset-bottom) - 22px);
-    overflow: hidden;                  /* scroll fica no texto */
-    border-radius: 18px;
-  }
-
-  .modal-text{
-    overflow-y: auto;                  /* ✅ agora você consegue rolar e ver os avatares */
-    -webkit-overflow-scrolling: touch;
-    max-height: calc(100vh - var(--kb-h, 0px) - 210px);
-    padding-bottom: 10px;
-  }
-
-  /* thumbs/avatares: deixar visíveis e bem distribuídos */
-  .modal-text img{
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* --- 4) Duelo (overlay): impedir estourar no mobile --- */
-  #dueloOverlay .duelo-box{
-    width: min(94vw, 520px) !important;
-    max-height: calc(100vh - var(--kb-h, 0px) - 24px) !important;
-    overflow: hidden !important;
-  }
-
-  #dueloOverlay .duelo-row{
-    flex-direction: column !important;
-    gap: 10px !important;
-  }
-
-  /* o min-width:320 do JS quebra no celular -> anulamos */
-  #dueloOverlay .duelo-card{
-    min-width: 0 !important;
-    width: 100% !important;
-  }
-
-  #dueloOverlay .duelo-versus{
-    width: 92px !important;
-    height: 64px !important;
-    margin: 6px auto !important;
-  }
-
-  #dueloOverlay .duelo-foto{
-    width: 70px !important;
-    height: 70px !important;
-  }
-
-  #dueloOverlay .duelo-nome{
-    font-size: 16px !important;
-  }
-
-  #dueloOverlay .duelo-placar{
-    font-size: 15px !important;
-  }
-}
-
-/* Telas MUITO pequenas (tipo 360px) */
-@media (max-width: 390px){
-  .pilha{ width: min(92vw, 260px); }
-  .pilha-esquerda{ order: 1; }
-  .multiplicador{ order: 2; }
-  .pilha-direita{ order: 3; }
-  body.keypad-on{ --kb-h: 300px; }
-}
-
-/* =========================================================
-   MOBILE PATCH FINAL (não mexe no desktop)
-   - Carta direita não sai da tela
-   - Modal não fica atrás do keypad (avatares aparecem com scroll)
-   - Duelo (overlay) fica legível no celular
-   Cole no FINAL do style.css
-========================================================= */
-
-@media (max-width: 520px){
-
-  /* ---------- 1) CARTAS: manter 2 cartas + X SEM estourar ---------- */
-  .area-cartas{
-    width: 100% !important;
-    max-width: 100% !important;
-
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr) !important;
-    gap: 10px !important;
-
-    justify-content: center !important;
-    align-items: center !important;
-    justify-items: center !important;
-
-    overflow: hidden !important; /* impede “vazar” pro lado */
-    padding: 6px 0 0 !important;
-  }
-
-  .pilha{
-    width: 100% !important;
-    min-width: 0 !important;  /* ESSENCIAL pra não empurrar a carta pra fora */
-  }
-
-  .carta{
-    width: 100% !important;          /* carta encaixa na coluna */
-    max-width: 190px !important;     /* limite pra ficar bonita */
-    aspect-ratio: 3 / 4 !important;
-  }
-
-  .multiplicador{
-    width: 46px !important;
-    height: 46px !important;
-  }
-  .x-rabisco{ width: 42px !important; height: 42px !important; }
-
-  /* ---------- 2) KEYPAD: variável única de altura ---------- */
-  body.keypad-on{ --kb-h: 290px; } /* ajuste fino se quiser: 270~310 */
-
-  /* ---------- 3) MODAL: virar “sheet” acima do keypad + scroll interno ---------- */
-  .modal{
-    align-items: flex-start !important;
-    padding-top: 12px !important;
-    padding-bottom: calc(var(--kb-h, 0px) + env(safe-area-inset-bottom) + 14px) !important;
-  }
-
-  .modal-box{
-    width: min(94vw, 560px) !important;
-    max-height: calc(100svh - var(--kb-h, 0px) - env(safe-area-inset-bottom) - 22px) !important;
-    overflow: hidden !important; /* scroll fica no texto */
-  }
-
-  /* ✅ seu HTML é .modal-texto (não é .modal-text) */
-  .modal-texto{
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    max-height: calc(100svh - var(--kb-h, 0px) - 190px) !important; /* título + botões */
-    padding-bottom: 14px !important;
-  }
-
-  /* avatares (thumbs) sempre visíveis e com quebra */
-  .modal-texto > div{
-    max-width: 100% !important;
-  }
-  .modal-texto img{
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  /* ---------- 4) DUELO: corrigir layout injetado pelo JS ---------- */
-  #dueloOverlay{
-    place-items: start center !important;
-    padding-top: 10px !important;
-  }
-
-  #dueloOverlay .duelo-box{
-    width: min(94vw, 560px) !important;
-    max-height: calc(100svh - var(--kb-h, 0px) - env(safe-area-inset-bottom) - 18px) !important;
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: 10px 10px !important;
-  }
-
-  #dueloOverlay .duelo-row{
-    flex-direction: column !important;
-    gap: 10px !important;
-  }
-
-  /* ✅ mata o min-width:320 do JS que quebra no celular */
-  #dueloOverlay .duelo-card{
-    min-width: 0 !important;
-    width: 100% !important;
-  }
-
-  #dueloOverlay .duelo-foto{
-    width: 64px !important;
-    height: 64px !important;
-  }
-
-  #dueloOverlay .duelo-nome{
-    font-size: 16px !important;
-    max-width: 80vw !important;
-  }
-
-  #dueloOverlay .duelo-placar{
-    font-size: 14px !important;
-    justify-content: space-between !important;
-  }
-
-  #dueloOverlay .duelo-versus{
-    width: 92px !important;
-    height: 60px !important;
-    margin: 6px auto !important;
-    transform: rotate(-2deg) !important;
-  }
-}
-
-/* EXTRA: telas bem pequenas (ex: 360px) */
-@media (max-width: 390px){
-  body.keypad-on{ --kb-h: 300px; }
-  .area-cartas{ grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) !important; }
-  .multiplicador{ width: 40px !important; height: 40px !important; }
-  .x-rabisco{ width: 36px !important; height: 36px !important; }
-}
-
-/* ✅ quando modal abre no celular, keypad some (não cobre avatares) */
-body.modal-open .keypad{ display:none !important; }
-
-/* modal vira “sheet” e pode rolar */
-@media (max-width: 520px){
-  body.modal-open .modal{
-    padding-bottom: env(safe-area-inset-bottom) !important;
-  }
-  body.modal-open .modal-box{
-    max-height: calc(100svh - env(safe-area-inset-bottom) - 16px) !important;
-  }
-  body.modal-open .modal-texto{
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    max-height: calc(100svh - 190px) !important;
-  }
-}
-
-@media (max-width: 520px){
-  body.modo-duelo .area-cartas{
-    margin-top: 140px !important;  /* empurra as cartas pra baixo do placar */
-  }
-  body.modo-duelo #dueloOverlay .duelo-box{
-    width: min(94vw, 560px) !important;
-  }
-}
