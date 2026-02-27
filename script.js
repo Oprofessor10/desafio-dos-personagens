@@ -20,10 +20,28 @@ const MESTRES = [
 let avatarAluno = "./avatar1.png";
 const AVATARES_ALUNO = ["./avatar1.png", "./avatar2.png", "./avatar3.png"];
 
+function safeAvatarSrc(src) {
+  return (src && typeof src === "string" && src.trim()) ? src : "./avatar1.png";
+}
+
+function setImgSafe(imgEl, src, fallback = "./avatar1.png") {
+  if (!imgEl) return;
+  const finalSrc = safeAvatarSrc(src);
+  imgEl.src = finalSrc;
+  imgEl.style.display = "block";
+
+  // fallback se o arquivo não existir (muito comum no GitHub Pages se faltar commit)
+  imgEl.onerror = () => {
+    imgEl.onerror = null;
+    imgEl.src = fallback;
+    imgEl.style.display = "block";
+  };
+}
+
 window.setAvatarAluno = function (src) {
-  avatarAluno = src || "./avatar1.png";
+  avatarAluno = safeAvatarSrc(src);
   const fotoAluno = document.getElementById("dueloAlunoFoto");
-  if (fotoAluno) fotoAluno.src = avatarAluno;
+  if (fotoAluno) setImgSafe(fotoAluno, avatarAluno, "./avatar1.png");
 };
 
 // =======================
@@ -206,17 +224,14 @@ let duelo = {
   errosAluno: 0,
   errosMestre: 0,
 
-  // ✅ TESTE: mantém 10s por enquanto (você pediu)
-  duracaoMs: 10000,
+  duracaoMs: 10000, // teste 10s
   fimEm: 0,
   tickTimer: null,
 
-  // mestre
   mestreTimer: null,
   mestreTentativas: 0,
   mestreMaxTentativas: 25,
 
-  // pergunta/rodada
   perguntaToken: 0,
   chanceErro: 0.12
 };
@@ -247,7 +262,7 @@ function ensureDueloOverlay() {
 
         <div class="duelo-card duelo-card-aluno">
           <div class="duelo-head">
-            <img id="dueloAlunoFoto" class="duelo-foto" src="${avatarAluno}" alt="">
+            <img id="dueloAlunoFoto" class="duelo-foto" src="${safeAvatarSrc(avatarAluno)}" alt="">
             <div class="duelo-nome" id="dueloAlunoNome">VOCÊ</div>
           </div>
 
@@ -261,9 +276,15 @@ function ensureDueloOverlay() {
   `;
   document.body.appendChild(dueloEl);
 
+  // ✅ CSS DO DUELO ajustado (sem min-width quebrando celular)
   const style = document.createElement("style");
   style.textContent = `
-    .duelo{ position: fixed; inset: 0; display: grid; place-items: center; z-index: 12000; pointer-events:none; }
+    .duelo{
+      position: fixed; inset: 0;
+      display: grid; place-items: center;
+      z-index: 12000;
+      pointer-events:none;
+    }
     .duelo.hidden{ display:none; }
 
     .duelo-box{
@@ -275,6 +296,8 @@ function ensureDueloOverlay() {
       border: 1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(6px);
       box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      max-height: 92svh;
+      overflow: hidden;
     }
 
     .duelo-row{
@@ -286,12 +309,14 @@ function ensureDueloOverlay() {
 
     .duelo-card{
       flex: 1;
-      min-width: 320px;
+      min-width: 0;             /* ✅ CRÍTICO: não estoura no celular */
+      width: 100%;
       border-radius: 16px;
       padding: 12px 14px;
       background: rgba(0,0,0,.28);
       border: 1px solid rgba(255,255,255,.10);
       font-weight: 900;
+      overflow: hidden;
     }
 
     .duelo-head{
@@ -299,6 +324,7 @@ function ensureDueloOverlay() {
       align-items:center;
       gap:12px;
       margin-bottom: 10px;
+      min-width: 0;
     }
 
     .duelo-foto{
@@ -320,14 +346,14 @@ function ensureDueloOverlay() {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 420px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .duelo-placar{
       display:flex;
       gap: 18px;
       font-size: 18px;
-      opacity: 1;
       align-items:center;
       flex-wrap: wrap;
       justify-content:flex-end;
@@ -349,6 +375,7 @@ function ensureDueloOverlay() {
       text-transform: uppercase;
       transform: rotate(-6deg);
       position: relative;
+      flex: 0 0 auto;
     }
     .duelo-versus::before{
       content:"⚔️";
@@ -366,36 +393,37 @@ function ensureDueloOverlay() {
       letter-spacing: 2px;
     }
 
-    @media (max-width: 700px){
-      .duelo-row{ flex-direction: column; }
-      .duelo-versus{ width: 96px; height: 72px; margin: 8px auto; transform: rotate(-3deg); }
-      .duelo-card{ min-width: unset; }
-      .duelo-foto{ width: 76px; height: 76px; }
-      .duelo-nome{ font-size: 18px; }
-      .duelo-placar{ font-size: 16px; }
+    /* ✅ MOBILE: sempre vira coluna em tela estreita */
+    @media (max-width: 520px){
+      .duelo{ place-items: start center; padding-top: 10px; }
+      .duelo-box{ width: min(94vw, 560px); overflow:auto; -webkit-overflow-scrolling: touch; }
+      .duelo-row{ flex-direction: column; gap: 10px; }
+      .duelo-versus{ width: 96px; height: 72px; margin: 6px auto; transform: rotate(-3deg); }
+      .duelo-foto{ width: 70px; height: 70px; }
+      .duelo-nome{ font-size: 16px; }
+      .duelo-placar{ font-size: 14px; justify-content: space-between; }
     }
   `;
   document.head.appendChild(style);
+
+  // ✅ garante fallback do avatar do aluno já na criação
+  const alunoFoto = document.getElementById("dueloAlunoFoto");
+  if (alunoFoto) setImgSafe(alunoFoto, avatarAluno, "./avatar1.png");
 }
 
 function atualizarDueloUI() {
   const foto = document.getElementById("dueloMestreFoto");
   if (foto) {
     const src = (duelo.mestre && duelo.mestre.img) ? duelo.mestre.img : "";
-    if (src) {
-      foto.src = src;
-      foto.style.display = "block";
-    } else {
+    if (src) setImgSafe(foto, src, "");
+    else {
       foto.removeAttribute("src");
       foto.style.display = "none";
     }
   }
 
   const fotoAluno = document.getElementById("dueloAlunoFoto");
-  if (fotoAluno) {
-    fotoAluno.src = avatarAluno || "./avatar1.png";
-    fotoAluno.style.display = "block";
-  }
+  if (fotoAluno) setImgSafe(fotoAluno, avatarAluno, "./avatar1.png");
 
   const mestreNome = document.getElementById("dueloMestreNome");
   const mestrePontos = document.getElementById("dueloMestrePontos");
@@ -427,7 +455,6 @@ function fecharDuelo() {
   duelo.tickTimer = null;
 
   if (dueloEl) dueloEl.classList.add("hidden");
-
   document.body.classList.remove("modo-duelo");
 }
 
@@ -435,7 +462,6 @@ function prepararUIParaDuelo() {
   if (pilhaZerouMsg) pilhaZerouMsg.classList.add("hidden");
   if (cartaDireita) cartaDireita.classList.remove("hidden");
 
-  // garante modo jogo (explosão) no duelo
   setModoJogoCartas();
 
   if (cartaDireita) {
@@ -444,11 +470,7 @@ function prepararUIParaDuelo() {
   }
 }
 
-const LIMITE_MESTRE = {
-  facil: 25,
-  media: 40,
-  dificil: 55
-};
+const LIMITE_MESTRE = { facil: 25, media: 40, dificil: 55 };
 
 function tempoMestrePorRespostaMs() {
   const max = LIMITE_MESTRE[faseAtual] ?? 25;
@@ -460,7 +482,6 @@ function tempoMestrePorRespostaMs() {
 
 function configurarDueloPorFase() {
   duelo.mestreMaxTentativas = LIMITE_MESTRE[faseAtual] ?? 25;
-
   duelo.chanceErro =
     (faseAtual === "facil") ? 0.12 :
     (faseAtual === "media") ? 0.10 :
@@ -494,7 +515,6 @@ function abrirDuelo(mestre) {
   duelo.errosMestre = 0;
 
   duelo.mestreTentativas = 0;
-
   configurarDueloPorFase();
 
   duelo.fimEm = performance.now() + duelo.duracaoMs;
@@ -739,7 +759,6 @@ function virarParaVersoComNumero(carta, numeroDiv, valor) {
   numeroDiv.textContent = String(valor);
 }
 
-// ✅ MODO ESCOLHA = mostra Oprofessor (requer CSS .back-prof)
 function setModoEscolhaCartas() {
   if (cartaEsquerda) {
     cartaEsquerda.classList.remove("front", "back");
@@ -754,7 +773,6 @@ function setModoEscolhaCartas() {
   if (numDireita) numDireita.textContent = "";
 }
 
-// ✅ MODO JOGO = explosão + números por cima (classe .back)
 function setModoJogoCartas() {
   if (cartaEsquerda) {
     cartaEsquerda.classList.remove("front", "back-prof");
@@ -803,8 +821,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  // ✅ mantém teste do fácil como você pediu
-  if (f === "facil") return 4;
+  if (f === "facil") return 4;   // teste
   if (f === "media") return 40;
   return 60;
 }
@@ -941,14 +958,15 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
     modalTexto.innerHTML = textoHtml;
+
     // ✅ ativa modo épico só pro Oprofessor
-if (modal) {
-  const isOprofessor = (titulo || "").includes("Mestre dos Mestres");
-  modal.classList.toggle("op-epico", isOprofessor);
-}
-// ✅ MOBILE: quando abrir modal, esconde o keypad pra não cobrir avatares
-document.body.classList.add("modal-open");
-if (typeof hideKeypad === "function") hideKeypad();
+    const isOprofessor = (titulo || "").includes("Mestre dos Mestres");
+    modal.classList.toggle("op-epico", isOprofessor);
+
+    // ✅ MOBILE: quando abrir modal, some keypad pra não cobrir avatares
+    document.body.classList.add("modal-open");
+    hideKeypad();
+
     modal.classList.remove("hidden");
     if (btnSim) btnSim.focus();
   }
@@ -963,11 +981,8 @@ function fecharModal() {
   onSim = null;
   onNao = null;
 
-  // ✅ MOBILE: ao fechar modal, devolve o keypad
-document.body.classList.remove("modal-open");
-if (isMobileLike()) {
-  if (typeof showKeypad === "function") showKeypad();
-}
+  // ✅ MOBILE: ao fechar modal, devolve keypad
+  document.body.classList.remove("modal-open");
   if (isMobileLike()) showKeypad();
 }
 
@@ -1192,7 +1207,6 @@ if (tabuadaSelect) {
       if (labelTabuada) labelTabuada.textContent = "";
       setModoEscolhaCartas();
 
-      // ✅ para o jogo se voltar pra "Escolha"
       jogoAtivo = false;
       cronometroAtivo = false;
       clearInterval(intervalo);
@@ -1200,12 +1214,10 @@ if (tabuadaSelect) {
       return;
     }
 
-    // ✅ escolheu tabuada: vira a "tabuada atual" da sequência
     tabuada = Number(v);
-    tabuadaAtual = tabuada; // <-- isso resolve seu problema do "voltar pro 3"
+    tabuadaAtual = tabuada;
     numeroAtual = 1;
 
-    // ✅ zera placar/tempo da rodada ao trocar tabuada manualmente
     jogoAtivo = false;
     cronometroAtivo = false;
     clearInterval(intervalo);
@@ -1215,7 +1227,6 @@ if (tabuadaSelect) {
     erros = 0;
     etapa = "normal";
 
-    // ✅ refaz o pool de mestres baseado na tabuada escolhida
     prepararMestresParaJogada(tabuadaAtual);
 
     syncFaseEMeta();
@@ -1325,14 +1336,9 @@ function iniciarDesafioAleatorio() {
 }
 
 // =======================
-// OP R O F E S S O R (Pantera) — só na troca de nível
-// Competição regressiva 60s, tabuadas alternadas (1..10) e número (1..10)
-// Regras ficam escondidas (NÃO mostrar meta na tela final)
+// OPROFESSOR (mantido igual ao seu)
 // =======================
-const OPROFESSOR = {
-  nome: "Oprofessor 🐾 (Pantera)",
-  img: "./oprofessor.png" // ajuste se o nome do arquivo for outro
-};
+const OPROFESSOR = { nome: "Oprofessor 🐾 (Pantera)", img: "./oprofessor.png" };
 
 const OP_RULES = {
   facil:   { alunoMin: 25, opMax: 24 },
@@ -1346,12 +1352,10 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
   let pontosAluno = 0;
   let pontosOp = 0;
 
-  // trava timers normais
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
 
-  // garante cartas no modo jogo (explosão + números)
   if (typeof setModoJogoCartas === "function") setModoJogoCartas();
 
   function novaPerguntaGlobal() {
@@ -1369,7 +1373,6 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     focusRespostaSeguro();
   }
 
-  // cronômetro regressivo real (60s)
   let acabou = false;
   let t0 = performance.now();
   let tick = null;
@@ -1391,7 +1394,6 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     }, 120);
   }
 
-  // “respostas” do Oprofessor (até opMax)
   let opTimers = [];
 
   function agendarOprofessor() {
@@ -1422,7 +1424,7 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     opTimers = [];
 
     const alunoBateuMin = pontosAluno >= rules.alunoMin;
-    const alunoGanhouNoPlacar = pontosAluno > pontosOp; // empate não sobe
+    const alunoGanhouNoPlacar = pontosAluno > pontosOp;
     const venceu = alunoBateuMin && alunoGanhouNoPlacar;
 
     const placar = `<b>Você:</b> ${pontosAluno} | <b>${OPROFESSOR.nome}:</b> ${pontosOp}`;
@@ -1448,7 +1450,6 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     }
   }
 
-  // intercepta verificar só durante o desafio
   const verificarOriginal = window.verificar;
 
   window.verificar = function () {
@@ -1473,7 +1474,6 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
 
   const restore = () => { window.verificar = verificarOriginal; };
 
-  // start
   t0 = performance.now();
   iniciarTempoRegressivo();
   agendarOprofessor();
@@ -1483,7 +1483,7 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
 }
 
 // =======================
-// ✅ AVANÇAR (com Oprofessor antes de subir nível) — CORRETO
+// AVANÇAR (mantido igual ao seu)
 // =======================
 function avancarParaProximaTabuadaOuFase() {
   jogoAtivo = true;
@@ -1492,21 +1492,18 @@ function avancarParaProximaTabuadaOuFase() {
 
   fecharDuelo();
 
-  // pega a tabuada atual (do select)
   if (tabuadaSelecionadaValida()) {
     tabuadaAtual = Number(tabuadaSelect.value);
   }
 
   tabuadaAtual++;
 
-  // ✅ PASSOU DA 10: chama Oprofessor e SAI (não deixa ir pra 11)
   if (tabuadaAtual > 10) {
     const proximoNivel =
       (faseAtual === "facil") ? "media" :
       (faseAtual === "media") ? "dificil" :
       null;
 
-    // se já está no difícil, final definitivo
     if (!proximoNivel) {
       abrirModal(
         "👑 Mestre dos Mestres!",
@@ -1517,66 +1514,63 @@ function avancarParaProximaTabuadaOuFase() {
       return;
     }
 
-    // pré-desafio (provocação + carta do Oprofessor)
-abrirModal(
-  "🐾 Mestre dos Mestres",
-  `
-    <div class="op-stage">
-      <div class="op-card3d">
-        <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-          ${OPROFESSOR.img ? `<img class="op-img" src="${OPROFESSOR.img}" style="
-            width:230px;height:230px;border-radius:26px;object-fit:contain;
-            background: rgba(255,255,255,.06); padding: 10px;
-            border:2px solid rgba(255,255,255,.18);
-          ">` : ""}
+    abrirModal(
+      "🐾 Mestre dos Mestres",
+      `
+        <div class="op-stage">
+          <div class="op-card3d">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+              ${OPROFESSOR.img ? `<img class="op-img" src="${OPROFESSOR.img}" style="
+                width:230px;height:230px;border-radius:26px;object-fit:contain;
+                background: rgba(255,255,255,.06); padding: 10px;
+                border:2px solid rgba(255,255,255,.18);
+              ">` : ""}
 
-          <div class="op-title" style="font-size:22px; font-weight:1000; letter-spacing:1px; text-align:center;">
-            🐾 OPROFESSOR CHEGOU
-          </div>
+              <div class="op-title" style="font-size:22px; font-weight:1000; letter-spacing:1px; text-align:center;">
+                🐾 OPROFESSOR CHEGOU
+              </div>
 
-          <div class="op-sub" style="font-size:18px; font-weight:900; line-height:1.35; text-align:center;">
-            Você acha que é bom? Agora vamos ver.<br>
-            Te desafio a um duelo de verdade!<br>
-            Está pronto para parar de brincar e enfrentar alguém bom de verdade?
-          </div>
+              <div class="op-sub" style="font-size:18px; font-weight:900; line-height:1.35; text-align:center;">
+                Você acha que é bom? Agora vamos ver.<br>
+                Te desafio a um duelo de verdade!<br>
+                Está pronto para parar de brincar e enfrentar alguém bom de verdade?
+              </div>
 
-          <div class="op-sub" style="margin-top:6px; font-size:14px; opacity:.95; text-align:center;">
-            Duelo regressivo de <b>60 segundos</b>. Tabuadas alternadas.
+              <div class="op-sub" style="margin-top:6px; font-size:14px; opacity:.95; text-align:center;">
+                Duelo regressivo de <b>60 segundos</b>. Tabuadas alternadas.
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  `,
-  () => {
-    iniciarDesafioOprofessor60s(
+      `,
       () => {
-        // venceu: sobe nível e reinicia no 1
-        faseAtual = proximoNivel;
-        if (faseSelect) faseSelect.value = faseAtual;
-
-        meta = setMetaByFase(faseAtual);
-        tabuadaAtual = 1;
-
-        abrirModal(
-          "⬆️ Você subiu de nível!",
-          `Agora você está no nível <b>${faseAtual.toUpperCase()}</b>.<br>Quer começar do 1?`,
+        iniciarDesafioOprofessor60s(
           () => {
-            if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
-            window.iniciarJogo(false);
+            faseAtual = proximoNivel;
+            if (faseSelect) faseSelect.value = faseAtual;
+
+            meta = setMetaByFase(faseAtual);
+            tabuadaAtual = 1;
+
+            abrirModal(
+              "⬆️ Você subiu de nível!",
+              `Agora você está no nível <b>${faseAtual.toUpperCase()}</b>.<br>Quer começar do 1?`,
+              () => {
+                if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
+                window.iniciarJogo(false);
+              },
+              () => resetTudoParaInicio()
+            );
           },
           () => resetTudoParaInicio()
         );
       },
       () => resetTudoParaInicio()
     );
-  },
-  () => resetTudoParaInicio()
-);
 
-    return; // 🔥 trava total pra não cair no fluxo normal
+    return;
   }
 
-  // ✅ fluxo normal (1..10)
   if (tabuadaSelect) tabuadaSelect.value = String(tabuadaAtual);
 
   tabuada = tabuadaAtual;
@@ -1801,6 +1795,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
