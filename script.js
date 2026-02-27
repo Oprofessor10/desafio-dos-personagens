@@ -946,6 +946,9 @@ if (modal) {
   const isOprofessor = (titulo || "").includes("Mestre dos Mestres");
   modal.classList.toggle("op-epico", isOprofessor);
 }
+// ✅ MOBILE: quando abrir modal, esconde o keypad pra não cobrir avatares
+document.body.classList.add("modal-open");
+if (typeof hideKeypad === "function") hideKeypad();
     modal.classList.remove("hidden");
     if (btnSim) btnSim.focus();
   }
@@ -960,6 +963,11 @@ function fecharModal() {
   onSim = null;
   onNao = null;
 
+  // ✅ MOBILE: ao fechar modal, devolve o keypad
+document.body.classList.remove("modal-open");
+if (isMobileLike()) {
+  if (typeof showKeypad === "function") showKeypad();
+}
   if (isMobileLike()) showKeypad();
 }
 
