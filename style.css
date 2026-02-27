@@ -984,3 +984,119 @@ body.modo-duelo .carta{
   }
 }
 
+/* ================================
+   FIX MOBILE (não altera desktop)
+   ================================ */
+@media (max-width: 520px) {
+
+  /* --- 1) Cartas: impedir sair da tela --- */
+  .area-cartas{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 6px 0;
+  }
+
+  /* cada pilha ocupa metade da tela (aprox) */
+  .pilha{
+    width: min(46vw, 210px);
+  }
+
+  /* o X vai pra linha do meio e não empurra as cartas */
+  .multiplicador{
+    flex: 0 0 100%;
+    display: grid;
+    place-items: center;
+    order: 2;
+    margin: 2px 0;
+  }
+
+  .pilha-esquerda{ order: 1; }
+  .pilha-direita { order: 3; }
+
+  /* --- 2) Keypad: reserva espaço para ele --- */
+  body.keypad-on{
+    /* altura “padrão” do teclado do seu jogo */
+    --kb-h: 290px;
+  }
+
+  /* garante que o teclado não cubra conteúdo importante */
+  .keypad{
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* --- 3) Modal: virar “sheet” com scroll acima do teclado --- */
+  .modal{
+    align-items: flex-start;            /* não centraliza (evita ficar atrás do keypad) */
+    padding-top: 12px;
+    padding-bottom: calc(var(--kb-h, 0px) + env(safe-area-inset-bottom) + 10px);
+  }
+
+  .modal-box{
+    width: min(94vw, 520px);
+    max-height: calc(100vh - var(--kb-h, 0px) - env(safe-area-inset-bottom) - 22px);
+    overflow: hidden;                  /* scroll fica no texto */
+    border-radius: 18px;
+  }
+
+  .modal-text{
+    overflow-y: auto;                  /* ✅ agora você consegue rolar e ver os avatares */
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100vh - var(--kb-h, 0px) - 210px);
+    padding-bottom: 10px;
+  }
+
+  /* thumbs/avatares: deixar visíveis e bem distribuídos */
+  .modal-text img{
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* --- 4) Duelo (overlay): impedir estourar no mobile --- */
+  #dueloOverlay .duelo-box{
+    width: min(94vw, 520px) !important;
+    max-height: calc(100vh - var(--kb-h, 0px) - 24px) !important;
+    overflow: hidden !important;
+  }
+
+  #dueloOverlay .duelo-row{
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* o min-width:320 do JS quebra no celular -> anulamos */
+  #dueloOverlay .duelo-card{
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #dueloOverlay .duelo-versus{
+    width: 92px !important;
+    height: 64px !important;
+    margin: 6px auto !important;
+  }
+
+  #dueloOverlay .duelo-foto{
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  #dueloOverlay .duelo-nome{
+    font-size: 16px !important;
+  }
+
+  #dueloOverlay .duelo-placar{
+    font-size: 15px !important;
+  }
+}
+
+/* Telas MUITO pequenas (tipo 360px) */
+@media (max-width: 390px){
+  .pilha{ width: min(92vw, 260px); }
+  .pilha-esquerda{ order: 1; }
+  .multiplicador{ order: 2; }
+  .pilha-direita{ order: 3; }
+  body.keypad-on{ --kb-h: 300px; }
+}
