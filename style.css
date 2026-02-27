@@ -790,3 +790,39 @@ body.modal-open .keypad{ display:none !important; }
   }
 }
 
+/* =========================
+   FIX: PLACAR DO DUELO NÃO COBRE AS CARTAS
+   (Cole no FINAL do style.css)
+========================= */
+
+/* Placar sempre grudado no topo */
+#dueloOverlay.duelo{
+  place-items: start center !important;
+  padding-top: 10px !important;
+}
+
+/* caixa do placar mais compacta */
+#dueloOverlay .duelo-box{
+  margin-top: 0 !important;
+  max-height: 40vh !important;   /* evita virar “paredão” */
+  overflow: hidden !important;
+}
+
+/* Empurra as cartas pra baixo durante o duelo */
+body.modo-duelo .area-cartas{
+  margin-top: 140px !important;  /* desktop/tablet */
+}
+
+/* Mobile: precisa empurrar mais */
+@media (max-width: 520px){
+  body.modo-duelo .area-cartas{
+    margin-top: 190px !important; /* ajuste fino se quiser: 170~220 */
+  }
+}
+
+/* Mobile muito pequeno */
+@media (max-width: 390px){
+  body.modo-duelo .area-cartas{
+    margin-top: 210px !important;
+  }
+}
