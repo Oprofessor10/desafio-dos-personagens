@@ -275,7 +275,19 @@ function ensureDueloOverlay() {
     </div>
   `;
   document.body.appendChild(dueloEl);
+function updateDueloOffset() {
+  const box = dueloEl?.querySelector(".duelo-box");
+  if (!box) return;
 
+  // mede altura real do placar
+  const h = Math.ceil(box.getBoundingClientRect().height);
+
+  // salva como variável CSS global
+  document.documentElement.style.setProperty("--dueloH", `${h}px`);
+}
+window.addEventListener("resize", updateDueloOffset, { passive: true });
+window.addEventListener("orientationchange", updateDueloOffset);
+setTimeout(updateDueloOffset, 0);
   // ✅ CSS DO DUELO ajustado (sem min-width quebrando celular)
   const style = document.createElement("style");
   style.textContent = `
@@ -1795,6 +1807,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
