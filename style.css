@@ -751,3 +751,81 @@ body.modo-duelo .carta{
   filter: drop-shadow(0 22px 40px rgba(0,0,0,.65)) !important;
 }
 
+/* ===========================
+   ENTRADA 3D DO OPROFESSOR
+   =========================== */
+
+#modal.op-epico{
+  overflow: hidden;
+}
+
+/* flash radial no fundo */
+#modal.op-epico::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.20), transparent 60%);
+  opacity: 0;
+  animation: opFlash 520ms ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes opFlash{
+  0%{ opacity: 0; transform: scale(.9); }
+  35%{ opacity: 1; transform: scale(1.02); }
+  100%{ opacity: 0; transform: scale(1.08); }
+}
+
+/* tremor leve do box */
+#modal.op-epico .modal-box{
+  animation: opShake 320ms ease-out 1;
+}
+
+@keyframes opShake{
+  0%,100%{ transform: translateX(0); }
+  20%{ transform: translateX(-2px); }
+  40%{ transform: translateX(2px); }
+  60%{ transform: translateX(-1px); }
+  80%{ transform: translateX(1px); }
+}
+
+/* palco 3D dentro do texto do modal */
+#modal.op-epico .op-stage{
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
+}
+
+/* a “carta” 3D */
+#modal.op-epico .op-card3d{
+  transform-style: preserve-3d;
+  will-change: transform, filter, opacity;
+  opacity: 0;
+  transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
+  filter: blur(10px) brightness(.88);
+  animation: opEntrada3D 900ms cubic-bezier(.12,.9,.18,1.02) forwards;
+}
+
+@keyframes opEntrada3D{
+  0%{
+    opacity: 0;
+    transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
+    filter: blur(10px) brightness(.88);
+  }
+  60%{
+    opacity: 1;
+    transform: translateZ(120px) rotateX(-6deg) rotateY(10deg) scale(1.04);
+    filter: blur(0px) brightness(1.18);
+  }
+  100%{
+    opacity: 1;
+    transform: translateZ(0px) rotateX(0deg) rotateY(0deg) scale(1);
+    filter: blur(0px) brightness(1);
+  }
+}
+
+/* “camadas” dando profundidade */
+#modal.op-epico .op-img{ transform: translateZ(70px); box-shadow: 0 18px 55px rgba(0,0,0,.55); }
+#modal.op-epico .op-title{ transform: translateZ(45px); text-shadow: 0 10px 30px rgba(0,0,0,.65); }
+#modal.op-epico .op-sub{ transform: translateZ(25px); }
+
+
