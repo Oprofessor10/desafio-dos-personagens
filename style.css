@@ -1233,3 +1233,30 @@ body.modo-duelo .carta{
   .multiplicador{ width: 40px !important; height: 40px !important; }
   .x-rabisco{ width: 36px !important; height: 36px !important; }
 }
+
+/* ✅ quando modal abre no celular, keypad some (não cobre avatares) */
+body.modal-open .keypad{ display:none !important; }
+
+/* modal vira “sheet” e pode rolar */
+@media (max-width: 520px){
+  body.modal-open .modal{
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  body.modal-open .modal-box{
+    max-height: calc(100svh - env(safe-area-inset-bottom) - 16px) !important;
+  }
+  body.modal-open .modal-texto{
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(100svh - 190px) !important;
+  }
+}
+
+@media (max-width: 520px){
+  body.modo-duelo .area-cartas{
+    margin-top: 140px !important;  /* empurra as cartas pra baixo do placar */
+  }
+  body.modo-duelo #dueloOverlay .duelo-box{
+    width: min(94vw, 560px) !important;
+  }
+}
