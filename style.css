@@ -1100,3 +1100,136 @@ body.modo-duelo .carta{
   .pilha-direita{ order: 3; }
   body.keypad-on{ --kb-h: 300px; }
 }
+
+/* =========================================================
+   MOBILE PATCH FINAL (não mexe no desktop)
+   - Carta direita não sai da tela
+   - Modal não fica atrás do keypad (avatares aparecem com scroll)
+   - Duelo (overlay) fica legível no celular
+   Cole no FINAL do style.css
+========================================================= */
+
+@media (max-width: 520px){
+
+  /* ---------- 1) CARTAS: manter 2 cartas + X SEM estourar ---------- */
+  .area-cartas{
+    width: 100% !important;
+    max-width: 100% !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr) !important;
+    gap: 10px !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+    justify-items: center !important;
+
+    overflow: hidden !important; /* impede “vazar” pro lado */
+    padding: 6px 0 0 !important;
+  }
+
+  .pilha{
+    width: 100% !important;
+    min-width: 0 !important;  /* ESSENCIAL pra não empurrar a carta pra fora */
+  }
+
+  .carta{
+    width: 100% !important;          /* carta encaixa na coluna */
+    max-width: 190px !important;     /* limite pra ficar bonita */
+    aspect-ratio: 3 / 4 !important;
+  }
+
+  .multiplicador{
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .x-rabisco{ width: 42px !important; height: 42px !important; }
+
+  /* ---------- 2) KEYPAD: variável única de altura ---------- */
+  body.keypad-on{ --kb-h: 290px; } /* ajuste fino se quiser: 270~310 */
+
+  /* ---------- 3) MODAL: virar “sheet” acima do keypad + scroll interno ---------- */
+  .modal{
+    align-items: flex-start !important;
+    padding-top: 12px !important;
+    padding-bottom: calc(var(--kb-h, 0px) + env(safe-area-inset-bottom) + 14px) !important;
+  }
+
+  .modal-box{
+    width: min(94vw, 560px) !important;
+    max-height: calc(100svh - var(--kb-h, 0px) - env(safe-area-inset-bottom) - 22px) !important;
+    overflow: hidden !important; /* scroll fica no texto */
+  }
+
+  /* ✅ seu HTML é .modal-texto (não é .modal-text) */
+  .modal-texto{
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(100svh - var(--kb-h, 0px) - 190px) !important; /* título + botões */
+    padding-bottom: 14px !important;
+  }
+
+  /* avatares (thumbs) sempre visíveis e com quebra */
+  .modal-texto > div{
+    max-width: 100% !important;
+  }
+  .modal-texto img{
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* ---------- 4) DUELO: corrigir layout injetado pelo JS ---------- */
+  #dueloOverlay{
+    place-items: start center !important;
+    padding-top: 10px !important;
+  }
+
+  #dueloOverlay .duelo-box{
+    width: min(94vw, 560px) !important;
+    max-height: calc(100svh - var(--kb-h, 0px) - env(safe-area-inset-bottom) - 18px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 10px 10px !important;
+  }
+
+  #dueloOverlay .duelo-row{
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* ✅ mata o min-width:320 do JS que quebra no celular */
+  #dueloOverlay .duelo-card{
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #dueloOverlay .duelo-foto{
+    width: 64px !important;
+    height: 64px !important;
+  }
+
+  #dueloOverlay .duelo-nome{
+    font-size: 16px !important;
+    max-width: 80vw !important;
+  }
+
+  #dueloOverlay .duelo-placar{
+    font-size: 14px !important;
+    justify-content: space-between !important;
+  }
+
+  #dueloOverlay .duelo-versus{
+    width: 92px !important;
+    height: 60px !important;
+    margin: 6px auto !important;
+    transform: rotate(-2deg) !important;
+  }
+}
+
+/* EXTRA: telas bem pequenas (ex: 360px) */
+@media (max-width: 390px){
+  body.keypad-on{ --kb-h: 300px; }
+  .area-cartas{ grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) !important; }
+  .multiplicador{ width: 40px !important; height: 40px !important; }
+  .x-rabisco{ width: 36px !important; height: 36px !important; }
+}
