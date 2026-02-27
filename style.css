@@ -826,3 +826,25 @@ body.modo-duelo .area-cartas{
     margin-top: 210px !important;
   }
 }
+
+/* =========================
+   DUELO RESPONSIVO (funciona em qualquer celular)
+========================= */
+
+/* overlay no topo */
+#dueloOverlay.duelo{
+  place-items: start center !important;
+  padding-top: calc(10px + env(safe-area-inset-top)) !important;
+}
+
+/* limita o placar pra não virar parede */
+#dueloOverlay .duelo-box{
+  max-height: 45svh !important;
+  overflow: hidden !important;
+}
+
+/* empurra as cartas exatamente pela altura do placar */
+body.modo-duelo .area-cartas{
+  margin-top: 0 !important;
+  padding-top: calc(var(--dueloH, 0px) + 14px) !important;
+}
