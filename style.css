@@ -808,3 +808,25 @@ body.modo-duelo .area-cartas{
   padding-top: calc(var(--dueloH, 0px) + 14px) !important;
 }
 
+/* =========================
+   FIX 1: Barra de resposta não encosta nas cartas (MOBILE RETRATO)
+   Cole no FINAL do style.css
+========================= */
+@media (max-width: 900px) and (orientation: portrait){
+
+  /* sobe um pouco a barra pra dar respiro */
+  body.keypad-on .resposta-area{
+    bottom: calc(var(--kb-h) + 22px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* empurra as cartas para não ficarem “por trás” da barra */
+  body.keypad-on .area-cartas{
+    padding-bottom: 110px !important;  /* ajuste fino: 90~140 */
+  }
+
+  /* deixa a barra bem central e estável */
+  body.keypad-on .resposta-area input{
+    display: block !important;
+    margin: 0 auto !important;
+  }
+}
