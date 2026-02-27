@@ -821,7 +821,7 @@ body.modo-duelo .area-cartas{
 
   /* empurra as cartas para não ficarem “por trás” da barra */
   body.keypad-on .area-cartas{
-    padding-bottom: 110px !important;  /* ajuste fino: 90~140 */
+    padding-bottom: 150px !important;  /* ajuste fino: 90~140 */
   }
 
   /* deixa a barra bem central e estável */
@@ -830,3 +830,4 @@ body.modo-duelo .area-cartas{
     margin: 0 auto !important;
   }
 }
+
