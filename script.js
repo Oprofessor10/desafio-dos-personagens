@@ -105,6 +105,13 @@ const fxCtx = fxCanvas ? fxCanvas.getContext("2d") : null;
 // TECLADO VIRTUAL (MOBILE)
 // =======================
 const keypad = document.getElementById("keypad");
+// ===== MOBILE 2 - mede altura real do keypad e joga em --kb-h =====
+function updateKbHeightVar(){
+  if (!keypad) return;
+  // se estiver hidden, ainda mede (mas pode dar 0). então usa fallback.
+  const h = Math.ceil(keypad.getBoundingClientRect().height || 290);
+  document.documentElement.style.setProperty("--kb-h", `${h}px`);
+}
 
 // ===== MOBILE 2 - marca quando o keypad está visível (sem usar :has) =====
 function syncKeypadState(){
@@ -1943,6 +1950,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
