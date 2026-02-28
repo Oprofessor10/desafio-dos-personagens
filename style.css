@@ -746,7 +746,7 @@ body.modal-open .keypad{ display:none !important; }
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: calc(var(--kb-h) + var(--gap) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(var(--kb-h) + env(safe-area-inset-bottom)) !important;
     margin: 0 !important;
     padding: 0 16px !important;
     z-index: 17000 !important;
@@ -760,6 +760,7 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 14px !important;
   }
 }
+
 
 
 
