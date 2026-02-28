@@ -307,7 +307,7 @@ button, select, input{ touch-action: manipulation; }
 }
 
 /* =========================
-   INPUT RESPOSTA
+   INPUT RESPOSTA (base)
 ========================= */
 .resposta-area{
   margin: 10px 0 10px;
@@ -478,108 +478,9 @@ button, select, input{ touch-action: manipulation; }
 .kp-wide{ grid-column: span 4; }
 
 /* =========================
-   MODO DUELO (ARENA)
-========================= */
-body.modo-duelo .seletor,
-body.modo-duelo #btnIniciar,
-body.modo-duelo .painel,
-body.modo-duelo #fimJogo{
-  display:none !important;
-}
-
-body.modo-duelo .pilha-topo,
-body.modo-duelo .pilha-rodape,
-body.modo-duelo .pilha-direita::before,
-body.modo-duelo .pilha-direita::after,
-body.modo-duelo .pilha-zerou{
-  display:none !important;
-}
-
-body.modo-duelo{
-  --cardW: 280px;
-  --xW: 110px;
-}
-
-body.modo-duelo .tabuleiro{
-  background:
-    radial-gradient(circle at center, rgba(0,255,180,0.08), transparent 60%),
-    radial-gradient(circle at center, rgba(0,160,255,0.10), transparent 70%),
-    linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-}
-
-/* ===========================
-   ENTRADA 3D DO OPROFESSOR
-=========================== */
-#modal.op-epico{ overflow: hidden; }
-
-#modal.op-epico::before{
-  content:"";
-  position:absolute;
-  inset:-40px;
-  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.20), transparent 60%);
-  opacity: 0;
-  animation: opFlash 520ms ease-out forwards;
-  pointer-events:none;
-}
-
-@keyframes opFlash{
-  0%{ opacity: 0; transform: scale(.9); }
-  35%{ opacity: 1; transform: scale(1.02); }
-  100%{ opacity: 0; transform: scale(1.08); }
-}
-
-#modal.op-epico .modal-box{
-  animation: opShake 320ms ease-out 1;
-}
-
-@keyframes opShake{
-  0%,100%{ transform: translateX(0); }
-  20%{ transform: translateX(-2px); }
-  40%{ transform: translateX(2px); }
-  60%{ transform: translateX(-1px); }
-  80%{ transform: translateX(1px); }
-}
-
-#modal.op-epico .op-stage{
-  perspective: 1200px;
-  perspective-origin: 50% 40%;
-}
-
-#modal.op-epico .op-card3d{
-  transform-style: preserve-3d;
-  will-change: transform, filter, opacity;
-  opacity: 0;
-  transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
-  filter: blur(10px) brightness(.88);
-  animation: opEntrada3D 900ms cubic-bezier(.12,.9,.18,1.02) forwards;
-}
-
-@keyframes opEntrada3D{
-  0%{
-    opacity: 0;
-    transform: translateZ(-420px) rotateX(22deg) rotateY(-50deg) scale(.82);
-    filter: blur(10px) brightness(.88);
-  }
-  60%{
-    opacity: 1;
-    transform: translateZ(120px) rotateX(-6deg) rotateY(10deg) scale(1.04);
-    filter: blur(0px) brightness(1.18);
-  }
-  100%{
-    opacity: 1;
-    transform: translateZ(0px) rotateX(0deg) rotateY(0deg) scale(1);
-    filter: blur(0px) brightness(1);
-  }
-}
-
-#modal.op-epico .op-img{ transform: translateZ(70px); box-shadow: 0 18px 55px rgba(0,0,0,.55); }
-#modal.op-epico .op-title{ transform: translateZ(45px); text-shadow: 0 10px 30px rgba(0,0,0,.65); }
-#modal.op-epico .op-sub{ transform: translateZ(25px); }
-
-/* =========================
    RESPONSIVO (<=900)
 ========================= */
-@media (max-width: 900px) and (pointer: coarse){
+@media (max-width: 900px){
   .tabuleiro{
     width: 100vw;
     max-width: 100vw;
@@ -629,11 +530,8 @@ body.modo-duelo .tabuleiro{
     border-radius: 14px;
   }
 
-  /* ✅ PERFORMANCE MOBILE: tira blur e filtros pesados */
-  .modal,
-  .keypad,
-  .fim-jogo,
-  .pilha-zerou{
+  /* PERFORMANCE MOBILE */
+  .modal, .keypad, .fim-jogo, .pilha-zerou{
     backdrop-filter: none !important;
   }
 
@@ -643,7 +541,6 @@ body.modo-duelo .tabuleiro{
   .pilha-zerou{ background: rgba(0,0,0,.45) !important; }
 
   .carta{
-    /* drop-shadow é caro no mobile */
     filter: none !important;
     box-shadow: 0 14px 26px rgba(0,0,0,.40);
   }
@@ -653,7 +550,6 @@ body.modo-duelo .tabuleiro{
   }
 
   #fxCanvas{
-    /* blend-mode é caro no mobile */
     mix-blend-mode: normal !important;
   }
 }
@@ -675,6 +571,7 @@ body.modo-duelo .tabuleiro{
   }
 
   .pilha{ width: 100% !important; min-width: 0 !important; }
+
   .carta{
     width: 100% !important;
     max-width: 190px !important;
@@ -684,7 +581,7 @@ body.modo-duelo .tabuleiro{
   .multiplicador{ width: 46px !important; height: 46px !important; }
   .x-rabisco{ width: 42px !important; height: 42px !important; }
 
-  /* modal como sheet (scroll interno) */
+  /* modal como sheet */
   .modal{
     align-items: flex-start !important;
     padding-top: 12px !important;
@@ -701,12 +598,6 @@ body.modo-duelo .tabuleiro{
     max-height: calc(100svh - var(--kb-h) - 190px) !important;
     padding-bottom: 14px !important;
   }
-
-  /* no modo duelo, empurra cartas pra baixo do placar (usa --dueloH real) */
-  body.modo-duelo .area-cartas{
-    margin-top: 0 !important;
-    padding-top: calc(var(--dueloH, 0px) + 14px) !important;
-  }
 }
 
 /* EXTRA: telas bem pequenas (<=390) */
@@ -717,7 +608,7 @@ body.modo-duelo .tabuleiro{
   .x-rabisco{ width: 36px !important; height: 36px !important; }
 }
 
-/* ✅ Quando modal abre no celular, esconda keypad */
+/* quando modal abre no celular, esconda keypad */
 body.modal-open .keypad{ display:none !important; }
 @media (max-width: 520px){
   body.modal-open .modal{
@@ -766,73 +657,17 @@ body.modal-open .keypad{ display:none !important; }
   }
 }
 
-
-
-/* =========================
-   FIX: PLACAR DO DUELO NÃO COBRE AS CARTAS
-   (usa a altura real do placar medida no JS)
-========================= */
-#dueloOverlay.duelo{
-  place-items: start center !important;
-  padding-top: calc(10px + env(safe-area-inset-top)) !important;
-}
-
-#dueloOverlay .duelo-box{
-  max-height: 45svh !important;
-  overflow: hidden !important;
-}
-
-/* Empurra as cartas pelo tamanho do placar */
-body.modo-duelo .area-cartas{
-  margin-top: 0 !important;
-  padding-top: calc(var(--dueloH, 0px) + 14px) !important;
-}
-
-
-/* =========================
-   MOBILE 2 - FIX BARRA RESPOSTA
-   (colar no FINAL do style.css)
-========================= */
-@media (max-width: 520px){
-
-  /* centraliza e dá espaço pra barra não encostar nas cartas */
-  .resposta-area{
-    width: 92vw;
-    max-width: 520px;
-    margin: 24px auto 0;
-    padding: 0 10px 12px;
-    position: relative;
-    z-index: 2; /* fica acima do fundo, mas sem atrapalhar cartas */
-  }
-
-  #respostaInput{
-    width: 100%;
-    height: 54px;
-    border-radius: 14px;
-    font-size: 18px;
-  }
-
-  /* quando o teclado interno aparece, empurra a área das cartas pra cima
-     (o teclado tem id="keypad" e quando aparece ele perde a classe .hidden) */
-  /* quando o keypad aparecer (classe no body) */
-body.keypad-on .area-cartas{
-  margin-bottom: 16px;
-  padding-bottom: 18px;
-}
-
-body.keypad-on .resposta-area{
-  margin-top: 32px;        /* aqui sim vai mexer */
-  padding-bottom: 18px;
-}
-}
-
 /* ==================================================
-   OVERRIDE FINAL MOBILE2 (RETRATO) - SEM ROLAGEM + CARTA NÃO CORTA
-   PROCURE: OVERRIDE FINAL MOBILE2
+   MOBILE RETRATO - CONTROLE ÚNICO (sem mexer no PC)
+   Ajuste fino só aqui: --answer-gap
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
-  /* trava a página quando keypad abre */
+  :root{
+    --answer-gap: 450px; /* você disse que 450 resolveu */
+  }
+
+  /* quando keypad abre: sem rolagem */
   body.keypad-on{
     overflow: hidden !important;
     height: 100svh !important;
@@ -842,79 +677,37 @@ body.keypad-on .resposta-area{
     height: 100svh !important;
     min-height: 100svh !important;
     overflow: hidden !important;
-    padding-bottom: 0 !important;
+
+    /* reserva espaço pro keypad + vão */
+    padding-bottom: calc(var(--kb-h) + var(--answer-gap) + 20px) !important;
   }
 
-  /* ===== AJUSTE REAL: carta vira RESPONSIVA pela ALTURA disponível =====
-     220px = folga para topo (título + selects + painel)
-     72px  = folga para a barra de resposta
-  */
-  body.keypad-on{
-    --availH: calc(100svh - var(--kb-h) - 220px - 72px);
-    --cardW: min(42vw, calc(var(--availH) * 0.75)); /* largura = altura * 3/4 */
-    --xW: 46px;
-  }
-
-  /* garante que as cartas possam “encolher” sem cortar */
-  body.keypad-on .area-cartas{
-    width: 100% !important;
-    margin: 0 auto !important;
-    padding: 6px 0 0 !important;
-    align-items: start !important;
-    justify-items: center !important;
-  }
-
-  /* remove travas de max-width antigas que podem cortar */
-  body.keypad-on .carta{
-    width: var(--cardW) !important;
-    max-width: none !important;
-  }
-
-  /* barra sempre acima do keypad */
+  /* barra fica no meio do vão */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: calc(var(--kb-h) + 12px + env(safe-area-inset-bottom)) !important;
-    margin: 0 !important;
+    bottom: calc(var(--kb-h) + (var(--answer-gap) / 2) + env(safe-area-inset-bottom)) !important;
     padding: 0 16px !important;
     z-index: 17000 !important;
+    margin: 0 !important;
   }
 
   body.keypad-on .resposta-area input{
-    display: block !important;
-    margin: 0 auto !important;
     width: min(360px, 92vw) !important;
+    margin: 0 auto !important;
+    display: block !important;
   }
-   /* ===== FIX: balão do contador "4" não cortar ===== */
-body.keypad-on #contadorCartas{
-  min-width: 40px !important;
-  padding: 8px 12px !important;
-  line-height: 1 !important;
+
+  /* FIX: balão do contador não cortar (só no mobile) */
+  body.keypad-on .pilha-contador{
+    min-width: 56px !important;
+    padding: 7px 12px !important;
+    line-height: 1 !important;
+    border-radius: 999px !important;
+  }
+
+  body.keypad-on .pilha-topo{
+    padding-bottom: 12px !important;
+  }
 }
-
-body.keypad-on .pilha-topo{
-  padding-bottom: 12px !important; /* dá respiro entre topo e carta */
-}
-
-body.keypad-on .pilha-contador{
-  border-radius: 999px !important;
-}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
