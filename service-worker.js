@@ -1,15 +1,14 @@
 /* =========================
    SW MOBILE 2 - ATUALIZAÇÃO FORÇADA
-   (troque VERSION quando quiser)
 ========================= */
-const VERSION = "v108";
+const VERSION = "v109";
 const CACHE_NAME = `60-segundos-${VERSION}`;
 
 const urlsToCache = [
   "./",
   "./index.html",
-  "./style.css?v=108",
-  "./script.js?v=108",
+  "./style.css?v=109",
+  "./script.js?v=109",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -74,6 +73,10 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
 });
+
+  event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
+});
+
 
 
 
