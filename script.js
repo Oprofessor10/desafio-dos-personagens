@@ -791,6 +791,7 @@ window.addEventListener("resize", () => {
   _resizeRaf = requestAnimationFrame(() => {
     ensureMobileInputMode();
     setKeypadLayoutFlags();
+    updateKbHeightVar();   // <-- ADICIONE AQUI
     resizeFx();
   });
 }, { passive: true });
@@ -1953,6 +1954,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
