@@ -672,7 +672,7 @@ body.modal-open .keypad{ display:none !important; }
     /* ajuste fino */
     --top-ui: 200px;   /* topo (título + selects + painel) */
     --answer-h: 54px;  /* altura da barra */
-    --gap: 12px;       /* distância entre barra e keypad */
+    --gap: 2px;       /* distância entre barra e keypad */
     --pilha-top: 62px; /* espaço do "CARTAS RESTANTES" + balão */
   }
 
@@ -760,5 +760,6 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 14px !important;
   }
 }
+
 
 
