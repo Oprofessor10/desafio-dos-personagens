@@ -579,7 +579,7 @@ body.modo-duelo .tabuleiro{
 /* =========================
    RESPONSIVO (<=900)
 ========================= */
-@media (max-width: 900px){
+@media (max-width: 900px) and (pointer: coarse){
   .tabuleiro{
     width: 100vw;
     max-width: 100vw;
@@ -901,6 +901,7 @@ body.keypad-on .pilha-contador{
   border-radius: 999px !important;
 }
 }
+
 
 
 
