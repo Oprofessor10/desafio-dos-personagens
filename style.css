@@ -890,16 +890,18 @@ body.modo-duelo .area-cartas{
 
   /* quando o teclado interno aparece, empurra a área das cartas pra cima
      (o teclado tem id="keypad" e quando aparece ele perde a classe .hidden) */
-  body:has(#keypad:not(.hidden)) .area-cartas{
-    margin-bottom: 16px;
-    padding-bottom: 18px;
-  }
-
-  body:has(#keypad:not(.hidden)) .resposta-area{
-    margin-top: 332px;        /* ERA 10px -> agora desce quando keypad aparece */
-  padding-bottom: 18px;    /* dá um “meio” melhor entre barra e keypad */
-  }
+  /* quando o keypad aparecer (classe no body) */
+body.keypad-on .area-cartas{
+  margin-bottom: 16px;
+  padding-bottom: 18px;
 }
+
+body.keypad-on .resposta-area{
+  margin-top: 32px;        /* aqui sim vai mexer */
+  padding-bottom: 18px;
+}
+}
+
 
 
 
