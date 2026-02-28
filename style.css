@@ -658,11 +658,10 @@ body.modal-open .keypad{ display:none !important; }
 }
 
 /* ==================================================
-   ✅ FIX FINAL (MOBILE RETRATO) - SIMPLES E ESTÁVEL
-   - cartas sempre aparecem
-   - barra fica entre cartas e keypad (colada acima do keypad)
-   - sem rolagem
-   - balão do "4" não corta
+   ✅ FIX FINAL v2 (MOBILE RETRATO)
+   - cria uma "ARENA" com altura fixa acima da barra
+   - cartas nunca encostam/ficam atrás da barra
+   - barra fica colada no keypad
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
@@ -671,9 +670,10 @@ body.modal-open .keypad{ display:none !important; }
     height: 100svh !important;
 
     /* ajuste fino */
-    --top-ui: 190px;      /* topo (titulo + selects + painel) */
-    --answer-h: 54px;     /* altura da barra */
-    --gap: 14px;          /* espaço entre barra e keypad */
+    --top-ui: 200px;   /* topo (título + selects + painel) */
+    --answer-h: 54px;  /* altura da barra */
+    --gap: 12px;       /* distância entre barra e keypad */
+    --pilha-top: 62px; /* espaço do "CARTAS RESTANTES" + balão */
   }
 
   body.keypad-on .tabuleiro{
@@ -683,7 +683,7 @@ body.modal-open .keypad{ display:none !important; }
     padding-bottom: 0 !important;
   }
 
-  /* não cortar o balão do contador */
+  /* NÃO cortar o balão do contador */
   body.keypad-on .pilha,
   body.keypad-on .pilha-topo{
     overflow: visible !important;
@@ -699,19 +699,27 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 999px !important;
   }
 
-  /* cartas dimensionadas pela altura disponível */
+  /* ===== ARENA (altura fixa acima da barra+keypad) ===== */
   body.keypad-on{
-    --cardH: clamp(
-      150px,
-      calc(100svh - var(--kb-h) - var(--top-ui) - var(--answer-h) - var(--gap) - env(safe-area-inset-bottom)),
-      260px
+    --arenaH: calc(
+      100svh
+      - var(--kb-h)
+      - var(--top-ui)
+      - var(--answer-h)
+      - var(--gap)
+      - env(safe-area-inset-bottom)
     );
+  }
+
+  /* cartas baseadas na arena (tirando o topo da pilha) */
+  body.keypad-on{
+    --cardH: clamp(140px, calc(var(--arenaH) - var(--pilha-top)), 250px);
     --cardW: calc(var(--cardH) * 0.75);
     --xW: 46px;
   }
 
   body.keypad-on .area-cartas{
-    flex: 1 !important;
+    height: var(--arenaH) !important;      /* ✅ limita o grid */
     width: 100% !important;
     margin: 0 auto !important;
 
@@ -719,13 +727,11 @@ body.modal-open .keypad{ display:none !important; }
     grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
     gap: 10px !important;
 
-    align-items: center !important;     /* <- centraliza verticalmente as cartas */
+    align-items: center !important;
     justify-items: center !important;
 
     padding: 6px 0 0 !important;
-
-    /* reserva espaço “no fluxo” para a barra fixa não invadir as cartas */
-    padding-bottom: calc(var(--answer-h) + 18px) !important;
+    overflow: hidden !important;           /* ✅ nada invade a barra */
   }
 
   body.keypad-on .carta{
@@ -735,7 +741,7 @@ body.modal-open .keypad{ display:none !important; }
     aspect-ratio: 3 / 4 !important;
   }
 
-  /* ✅ barra SEMPRE acima do keypad (simples, sem conta maluca) */
+  /* ✅ barra colada acima do keypad */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
@@ -754,4 +760,5 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 14px !important;
   }
 }
+
 
