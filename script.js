@@ -30,7 +30,6 @@ function setImgSafe(imgEl, src, fallback = "./avatar1.png") {
   imgEl.src = finalSrc;
   imgEl.style.display = "block";
 
-  // fallback se o arquivo não existir (muito comum no GitHub Pages se faltar commit)
   imgEl.onerror = () => {
     imgEl.onerror = null;
     imgEl.src = fallback;
@@ -105,25 +104,22 @@ const fxCtx = fxCanvas ? fxCanvas.getContext("2d") : null;
 // TECLADO VIRTUAL (MOBILE)
 // =======================
 const keypad = document.getElementById("keypad");
-// ===== MOBILE 2 - mede altura real do keypad e joga em --kb-h =====
-function updateKbHeightVar(){
-  if (!keypad) return;
-  // se estiver hidden, ainda mede (mas pode dar 0). então usa fallback.
-  const h = Math.ceil(keypad.getBoundingClientRect().height || 290);
-  document.documentElement.style.setProperty("--kb-h", `${h}px`);
-}
 
-// ===== MOBILE 2 - marca quando o keypad está visível (sem usar :has) =====
-function syncKeypadState(){
-  const aberto = keypad && !keypad.classList.contains("hidden");
+/*
+  ✅ PONTO EXATO DO "syncKeypadState"
+  Fica AQUI, logo depois do const keypad = ...
+*/
+function syncKeypadState() {
+  if (!keypad) return;
+  const aberto = !keypad.classList.contains("hidden");
   document.body.classList.toggle("keypad-on", !!aberto);
 }
 
 // sincroniza ao carregar
 syncKeypadState();
 
-// observa mudanças na classe do keypad (quando abre/fecha)
-if (keypad){
+// observa mudanças na classe do keypad (abre/fecha)
+if (keypad) {
   const obs = new MutationObserver(syncKeypadState);
   obs.observe(keypad, { attributes: true, attributeFilter: ["class"] });
 }
@@ -141,20 +137,17 @@ function setKeypadLayoutFlags() {
 function showKeypad() {
   if (!keypad) return;
   keypad.classList.remove("hidden");
-  requestAnimationFrame(updateKbHeightVar);
   keypad.setAttribute("aria-hidden", "false");
-  document.body.classList.add("keypad-on");
   setKeypadLayoutFlags();
+  syncKeypadState(); // ✅ garante body.keypad-on correto
 }
 
 function hideKeypad() {
   if (!keypad) return;
   keypad.classList.add("hidden");
   keypad.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("keypad-on");
   setKeypadLayoutFlags();
-    // volta para um valor padrão quando fecha
-  document.documentElement.style.setProperty("--kb-h", `290px`);
+  syncKeypadState(); // ✅ garante body.keypad-on correto
 }
 
 function focusRespostaSeguro() {
@@ -173,7 +166,6 @@ function ensureMobileInputMode() {
   if (!respostaInput) return;
 
   if (isMobileLike()) {
-    // mantém como você fez: usa keypad custom
     respostaInput.disabled = true;
     respostaInput.setAttribute("inputmode", "none");
     respostaInput.setAttribute("autocomplete", "off");
@@ -211,7 +203,7 @@ function autoStartIfNeeded() {
   if (jogoAtivo) return false;
   if (!tabuadaSelecionadaValida()) return false;
 
-  window.iniciarJogo(true); // sem cronômetro (cronômetro só no verificar)
+  window.iniciarJogo(true);
   return true;
 }
 
@@ -312,17 +304,18 @@ function ensureDueloOverlay() {
   window.addEventListener("orientationchange", updateDueloOffset);
   setTimeout(updateDueloOffset, 0);
 
-  // ✅ CSS DO DUELO (com fallback mobile sem blur pesado)
   const style = document.createElement("style");
   style.textContent = `
     .duelo{
-      position: fixed; inset: 0;
-      display: grid; place-items: center;
-      z-index: 12000;
-      pointer-events:none;
-    }
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: start center; /* ✅ fica no topo */
+  padding-top: calc(10px + env(safe-area-inset-top));
+  z-index: 12000;
+  pointer-events: none;
+}
     .duelo.hidden{ display:none; }
-
     .duelo-box{
       pointer-events:none;
       width: min(980px, 96vw);
@@ -335,99 +328,40 @@ function ensureDueloOverlay() {
       max-height: 92svh;
       overflow: hidden;
     }
-
-    .duelo-row{
-      display:flex;
-      align-items: stretch;
-      justify-content: center;
-      gap: 14px;
-    }
-
+    .duelo-row{ display:flex; align-items: stretch; justify-content: center; gap: 14px; }
     .duelo-card{
-      flex: 1;
-      min-width: 0;
-      width: 100%;
-      border-radius: 16px;
-      padding: 12px 14px;
+      flex: 1; min-width: 0; width: 100%;
+      border-radius: 16px; padding: 12px 14px;
       background: rgba(0,0,0,.28);
       border: 1px solid rgba(255,255,255,.10);
-      font-weight: 900;
-      overflow: hidden;
+      font-weight: 900; overflow: hidden;
     }
-
-    .duelo-head{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom: 10px;
-      min-width: 0;
-    }
-
+    .duelo-head{ display:flex; align-items:center; gap:12px; margin-bottom: 10px; min-width: 0; }
     .duelo-foto{
-      width: 86px;
-      height: 86px;
-      border-radius: 999px;
-      object-fit: contain;
-      background: rgba(255,255,255,.06);
-      padding: 6px;
+      width: 86px; height: 86px; border-radius: 999px;
+      object-fit: contain; background: rgba(255,255,255,.06); padding: 6px;
       border: 3px solid rgba(255,255,255,.25);
-      box-shadow: 0 14px 30px rgba(0,0,0,.35);
-      flex: 0 0 auto;
+      box-shadow: 0 14px 30px rgba(0,0,0,.35); flex: 0 0 auto;
     }
-
     .duelo-nome{
-      font-size: 20px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      min-width: 0;
-      max-width: 100%;
+      font-size: 20px; letter-spacing: 1px; text-transform: uppercase;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100%;
     }
-
     .duelo-placar{
-      display:flex;
-      gap: 18px;
-      font-size: 18px;
-      align-items:center;
-      flex-wrap: wrap;
-      justify-content:flex-end;
-      text-align:right;
+      display:flex; gap: 18px; font-size: 18px; align-items:center;
+      flex-wrap: wrap; justify-content:flex-end; text-align:right;
     }
-
     .duelo-versus{
-      align-self: center;
-      width: 86px;
-      height: 86px;
-      display:grid;
-      place-items:center;
+      align-self: center; width: 86px; height: 86px; display:grid; place-items:center;
       border-radius: 22px;
       background: linear-gradient(135deg, rgba(255,60,60,.35), rgba(0,255,160,.25));
       border: 2px solid rgba(255,255,255,.18);
       box-shadow: 0 18px 45px rgba(0,0,0,.35);
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transform: rotate(-6deg);
-      position: relative;
-      flex: 0 0 auto;
+      font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+      transform: rotate(-6deg); position: relative; flex: 0 0 auto;
     }
-    .duelo-versus::before{
-      content:"⚔️";
-      position:absolute;
-      top: 10px;
-      font-size: 20px;
-      opacity: .95;
-    }
-    .duelo-versus::after{
-      content:"RING";
-      position:absolute;
-      bottom: 10px;
-      font-size: 12px;
-      opacity: .85;
-      letter-spacing: 2px;
-    }
+    .duelo-versus::before{ content:"⚔️"; position:absolute; top: 10px; font-size: 20px; opacity: .95; }
+    .duelo-versus::after{ content:"RING"; position:absolute; bottom: 10px; font-size: 12px; opacity: .85; letter-spacing: 2px; }
 
     @media (max-width: 520px){
       .duelo{ place-items: start center; padding-top: 10px; }
@@ -435,7 +369,6 @@ function ensureDueloOverlay() {
         width: min(94vw, 560px);
         overflow:auto;
         -webkit-overflow-scrolling: touch;
-        /* no mobile: blur derruba FPS */
         backdrop-filter: none;
         background: rgba(0,0,0,.35);
       }
@@ -485,7 +418,6 @@ function atualizarDueloUI() {
     tempoEl.textContent = `${restS}s`;
   }
 
-  // atualiza altura real do placar para empurrar as cartas (CSS usa --dueloH)
   const box = dueloEl?.querySelector(".duelo-box");
   if (box) {
     const h = Math.ceil(box.getBoundingClientRect().height);
@@ -784,14 +716,13 @@ function atualizarPlaceholder() {
   respostaInput.placeholder = (respostaInput.value && respostaInput.value.length > 0) ? "" : "Digite a resposta";
 }
 
-// ✅ resize mais leve (evita “resize louco” no Safari)
+// ✅ resize mais leve
 let _resizeRaf = 0;
 window.addEventListener("resize", () => {
   if (_resizeRaf) cancelAnimationFrame(_resizeRaf);
   _resizeRaf = requestAnimationFrame(() => {
     ensureMobileInputMode();
     setKeypadLayoutFlags();
-    updateKbHeightVar();   // <-- ADICIONE AQUI
     resizeFx();
   });
 }, { passive: true });
@@ -1015,11 +946,9 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
     modalTitulo.textContent = titulo;
     modalTexto.innerHTML = textoHtml;
 
-    // ✅ ativa modo épico só pro Oprofessor
     const isOprofessor = (titulo || "").includes("Mestre dos Mestres");
     modal.classList.toggle("op-epico", isOprofessor);
 
-    // ✅ MOBILE: quando abrir modal, some keypad pra não cobrir avatares
     document.body.classList.add("modal-open");
     hideKeypad();
 
@@ -1037,7 +966,6 @@ function fecharModal() {
   onSim = null;
   onNao = null;
 
-  // ✅ MOBILE: ao fechar modal, devolve keypad
   document.body.classList.remove("modal-open");
   if (isMobileLike()) showKeypad();
 }
@@ -1093,7 +1021,7 @@ document.addEventListener("keydown", (e) => {
 }, { passive: false });
 
 // =======================
-// SOM (✅ otimizado: reutiliza AudioContext)
+// SOM (reutiliza AudioContext)
 // =======================
 let _audioCtx = null;
 function getAudioCtx() {
@@ -1108,8 +1036,6 @@ function beep(freq = 880, dur = 0.12, vol = 0.12) {
   try {
     const ctx = getAudioCtx();
     if (!ctx) return;
-
-    // iOS às vezes precisa de "resume" em gesto do usuário; se estiver suspenso, tenta.
     if (ctx.state === "suspended") ctx.resume().catch(() => {});
 
     const o = ctx.createOscillator();
@@ -1124,8 +1050,9 @@ function beep(freq = 880, dur = 0.12, vol = 0.12) {
     o.onended = () => {
       try { o.disconnect(); g.disconnect(); } catch (e) {}
     };
-  } catch (e) { }
+  } catch (e) {}
 }
+
 function fanfarraCurta() {
   beep(740, 0.09); setTimeout(() => beep(880, 0.09), 90);
   setTimeout(() => beep(988, 0.10), 180);
@@ -1138,7 +1065,7 @@ function fanfarraGrande() {
 }
 
 // =======================
-// FX (FOGOS) ✅ Mobile perfeito: só roda quando tem fogos
+// FX (FOGOS)
 // =======================
 let particles = [];
 let rockets = [];
@@ -1152,23 +1079,16 @@ function fxIsMobileQuality() {
   return isMobileLike() || (window.innerWidth <= 900);
 }
 
-// qualidade (automática)
 function fxConfig() {
   const mobile = fxIsMobileQuality();
   return {
-    // limita o dpr no mobile (custo cai MUITO)
     dprCap: mobile ? 1.5 : 3,
-    // fps alvo
     fps: mobile ? 30 : 60,
-    // opacidade do “fade”
     fade: mobile ? 0.24 : 0.18,
-    // grossura
     rocketLine: mobile ? 1.6 : 2.2,
     particleLine: mobile ? 1.3 : 2.0,
-    // partículas
     explodeCount: mobile ? 80 : 170,
     explodePower: mobile ? 6.2 : 8.2,
-    // rockets por show
     rocketsMedios: mobile ? 4 : 6,
     rocketsGrandes: mobile ? 10 : 16,
     rocketIntervalMedios: mobile ? 170 : 140,
@@ -1179,7 +1099,6 @@ function fxConfig() {
 function resizeFx() {
   if (!fxCanvas || !fxCtx) return;
   const cfg = fxConfig();
-
   const dpr = Math.max(1, Math.min(cfg.dprCap, window.devicePixelRatio || 1));
   fxCanvas.width = Math.floor(window.innerWidth * dpr);
   fxCanvas.height = Math.floor(window.innerHeight * dpr);
@@ -1188,7 +1107,6 @@ function resizeFx() {
   fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-// chama uma vez no começo
 resizeFx();
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
@@ -1242,11 +1160,9 @@ function stopFxLoop() {
   fxLastFrame = 0;
   fxIdleSince = 0;
 
-  // limpa tela (evita ficar “embaçado” parado)
   if (fxCtx) {
     fxCtx.setTransform(1,0,0,1,0,0);
     fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
-    // volta pro dpr correto
     resizeFx();
   }
 }
@@ -1255,8 +1171,6 @@ function animateFx(ts) {
   if (!fxCtx || !fxCanvas) { stopFxLoop(); return; }
 
   const cfg = fxConfig();
-
-  // throttle fps
   const minDt = 1000 / cfg.fps;
   if (fxLastFrame && (ts - fxLastFrame) < minDt) {
     fxRaf = requestAnimationFrame(animateFx);
@@ -1264,10 +1178,9 @@ function animateFx(ts) {
   }
   fxLastFrame = ts;
 
-  // se não tem nada, inicia idle e para
   if (rockets.length === 0 && particles.length === 0) {
     if (!fxIdleSince) fxIdleSince = ts;
-    if (ts - fxIdleSince > 850) { // 0.85s sem partículas = desliga loop
+    if (ts - fxIdleSince > 850) {
       stopFxLoop();
       return;
     }
@@ -1495,7 +1408,7 @@ function iniciarDesafioAleatorio() {
 }
 
 // =======================
-// OPROFESSOR (mantido igual ao seu)
+// OPROFESSOR
 // =======================
 const OPROFESSOR = { nome: "Oprofessor 🐾 (Pantera)", img: "./oprofessor.png" };
 
@@ -1642,7 +1555,7 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
 }
 
 // =======================
-// AVANÇAR (mantido igual ao seu)
+// AVANÇAR
 // =======================
 function avancarParaProximaTabuadaOuFase() {
   jogoAtivo = true;
@@ -1869,7 +1782,7 @@ window.verificar = verificar;
 // =======================
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js?v=108")
+    navigator.serviceWorker.register("./service-worker.js")
       .then((reg) => {
         console.log("PWA ativado");
         reg.update();
