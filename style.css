@@ -808,64 +808,45 @@ body.modo-duelo .area-cartas{
   padding-top: calc(var(--dueloH, 0px) + 14px) !important;
 }
 
-/* =========================
-   FIX 1: Barra de resposta não encosta nas cartas (MOBILE RETRATO)
-   Cole no FINAL do style.css
-========================= */
+/* ==================================================
+   MOBILE RETRATO - CONTROLE ÚNICO DA BARRA + ESPAÇO
+   PROCURE ESTE TEXTO PARA AJUSTAR DEPOIS:
+   "MOBILE RETRATO - CONTROLE ÚNICO"
+================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
-  /* sobe um pouco a barra pra dar respiro */
-  body.keypad-on .resposta-area{
-     position: fixed !important;
-    bottom: calc(var(--kb-h) + 4px + env(safe-area-inset-bottom)) !important;
+  /* ajuste fino aqui (quanto “vão” existe entre cartas e keypad) */
+  :root{
+    --answer-gap: 170px; /* aumente/diminua: 140~220 */
   }
 
-  /* empurra as cartas para não ficarem “por trás” da barra */
+  /* 1) Empurra as cartas para cima criando o vão */
   body.keypad-on .area-cartas{
-    padding-bottom: 110px !important;  /* ajuste fino: 90~140 */
+    margin-bottom: calc(var(--kb-h) + var(--answer-gap)) !important;
   }
 
-  /* deixa a barra bem central e estável */
-  body.keypad-on .resposta-area input{
-    display: block !important;
-    margin: 0 auto !important;
-  }
-}
-
-/* ==========================================
-   FIX REAL: Espaço correto entre cartas e input
-   MOBILE RETRATO
-========================================== */
-@media (max-width: 900px) and (orientation: portrait){
-
-  /* 1️⃣ Empurra TODA área das cartas para cima */
-  body.keypad-on .area-cartas{
-    margin-bottom: calc(var(--kb-h) + 80px) !important;
-  }
-
-  /* 2️⃣ Barra fixa acima do teclado */
+  /* 2) Barra fica no MEIO do vão (metade do gap acima do keypad) */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0;
     right: 0;
-    bottom: calc(var(--kb-h) + 16px + env(safe-area-inset-bottom)) !important;
+    bottom: calc(var(--kb-h) + (var(--answer-gap) / 2) + env(safe-area-inset-bottom)) !important;
     padding: 0 16px !important;
     z-index: 17000;
+    margin: 0 !important;
   }
 
-  /* 3️⃣ Centraliza perfeitamente */
   body.keypad-on .resposta-area input{
     width: min(360px, 92vw) !important;
     margin: 0 auto !important;
     display: block !important;
   }
 
-  /* 4️⃣ Remove qualquer padding antigo da tabuleiro */
+  /* 3) Não mexe no PC: só evita “empurrões” extras */
   body.keypad-on .tabuleiro{
     padding-bottom: 0 !important;
   }
 }
-
 /* =========================
    MOBILE 2 - FIX BARRA RESPOSTA
    (colar no FINAL do style.css)
@@ -902,6 +883,7 @@ body.keypad-on .resposta-area{
   padding-bottom: 18px;
 }
 }
+
 
 
 
