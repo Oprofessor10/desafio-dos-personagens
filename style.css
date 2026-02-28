@@ -896,9 +896,10 @@ body.modo-duelo .area-cartas{
   }
 
   body:has(#keypad:not(.hidden)) .resposta-area{
-    margin-top: 22px;        /* ERA 10px -> agora desce quando keypad aparece */
+    margin-top: 32px;        /* ERA 10px -> agora desce quando keypad aparece */
   padding-bottom: 18px;    /* dá um “meio” melhor entre barra e keypad */
   }
 }
+
 
 
