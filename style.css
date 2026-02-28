@@ -663,6 +663,16 @@ body.modal-open .keypad{ display:none !important; }
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
+   /* não cortar o balão do contador */
+body.keypad-on .pilha-topo{
+  padding-top: 6px !important;
+  padding-right: 10px !important;  /* dá folga pro balão do lado direito */
+  overflow: visible !important;
+}
+
+body.keypad-on .pilha{
+  overflow: visible !important;
+}
   /* sem rolagem quando keypad está aberto */
   body.keypad-on{
     overflow: hidden !important;
@@ -718,7 +728,7 @@ body.modal-open .keypad{ display:none !important; }
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: calc(var(--kb-h) + 12px + env(safe-area-inset-bottom)) !important;
+    bottom: calc(var(--kb-h) + 4px + env(safe-area-inset-bottom)) !important;
     margin: 0 !important;
     padding: 0 16px !important;
     z-index: 17000 !important;
@@ -739,4 +749,5 @@ body.modal-open .keypad{ display:none !important; }
     line-height: 1 !important;
   }
 }
+
 
