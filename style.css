@@ -875,8 +875,8 @@ body.modo-duelo .area-cartas{
   .resposta-area{
     width: 92vw;
     max-width: 520px;
-    margin: 14px auto 0;
-    padding: 0 10px;
+    margin: 24px auto 0;
+    padding: 0 10px 12px;
     position: relative;
     z-index: 2; /* fica acima do fundo, mas sem atrapalhar cartas */
   }
@@ -899,3 +899,4 @@ body.modo-duelo .area-cartas{
     margin-top: 10px;
   }
 }
+
