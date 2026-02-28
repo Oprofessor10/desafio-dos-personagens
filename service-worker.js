@@ -1,6 +1,6 @@
 /* =========================
    SW MOBILE 2 - ATUALIZAÇÃO FORÇADA
-   (troque o número VERSION quando quiser)
+   (troque VERSION quando quiser)
 ========================= */
 const VERSION = "v108";
 const CACHE_NAME = `60-segundos-${VERSION}`;
@@ -74,6 +74,7 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
 });
+
 
 
 
