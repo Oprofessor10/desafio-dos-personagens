@@ -658,17 +658,22 @@ body.modal-open .keypad{ display:none !important; }
 }
 
 /* ==================================================
-   ✅ FIX ÚNICO (MOBILE RETRATO) - SEM BRIGA / SEM SUMIR CARTAS
-   - cartas dimensionadas pela altura disponível
-   - barra no meio entre cartas e keypad
+   ✅ FIX FINAL (MOBILE RETRATO) - SIMPLES E ESTÁVEL
+   - cartas sempre aparecem
+   - barra fica entre cartas e keypad (colada acima do keypad)
+   - sem rolagem
    - balão do "4" não corta
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
-  /* trava rolagem quando keypad está aberto */
   body.keypad-on{
     overflow: hidden !important;
     height: 100svh !important;
+
+    /* ajuste fino */
+    --top-ui: 190px;      /* topo (titulo + selects + painel) */
+    --answer-h: 54px;     /* altura da barra */
+    --gap: 14px;          /* espaço entre barra e keypad */
   }
 
   body.keypad-on .tabuleiro{
@@ -678,7 +683,7 @@ body.modal-open .keypad{ display:none !important; }
     padding-bottom: 0 !important;
   }
 
-  /* folga pro balão do contador não ser cortado */
+  /* não cortar o balão do contador */
   body.keypad-on .pilha,
   body.keypad-on .pilha-topo{
     overflow: visible !important;
@@ -691,39 +696,18 @@ body.modal-open .keypad{ display:none !important; }
     padding: 8px 12px !important;
     min-width: 52px !important;
     line-height: 1 !important;
+    border-radius: 999px !important;
   }
 
-  /* ===== CONTROLE ÚNICO DO LAYOUT =====
-     Ajuste fino só nesses 2 valores se precisar:
-     - --top-ui: “altura” do topo (título+selects+painel)
-     - --answer-mid: posição da barra no vão (0.50 = bem no meio)
-  */
+  /* cartas dimensionadas pela altura disponível */
   body.keypad-on{
-    --top-ui: 190px;
-    --answer-h: 56px;
-    --gap-between: 14px;
-
-    /* barra no meio do vão entre cartas e keypad */
-    --answer-mid: 0.50;
-
-    /* altura disponível TOTAL entre topo e keypad */
-    --slotH: calc(100svh - var(--kb-h) - var(--top-ui) - env(safe-area-inset-bottom));
-
-    /* reserva para barra + espaço */
-    --cardsZoneH: calc(var(--slotH) - var(--answer-h) - var(--gap-between));
-
-    /* cartas nunca zeram */
-    --cardH: clamp(150px, var(--cardsZoneH), 260px);
+    --cardH: clamp(
+      150px,
+      calc(100svh - var(--kb-h) - var(--top-ui) - var(--answer-h) - var(--gap) - env(safe-area-inset-bottom)),
+      260px
+    );
     --cardW: calc(var(--cardH) * 0.75);
     --xW: 46px;
-
-    /* posição da barra: fica no meio do “vão” (cardsZoneH + gap) */
-    --answerBottom: calc(
-      var(--kb-h) +
-      ( (var(--slotH) - var(--answer-h)) * var(--answer-mid) ) +
-      6px +
-      env(safe-area-inset-bottom)
-    );
   }
 
   body.keypad-on .area-cartas{
@@ -735,12 +719,13 @@ body.modal-open .keypad{ display:none !important; }
     grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
     gap: 10px !important;
 
-    align-items: start !important;
+    align-items: center !important;     /* <- centraliza verticalmente as cartas */
     justify-items: center !important;
 
     padding: 6px 0 0 !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+
+    /* reserva espaço “no fluxo” para a barra fixa não invadir as cartas */
+    padding-bottom: calc(var(--answer-h) + 18px) !important;
   }
 
   body.keypad-on .carta{
@@ -750,12 +735,12 @@ body.modal-open .keypad{ display:none !important; }
     aspect-ratio: 3 / 4 !important;
   }
 
-  /* Barra no MEIO do vão (não sobe sozinha) */
+  /* ✅ barra SEMPRE acima do keypad (simples, sem conta maluca) */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: var(--answerBottom) !important;
+    bottom: calc(var(--kb-h) + var(--gap) + env(safe-area-inset-bottom)) !important;
     margin: 0 !important;
     padding: 0 16px !important;
     z-index: 17000 !important;
@@ -765,7 +750,7 @@ body.modal-open .keypad{ display:none !important; }
     display: block !important;
     margin: 0 auto !important;
     width: min(360px, 92vw) !important;
-    height: 54px !important;
+    height: var(--answer-h) !important;
     border-radius: 14px !important;
   }
 }
