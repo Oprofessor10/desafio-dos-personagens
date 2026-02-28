@@ -944,7 +944,22 @@ body.keypad-on .resposta-area{
     margin: 0 auto !important;
     width: min(360px, 92vw) !important;
   }
+   /* ===== FIX: balão do contador "4" não cortar ===== */
+body.keypad-on #contadorCartas{
+  min-width: 58px !important;
+  padding: 8px 12px !important;
+  line-height: 1 !important;
 }
+
+body.keypad-on .pilha-topo{
+  padding-bottom: 12px !important; /* dá respiro entre topo e carta */
+}
+
+body.keypad-on .pilha-contador{
+  border-radius: 999px !important;
+}
+}
+
 
 
 
