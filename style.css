@@ -658,16 +658,12 @@ body.modal-open .keypad{ display:none !important; }
 }
 
 /* ==================================================
-   MOBILE RETRATO - CONTROLE ÚNICO (sem mexer no PC)
-   Ajuste fino só aqui: --answer-gap
+   FINAL FIX (MOBILE RETRATO) - CARTAS SEMPRE APARECEM
+   Cole no FINAL do style.css
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
-  :root{
-    --answer-gap: 450px; /* você disse que 450 resolveu */
-  }
-
-  /* quando keypad abre: sem rolagem */
+  /* sem rolagem quando keypad está aberto */
   body.keypad-on{
     overflow: hidden !important;
     height: 100svh !important;
@@ -677,37 +673,70 @@ body.modal-open .keypad{ display:none !important; }
     height: 100svh !important;
     min-height: 100svh !important;
     overflow: hidden !important;
-
-    /* reserva espaço pro keypad + vão */
-    padding-bottom: calc(var(--kb-h) + var(--answer-gap) + 20px) !important;
+    padding-bottom: 0 !important;
   }
 
-  /* barra fica no meio do vão */
+  /* tamanho das cartas baseado na ALTURA disponível (nunca zera) */
+  body.keypad-on{
+    --top-ui: 190px; /* título + selects + painel (ajuste fino se quiser) */
+    --answer-h: 66px; /* altura da barra */
+    --gap: 14px;      /* respiro entre cartas e barra */
+
+    --cardH: clamp(150px, calc(100svh - var(--kb-h) - var(--top-ui) - var(--answer-h) - var(--gap)), 260px);
+    --cardW: calc(var(--cardH) * 0.75);
+    --xW: 46px;
+  }
+
+  /* garante o grid das cartas e que ele fique visível */
+  body.keypad-on .area-cartas{
+    flex: 1 !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
+    gap: 10px !important;
+    align-items: start !important;
+    justify-items: center !important;
+
+    /* zera qualquer empurrão antigo que estava sumindo com as cartas */
+    padding: 6px 0 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* cartas com tamanho fixo pela altura disponível */
+  body.keypad-on .carta{
+    height: var(--cardH) !important;
+    width: var(--cardW) !important;
+    max-width: none !important;
+    aspect-ratio: 3 / 4 !important;
+  }
+
+  /* barra SEMPRE acima do keypad */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: calc(var(--kb-h) + (var(--answer-gap) / 2) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(var(--kb-h) + 12px + env(safe-area-inset-bottom)) !important;
+    margin: 0 !important;
     padding: 0 16px !important;
     z-index: 17000 !important;
-    margin: 0 !important;
   }
 
   body.keypad-on .resposta-area input{
-    width: min(360px, 92vw) !important;
-    margin: 0 auto !important;
     display: block !important;
+    margin: 0 auto !important;
+    width: min(360px, 92vw) !important;
+    height: 54px !important;
+    border-radius: 14px !important;
   }
 
-  /* FIX: balão do contador não cortar (só no mobile) */
+  /* contador não cortar */
   body.keypad-on .pilha-contador{
-    min-width: 56px !important;
-    padding: 7px 12px !important;
+    padding: 8px 12px !important;
+    min-width: 52px !important;
     line-height: 1 !important;
-    border-radius: 999px !important;
-  }
-
-  body.keypad-on .pilha-topo{
-    padding-bottom: 12px !important;
   }
 }
+
