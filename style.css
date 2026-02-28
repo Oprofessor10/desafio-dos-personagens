@@ -891,7 +891,7 @@ body.keypad-on .resposta-area{
 @media (max-width: 900px) and (orientation: portrait){
 
   :root{
-    --answer-gap: 220px; /* AUMENTE = barra mais no meio / mais alta */
+    --answer-gap: 400px; /* AUMENTE = barra mais no meio / mais alta */
   }
 
   /* Empurra as cartas pra cima criando espaço real */
@@ -917,6 +917,7 @@ body.keypad-on .resposta-area{
     width: min(360px, 92vw) !important;
   }
 }
+
 
 
 
