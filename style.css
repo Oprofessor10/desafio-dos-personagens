@@ -946,7 +946,7 @@ body.keypad-on .resposta-area{
   }
    /* ===== FIX: balão do contador "4" não cortar ===== */
 body.keypad-on #contadorCartas{
-  min-width: 50px !important;
+  min-width: 40px !important;
   padding: 8px 12px !important;
   line-height: 1 !important;
 }
@@ -959,6 +959,7 @@ body.keypad-on .pilha-contador{
   border-radius: 999px !important;
 }
 }
+
 
 
 
