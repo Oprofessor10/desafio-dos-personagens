@@ -1,10 +1,15 @@
-const CACHE_NAME = "60-segundos-v107"; // aumenta quando quiser forçar atualização
+/* =========================
+   SW MOBILE 2 - ATUALIZAÇÃO FORÇADA
+   (troque o número VERSION quando quiser)
+========================= */
+const VERSION = "v108";
+const CACHE_NAME = `60-segundos-${VERSION}`;
 
 const urlsToCache = [
   "./",
   "./index.html",
-  "./style.css?v=107",     // ✅ tem que bater com o index.html
-  "./script.js?v=107",    // ✅ tem que bater com o index.html
+  "./style.css?v=108",
+  "./script.js?v=108",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -29,12 +34,11 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// ✅ Network-first para JS/CSS/HTML/JSON (evita prender versões antigas)
-// ✅ Cache-first para imagens (mais rápido)
+// Network-first para HTML/CSS/JS/JSON
+// Cache-first para imagens
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
-
   const isSameOrigin = url.origin === location.origin;
 
   const isAsset =
@@ -64,16 +68,13 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (isSameOrigin && isImage) {
-    event.respondWith(
-      caches.match(req).then((cached) => cached || fetch(req))
-    );
+    event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
     return;
   }
 
-  event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req))
-  );
+  event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
 });
+
 
 
 
