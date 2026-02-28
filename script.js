@@ -106,6 +106,21 @@ const fxCtx = fxCanvas ? fxCanvas.getContext("2d") : null;
 // =======================
 const keypad = document.getElementById("keypad");
 
+// ===== MOBILE 2 - marca quando o keypad está visível (sem usar :has) =====
+function syncKeypadState(){
+  const aberto = keypad && !keypad.classList.contains("hidden");
+  document.body.classList.toggle("keypad-on", !!aberto);
+}
+
+// sincroniza ao carregar
+syncKeypadState();
+
+// observa mudanças na classe do keypad (quando abre/fecha)
+if (keypad){
+  const obs = new MutationObserver(syncKeypadState);
+  obs.observe(keypad, { attributes: true, attributeFilter: ["class"] });
+}
+
 function isMobileLike() {
   const byPointer = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
   const byTouch = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
@@ -1928,6 +1943,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
