@@ -816,7 +816,8 @@ body.modo-duelo .area-cartas{
 
   /* sobe um pouco a barra pra dar respiro */
   body.keypad-on .resposta-area{
-    bottom: calc(var(--kb-h) + 22px + env(safe-area-inset-bottom)) !important;
+     position: fixed !important;
+    bottom: calc(var(--kb-h) + 4px + env(safe-area-inset-bottom)) !important;
   }
 
   /* empurra as cartas para não ficarem “por trás” da barra */
@@ -901,6 +902,7 @@ body.keypad-on .resposta-area{
   padding-bottom: 18px;
 }
 }
+
 
 
 
