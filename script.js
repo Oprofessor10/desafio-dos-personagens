@@ -141,6 +141,7 @@ function setKeypadLayoutFlags() {
 function showKeypad() {
   if (!keypad) return;
   keypad.classList.remove("hidden");
+  requestAnimationFrame(updateKbHeightVar);
   keypad.setAttribute("aria-hidden", "false");
   document.body.classList.add("keypad-on");
   setKeypadLayoutFlags();
@@ -152,6 +153,8 @@ function hideKeypad() {
   keypad.setAttribute("aria-hidden", "true");
   document.body.classList.remove("keypad-on");
   setKeypadLayoutFlags();
+    // volta para um valor padrão quando fecha
+  document.documentElement.style.setProperty("--kb-h", `290px`);
 }
 
 function focusRespostaSeguro() {
@@ -1950,6 +1953,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
