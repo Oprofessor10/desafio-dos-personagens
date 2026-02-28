@@ -885,38 +885,55 @@ body.keypad-on .resposta-area{
 }
 
 /* ==================================================
-   OVERRIDE FINAL MOBILE2 (RETRATO) - BARRA NO MEIO
+   OVERRIDE FINAL MOBILE2 (RETRATO) - TELA TRAVADA + CENTRO REAL
    PROCURE: OVERRIDE FINAL MOBILE2
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
-  :root{
-    --answer-gap: 100px; /* AUMENTE = barra mais no meio / mais alta */
+  /* 1) trava a página quando keypad abre (não rola / não afasta) */
+  body.keypad-on{
+    overflow: hidden !important;
+    height: 100svh !important;
   }
 
-  /* Empurra as cartas pra cima criando espaço real */
-  body.keypad-on .tabuleiro .area-cartas{
-    margin-bottom: calc(var(--kb-h) + var(--answer-gap)) !important;
+  /* 2) tabuleiro ocupa a tela toda */
+  body.keypad-on .tabuleiro{
+    height: 100svh !important;
+    min-height: 100svh !important;
+    overflow: hidden !important;
     padding-bottom: 0 !important;
   }
 
-  /* Barra fica no meio do “vão” */
-  body.keypad-on .tabuleiro .resposta-area{
+  /* 3) espaço real: cartas ficam entre topo e barra */
+  body.keypad-on .area-cartas{
+    margin: 0 auto !important;
+    padding: 0 !important;
+    /* “reserva” espaço embaixo para barra + keypad */
+    max-height: calc(100svh - var(--kb-h) - 90px) !important;
+    overflow: hidden !important;
+  }
+
+  /* 4) barra fixa e centralizada no espaço ENTRE cartas e keypad */
+  body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: calc(var(--kb-h) + 8px + env(safe-area-inset-bottom)) !important;
+
+    /* centro “matemático”: metade do keypad + metade da barra */
+    bottom: calc((var(--kb-h) / 2) + 28px + env(safe-area-inset-bottom)) !important;
+
     margin: 0 !important;
     padding: 0 16px !important;
     z-index: 17000 !important;
   }
 
-  body.keypad-on .tabuleiro .resposta-area input{
+  body.keypad-on .resposta-area input{
     display: block !important;
     margin: 0 auto !important;
     width: min(360px, 92vw) !important;
   }
 }
+
 
 
 
