@@ -745,7 +745,7 @@ body.modal-open .keypad{ display:none !important; }
   body.keypad-on .pilha-esquerda::after{
     content:"";
     position:absolute;
-    inset: 94px 18px 46px 18px !important;
+    inset: 124px 18px 16px 18px !important;
     border-radius: 22px;
     background-image: url("costa_carta_borda_azul_transparente.png");
     background-repeat: no-repeat;
@@ -827,6 +827,7 @@ body.modal-open .keypad{ display:none !important; }
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
