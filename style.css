@@ -718,7 +718,11 @@ body.keypad-on .pilha-contador{
   min-width: 44px !important;
   padding: 6px 10px !important;
 }
-
+/* ✅ impede que o topo sobreponha a carta */
+body.keypad-on .pilha{
+  gap: 6px !important;
+}
+   
   /* Barra de resposta */
   body.keypad-on .resposta-area{
     position: fixed !important;
@@ -791,4 +795,5 @@ body.keypad-on .pilha-contador{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
