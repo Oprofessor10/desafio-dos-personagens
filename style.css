@@ -699,6 +699,7 @@ body.modal-open .keypad{ display:none !important; }
     gap: 6px !important;
     overflow: visible !important;
     position: relative !important; /* necessário para ::before */
+    height: calc(var(--cardH) + 92px) !important; /* ajuste fino se quiser */
   }
 
   /* Topo menor */
@@ -741,17 +742,12 @@ body.modal-open .keypad{ display:none !important; }
   }
 
   /* Mesa esquerda (igual à direita) */
-  body.keypad-on .pilha-esquerda::before,
+  /* Mesa esquerda alinhada igual à direita */
+body.keypad-on .pilha-esquerda::before,
 body.keypad-on .pilha-esquerda::after{
   content:"";
   position:absolute;
-
-  /* topo = altura do topo + espaço da carta */
-  top: calc(28px + var(--cardH) - 10px) !important;
-
-  left: 18px;
-  right: 18px;
-  bottom: 16px;
+  inset: 64px 18px 10px 18px !important;  /* bottom menor = desce mais */
 
   border-radius: 22px;
   background-image: url("costa_carta_borda_azul_transparente.png");
@@ -835,6 +831,7 @@ body.keypad-on .pilha-esquerda::after{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
