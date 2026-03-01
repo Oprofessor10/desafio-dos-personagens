@@ -661,30 +661,25 @@ body.modal-open .keypad{ display:none !important; }
   }
 }
 
-/* ==================================================
-   OVERRIDE FINAL (MOBILE RETRATO) - NÃO MEXE NO PC
-   - Barra de resposta perto do keypad (altura REAL)
-   - Cartas sempre aparecem
-   - Balão do "4" não corta
-================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
-/* 🔥 Força as duas pilhas a terem a mesma estrutura */
-body.keypad-on .pilha{
-  display: grid !important;
-  grid-template-rows: auto 1fr auto !important;
-  align-items: start !important;
-}
-
-/* 🔥 Centraliza a carta dentro da pilha */
-body.keypad-on .pilha .carta{
-  align-self: center !important;
-}
-   
   /* Só quando o keypad estiver aberto */
   body.keypad-on{
-    overflow: hidden !important;          /* sem rolagem */
+    overflow: hidden !important;
     height: 100dvh !important;
+
+    --top-ui: 185px;
+    --answer-h: 62px;
+    --gap: 14px;
+
+    --cardH: clamp(
+      150px,
+      calc(100dvh - var(--kb-h) - var(--top-ui) - var(--answer-h) - var(--gap)),
+      260px
+    );
+
+    --cardW: calc(var(--cardH) * 0.75);
+    --xW: 46px;
   }
 
   body.keypad-on .tabuleiro{
@@ -694,7 +689,19 @@ body.keypad-on .pilha .carta{
     padding-bottom: 0 !important;
   }
 
-  /* Barra de resposta: COLADA NO KEYPAD (altura real) */
+  /* 🔥 pilhas com estrutura igual (resolve desalinhamento) */
+  body.keypad-on .pilha{
+    display: grid !important;
+    grid-template-rows: auto 1fr auto !important;
+    align-items: start !important;
+    overflow: visible !important;
+  }
+
+  body.keypad-on .pilha .carta{
+    align-self: center !important;
+  }
+
+  /* Barra de resposta */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
@@ -713,49 +720,33 @@ body.keypad-on .pilha .carta{
     border-radius: 14px !important;
   }
 
-  /* ✅ Calcula tamanho das cartas pela ALTURA disponível (usando altura REAL do keypad) */
-  body.keypad-on{
-    --top-ui: 185px;      /* título + selects + painel (ajuste fino depois) */
-    --answer-h: 62px;     /* altura da barra */
-    --gap: 14px;          /* respiro entre cartas e barra */
+  /* Área das cartas */
+  body.keypad-on .area-cartas{
+    flex: 1 !important;
+    width: 100% !important;
+    margin: 0 auto !important;
 
-    --cardH: clamp(
-      150px,
-      calc(100dvh - var(--kb-h) - var(--top-ui) - var(--answer-h) - var(--gap)),
-      260px
-    );
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
+    gap: 10px !important;
 
-    --cardW: calc(var(--cardH) * 0.75);
-    --xW: 46px;
+    align-items: center !important;      /* cartas na mesma altura */
+    justify-items: center !important;
+    align-content: start !important;
+
+    padding-top: 4px !important;
+    padding-bottom: calc(var(--answer-h) + var(--gap)) !important;
+
+    overflow: visible !important;
   }
 
-  /* área das cartas sempre visível e central */
-  body.keypad-on .area-cartas{
-  flex: 1 !important;
-  width: 100% !important;
-  margin: 0 auto !important;
-
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
-  gap: 10px !important;
-
-  /* 🔥 CORREÇÃO REAL */
-  align-items: center !important;     /* cartas na mesma linha */
-  justify-items: center !important;
-  align-content: start !important;    /* mantém elas mais pra cima */
-
-  padding-top: 4px !important;
-  padding-bottom: calc(var(--answer-h) + var(--gap)) !important;
-
-  overflow: visible !important;
-}
-   /* 🔥 fixa o X no centro das cartas */
-body.keypad-on .multiplicador{
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  height: var(--cardH) !important;   /* mesma altura das cartas */
-}
+  /* X no centro das cartas */
+  body.keypad-on .multiplicador{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: var(--cardH) !important;
+  }
 
   body.keypad-on .carta{
     width: var(--cardW) !important;
@@ -764,15 +755,13 @@ body.keypad-on .multiplicador{
     aspect-ratio: 3 / 4 !important;
   }
 
-  /* FIX do balão do contador (não cortar) */
+  /* contador não corta */
   body.keypad-on .pilha-topo{
     overflow: visible !important;
     padding-right: 12px !important;
     padding-top: 6px !important;
   }
-  body.keypad-on .pilha{
-    overflow: visible !important;
-  }
+
   body.keypad-on .pilha-contador{
     min-width: 52px !important;
     padding: 8px 12px !important;
@@ -780,35 +769,7 @@ body.keypad-on .multiplicador{
     border-radius: 999px !important;
   }
 
-  /* opcional: se o fim-jogo aparecer, evita bater na barra */
   body.keypad-on .fim-jogo{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
-   @media (max-width: 900px) and (orientation: portrait){
-
-  /* ... (tudo que você já tem) ... */
-
-  /* ✅ 1) não deixa cartas ficarem atrás da barra fixa */
-  body.keypad-on .area-cartas{
-    align-items: start !important;
-    align-content: start !important;
-    padding-top: 6px !important;
-
-    /* reserva espaço pro input fixo + respiro */
-    padding-bottom: calc(var(--answer-h) + var(--gap)) !important;
-  }
-
-  /* ✅ 2) empurra levemente as cartas pra cima (opcional mas ajuda muito) */
-  body.keypad-on .area-cartas{
-    margin-top: -6px !important;
-  }
 }
-}
-
-
-
-
-
-
-
-
