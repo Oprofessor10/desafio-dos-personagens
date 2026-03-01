@@ -761,7 +761,27 @@ body.modal-open .keypad{ display:none !important; }
   body.keypad-on .fim-jogo{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
+   @media (max-width: 900px) and (orientation: portrait){
+
+  /* ... (tudo que você já tem) ... */
+
+  /* ✅ 1) não deixa cartas ficarem atrás da barra fixa */
+  body.keypad-on .area-cartas{
+    align-items: start !important;
+    align-content: start !important;
+    padding-top: 6px !important;
+
+    /* reserva espaço pro input fixo + respiro */
+    padding-bottom: calc(var(--answer-h) + var(--gap)) !important;
+  }
+
+  /* ✅ 2) empurra levemente as cartas pra cima (opcional mas ajuda muito) */
+  body.keypad-on .area-cartas{
+    margin-top: -6px !important;
+  }
 }
+}
+
 
 
 
