@@ -731,7 +731,7 @@ body.modal-open .keypad{ display:none !important; }
     position: absolute !important;
     right: 0 !important;
     top: 0 !important;
-    transform: translate(0%, -25%) !important;
+    transform: translate(15%, -45%) !important;
     z-index: 5 !important;
 
     min-width: 44px !important;
@@ -808,6 +808,7 @@ body.modal-open .keypad{ display:none !important; }
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
