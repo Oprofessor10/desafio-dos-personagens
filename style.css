@@ -719,20 +719,31 @@ body.modal-open .keypad{ display:none !important; }
 
   /* área das cartas sempre visível e central */
   body.keypad-on .area-cartas{
-    flex: 1 !important;
-    width: 100% !important;
-    margin: 0 auto !important;
+  flex: 1 !important;
+  width: 100% !important;
+  margin: 0 auto !important;
 
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
-    gap: 10px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
+  gap: 10px !important;
 
-    align-items: center !important;
-    justify-items: center !important;
+  /* 🔥 CORREÇÃO REAL */
+  align-items: center !important;     /* cartas na mesma linha */
+  justify-items: center !important;
+  align-content: start !important;    /* mantém elas mais pra cima */
 
-    padding: 6px 0 0 !important;
-    overflow: visible !important;
-  }
+  padding-top: 4px !important;
+  padding-bottom: calc(var(--answer-h) + var(--gap)) !important;
+
+  overflow: visible !important;
+}
+   /* 🔥 fixa o X no centro das cartas */
+body.keypad-on .multiplicador{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: var(--cardH) !important;   /* mesma altura das cartas */
+}
 
   body.keypad-on .carta{
     width: var(--cardW) !important;
@@ -781,6 +792,7 @@ body.modal-open .keypad{ display:none !important; }
   }
 }
 }
+
 
 
 
