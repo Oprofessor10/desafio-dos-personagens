@@ -742,20 +742,21 @@ body.modal-open .keypad{ display:none !important; }
 
   /* Mesa esquerda (igual à direita) */
   body.keypad-on .pilha-esquerda::before,
-  body.keypad-on .pilha-esquerda::after{
-    content:"";
-    position:absolute;
-    inset: 124px 18px 16px 18px !important;
-    border-radius: 22px;
-    background-image: url("costa_carta_borda_azul_transparente.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
-    opacity: 0.06 !important;
-    filter: none !important;
-    z-index: 0;
-    pointer-events: none;
-  }
+body.keypad-on .pilha-esquerda::after{
+  content:"";
+  position:absolute;
+  inset: 64px 18px 76px 18px !important;
+  transform: translateY(14px) !important;  /* ✅ desce a mesa */
+  border-radius: 22px;
+  background-image: url("costa_carta_borda_azul_transparente.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: 0.10 !important;               /* só pra ver melhor */
+  filter: none !important;
+  z-index: 0;
+  pointer-events: none;
+}
 
   body.keypad-on .pilha-esquerda .carta{
     position: relative !important;
@@ -827,6 +828,7 @@ body.modal-open .keypad{ display:none !important; }
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
