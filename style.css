@@ -826,11 +826,16 @@ body.keypad-on .pilha-esquerda::after{
     max-width: none !important;
     aspect-ratio: 3 / 4 !important;
   }
-
+/* 🔥 Remove sombra das cartas somente no mobile com keypad aberto */
+body.keypad-on .carta{
+  filter: none !important;
+  box-shadow: none !important;
+}
   body.keypad-on .fim-jogo{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
