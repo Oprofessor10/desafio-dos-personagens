@@ -668,7 +668,7 @@ body.modal-open .keypad{ display:none !important; }
     overflow: hidden !important;
     height: 100dvh !important;
 
-    --top-ui: 175px;   /* ajuste fino */
+    --top-ui: 175px;
     --answer-h: 62px;
     --gap: 14px;
 
@@ -689,7 +689,7 @@ body.modal-open .keypad{ display:none !important; }
     padding-bottom: 0 !important;
   }
 
-  /* PILHAS (flex) */
+  /* PILHAS */
   body.keypad-on .pilha{
     display: flex !important;
     flex-direction: column !important;
@@ -698,9 +698,10 @@ body.modal-open .keypad{ display:none !important; }
     min-width: 0 !important;
     gap: 6px !important;
     overflow: visible !important;
+    position: relative !important; /* necessário para ::before */
   }
 
-  /* Topo menor (cartas sobem) */
+  /* Topo menor */
   body.keypad-on .pilha-topo{
     width: 100% !important;
     min-height: 28px !important;
@@ -709,22 +710,21 @@ body.modal-open .keypad{ display:none !important; }
     align-items: center !important;
   }
 
-  /* Label enxuto */
   body.keypad-on .pilha-label{
     white-space: nowrap !important;
     font-size: 12px !important;
   }
 
-  /* PILHA DIREITA: contador preso no canto */
+  /* PILHA DIREITA */
   body.keypad-on #pilhaDireita .pilha-topo{
-  justify-content: center !important;   /* texto central */
-  position: relative !important;
-  padding-right: 56px !important;       /* reserva espaço do 4 */
-}
+    justify-content: center !important;
+    position: relative !important;
+    padding-right: 56px !important;
+  }
 
   body.keypad-on #pilhaDireita .pilha-label{
     opacity: .95 !important;
-     text-align: left !important;
+    text-align: left !important;
   }
 
   body.keypad-on #pilhaDireita .pilha-contador{
@@ -740,30 +740,29 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 999px !important;
   }
 
-   /* ✅ cria a mesma “mesa” na pilha esquerda para ficar igual à direita */
-body.keypad-on .pilha-esquerda::before,
-body.keypad-on .pilha-esquerda::after{
-  content:"";
-  position:absolute;
-  inset: 64px 18px 76px 18px !important;
-  border-radius: 22px;
-  background-image: url("costa_carta_borda_azul_transparente.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  opacity: 0.06 !important;
-  filter: none !important;
-  z-index: 0;
-  pointer-events: none;
-}
+  /* Mesa esquerda (igual à direita) */
+  body.keypad-on .pilha-esquerda::before,
+  body.keypad-on .pilha-esquerda::after{
+    content:"";
+    position:absolute;
+    inset: 64px 18px 76px 18px !important;
+    border-radius: 22px;
+    background-image: url("costa_carta_borda_azul_transparente.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    opacity: 0.06 !important;
+    filter: none !important;
+    z-index: 0;
+    pointer-events: none;
+  }
 
-/* mantém a carta da esquerda por cima da “mesa” */
-body.keypad-on .pilha-esquerda .carta{
-  position: relative !important;
-  z-index: 1 !important;
-}
+  body.keypad-on .pilha-esquerda .carta{
+    position: relative !important;
+    z-index: 1 !important;
+  }
 
-  /* Encolhe a “mesa” da pilha direita (não bate na barra) */
+  /* Mesa direita */
   body.keypad-on .pilha-direita::before,
   body.keypad-on .pilha-direita::after{
     opacity: 0.06 !important;
@@ -771,7 +770,7 @@ body.keypad-on .pilha-esquerda .carta{
     filter: none !important;
   }
 
-  /* Barra de resposta */
+  /* Barra */
   body.keypad-on .resposta-area{
     position: fixed !important;
     left: 0 !important;
@@ -790,11 +789,11 @@ body.keypad-on .pilha-esquerda .carta{
     border-radius: 14px !important;
   }
 
-  /* Área das cartas */
+  /* Área cartas */
   body.keypad-on .area-cartas{
     flex: 1 !important;
     width: 100% !important;
-    margin: -10px auto 0 !important; /* sobe um pouco */
+    margin: -10px auto 0 !important;
 
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
@@ -810,7 +809,6 @@ body.keypad-on .pilha-esquerda .carta{
     overflow: visible !important;
   }
 
-  /* X no centro das cartas */
   body.keypad-on .multiplicador{
     display: flex !important;
     align-items: center !important;
@@ -818,7 +816,6 @@ body.keypad-on .pilha-esquerda .carta{
     height: var(--cardH) !important;
   }
 
-  /* Cartas */
   body.keypad-on .carta{
     width: var(--cardW) !important;
     height: var(--cardH) !important;
@@ -826,7 +823,6 @@ body.keypad-on .pilha-esquerda .carta{
     aspect-ratio: 3 / 4 !important;
   }
 
-  /* Fim do jogo não encosta na barra */
   body.keypad-on .fim-jogo{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
