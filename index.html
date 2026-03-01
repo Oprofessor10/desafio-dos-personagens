@@ -2,18 +2,23 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>60 SEGUNDOS</title>
 
+  <!-- PWA / iOS -->
+  <meta name="theme-color" content="#0f2e35" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <!-- força atualização do CSS no celular -->
-  <link rel="stylesheet" href="./style.css?v=109">
+  <link rel="stylesheet" href="./style.css?v=109" />
 
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f2e35">
 </head>
+
 <body>
 
-  <div class="tabuleiro">
+  <div class="tabuleiro" id="tabuleiro">
 
     <h1 class="titulo">🔥 60 SEGUNDOS 🔥</h1>
 
@@ -93,7 +98,8 @@
 
     </div>
 
-    <div class="resposta-area">
+    <!-- IMPORTANTE: esta área vai "respeitar" o keypad via --keypadH no CSS -->
+    <div class="resposta-area" id="respostaArea">
       <input
         type="text"
         id="respostaInput"
@@ -146,11 +152,41 @@
     </div>
   </div>
 
+  <!-- ✅ Pequeno helper: mede altura do keypad e expõe em --keypadH -->
+  <script>
+    (function () {
+      const root = document.documentElement;
+
+      function setKeypadH() {
+        const kp = document.getElementById("keypad");
+        if (!kp) return;
+
+        // quando hidden, offsetHeight vira 0; então medimos só se estiver visível
+        const isHidden = kp.classList.contains("hidden");
+        const h = isHidden ? 0 : kp.getBoundingClientRect().height;
+
+        root.style.setProperty("--keypadH", Math.max(0, Math.round(h)) + "px");
+      }
+
+      // tenta atualizar em resize/orientation e em qualquer clique (quando abre/fecha keypad)
+      window.addEventListener("resize", setKeypadH, { passive: true });
+      window.addEventListener("orientationchange", setKeypadH, { passive: true });
+      document.addEventListener("click", setKeypadH, { passive: true });
+      document.addEventListener("touchend", setKeypadH, { passive: true });
+
+      // roda agora e logo depois (pra pegar carregamento)
+      setKeypadH();
+      setTimeout(setKeypadH, 80);
+      setTimeout(setKeypadH, 250);
+    })();
+  </script>
+
   <!-- força atualização do JS no celular -->
   <script src="script.js?v=109"></script>
 
 </body>
 </html>
+
 
 
 
