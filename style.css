@@ -748,6 +748,9 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 999px !important;
   }
 }
+@media (max-width: 900px) and (orientation: portrait){
+  body.keypad-on .resposta-area{ outline: 6px solid red !important; }
+}
 
 
 
