@@ -740,6 +740,29 @@ body.modal-open .keypad{ display:none !important; }
     border-radius: 999px !important;
   }
 
+   /* ✅ cria a mesma “mesa” na pilha esquerda para ficar igual à direita */
+body.keypad-on .pilha-esquerda::before,
+body.keypad-on .pilha-esquerda::after{
+  content:"";
+  position:absolute;
+  inset: 64px 18px 76px 18px !important;
+  border-radius: 22px;
+  background-image: url("costa_carta_borda_azul_transparente.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: 0.06 !important;
+  filter: none !important;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* mantém a carta da esquerda por cima da “mesa” */
+body.keypad-on .pilha-esquerda .carta{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
   /* Encolhe a “mesa” da pilha direita (não bate na barra) */
   body.keypad-on .pilha-direita::before,
   body.keypad-on .pilha-direita::after{
@@ -808,6 +831,7 @@ body.modal-open .keypad{ display:none !important; }
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
