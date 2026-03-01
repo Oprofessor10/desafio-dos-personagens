@@ -719,7 +719,7 @@ body.modal-open .keypad{ display:none !important; }
   body.keypad-on #pilhaDireita .pilha-topo{
     justify-content: flex-start !important;
     position: relative !important;
-    padding-right: 62px !important;
+    padding-right: 56px !important;
   }
 
   body.keypad-on #pilhaDireita .pilha-label{
@@ -731,7 +731,7 @@ body.modal-open .keypad{ display:none !important; }
     position: absolute !important;
     right: 0 !important;
     top: 0 !important;
-    transform: translate(10%, -35%) !important;
+    transform: translate(0%, -35%) !important;
     z-index: 5 !important;
 
     min-width: 44px !important;
@@ -808,4 +808,5 @@ body.modal-open .keypad{ display:none !important; }
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
