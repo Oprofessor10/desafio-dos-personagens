@@ -669,6 +669,18 @@ body.modal-open .keypad{ display:none !important; }
 ================================================== */
 @media (max-width: 900px) and (orientation: portrait){
 
+/* 🔥 Força as duas pilhas a terem a mesma estrutura */
+body.keypad-on .pilha{
+  display: grid !important;
+  grid-template-rows: auto 1fr auto !important;
+  align-items: start !important;
+}
+
+/* 🔥 Centraliza a carta dentro da pilha */
+body.keypad-on .pilha .carta{
+  align-self: center !important;
+}
+   
   /* Só quando o keypad estiver aberto */
   body.keypad-on{
     overflow: hidden !important;          /* sem rolagem */
@@ -792,6 +804,7 @@ body.keypad-on .multiplicador{
   }
 }
 }
+
 
 
 
