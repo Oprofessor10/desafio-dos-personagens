@@ -717,20 +717,21 @@ body.modal-open .keypad{ display:none !important; }
 
   /* PILHA DIREITA: contador preso no canto */
   body.keypad-on #pilhaDireita .pilha-topo{
-    justify-content: center !important;
+    justify-content: flex-start !important;
     position: relative !important;
-    padding-right: 6px !important;
+    padding-right: 62px !important;
   }
 
   body.keypad-on #pilhaDireita .pilha-label{
     opacity: .95 !important;
+     text-align: left !important;
   }
 
   body.keypad-on #pilhaDireita .pilha-contador{
     position: absolute !important;
     right: 0 !important;
     top: 0 !important;
-    transform: translate(35%, -35%) !important;
+    transform: translate(10%, -35%) !important;
     z-index: 5 !important;
 
     min-width: 44px !important;
@@ -807,3 +808,4 @@ body.modal-open .keypad{ display:none !important; }
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
