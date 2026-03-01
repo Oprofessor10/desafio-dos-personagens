@@ -699,7 +699,7 @@ body.modal-open .keypad{ display:none !important; }
     gap: 6px !important;
     overflow: visible !important;
     position: relative !important; /* necessário para ::before */
-    height: calc(var(--cardH) + 92px) !important; /* ajuste fino se quiser */
+    height: calc(var(--cardH) + 44px) !important; /* ajuste fino se quiser */
   }
 
   /* Topo menor */
@@ -792,6 +792,13 @@ body.keypad-on .pilha-esquerda::after{
     height: 54px !important;
     border-radius: 14px !important;
   }
+   /* ✅ some com a “sobra de cartas” (monte fake) só no mobile keypad-on */
+body.keypad-on .pilha-esquerda::before,
+body.keypad-on .pilha-esquerda::after,
+body.keypad-on .pilha-direita::before,
+body.keypad-on .pilha-direita::after{
+  display: none !important;
+}
 
   /* Área cartas */
   body.keypad-on .area-cartas{
@@ -835,6 +842,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
