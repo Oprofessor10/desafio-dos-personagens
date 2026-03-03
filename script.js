@@ -937,7 +937,7 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   onSim = simCb;
   onNao = naoCb;
 
-  const temModal = (modal && modalTitulo && modalTexto);
+ const temModal = (modal && modalTitulo && modalTexto);
 
 if (!temModal) {
   if (fimJogoDiv) {
@@ -1098,7 +1098,7 @@ function fxConfig() {
     rocketsMedios: mobile ? 4 : 6,
     rocketsGrandes: mobile ? 10 : 16,
     rocketIntervalMedios: mobile ? 170 : 140,
-    rocketIntervalGrandes: mobile ? 115 : 95
+    rocketIntervalGrandes: mobile ? 115 : 95,
     rocketExplodeVy: mobile ? -6.5 : -2.5
   };
 }
@@ -1201,6 +1201,7 @@ function animateFx(ts) {
 
   fxCtx.globalCompositeOperation = "lighter";
 
+  // ===== ROCKETS =====
   for (let i = rockets.length - 1; i >= 0; i--) {
     const r = rockets[i];
     r.life -= 1;
@@ -1217,12 +1218,16 @@ function animateFx(ts) {
     fxCtx.lineTo(r.x, r.y);
     fxCtx.stroke();
 
-        if (r.life <= 0 || r.vy > cfg.rocketExplodeVy) {
+    const explodeVy = (typeof cfg.rocketExplodeVy === "number") ? cfg.rocketExplodeVy : -2.5;
+
+    // ✅ explode no topo (PC) e mais alto no mobile também
+    if (r.life <= 0 || r.vy > explodeVy) {
       explode(r.x, r.y, r.hue);
       rockets.splice(i, 1);
     }
   }
 
+  // ===== PARTICLES =====
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.life -= 1;
@@ -1874,6 +1879,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
