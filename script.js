@@ -1217,7 +1217,7 @@ function animateFx(ts) {
     fxCtx.lineTo(r.x, r.y);
     fxCtx.stroke();
 
-    if (r.life <= 0 || r.vy > -2.5) {
+        if (r.life <= 0 || r.vy > cfg.rocketExplodeVy) {
       explode(r.x, r.y, r.hue);
       rockets.splice(i, 1);
     }
@@ -1874,6 +1874,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
