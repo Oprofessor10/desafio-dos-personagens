@@ -937,10 +937,16 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   onSim = simCb;
   onNao = naoCb;
 
+  const temModal = (modal && modalTitulo && modalTexto);
+
+if (!temModal) {
   if (fimJogoDiv) {
     fimJogoDiv.innerHTML =
       `${titulo}<br>${textoHtml}<br><br><b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>`;
   }
+} else {
+  if (fimJogoDiv) fimJogoDiv.innerHTML = ""; // ✅ evita a “tela embaixo” no mobile
+}
 
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
@@ -1867,6 +1873,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
