@@ -556,6 +556,7 @@ button, select, input{ touch-action: manipulation; }
 
   #fxCanvas{
     mix-blend-mode: normal !important;
+    z-index: 14000 !important; /* ✅ fica ATRÁS do modal (20000) e na frente do jogo */
   }
 }
 
@@ -842,6 +843,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
