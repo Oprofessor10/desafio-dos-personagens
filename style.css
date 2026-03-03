@@ -588,11 +588,22 @@ button, select, input{ touch-action: manipulation; }
   .x-rabisco{ width: 42px !important; height: 42px !important; }
 
   /* modal como sheet */
-  .modal{
+  @media (max-width: 520px){
+
+  /* ✅ modal vira “sheet” SÓ quando o keypad estiver aberto */
+  body.keypad-on .modal{
     align-items: flex-start !important;
     padding-top: 12px !important;
     padding-bottom: calc(var(--kb-h) + var(--safe-bottom) + 14px) !important;
   }
+
+  /* ✅ quando NÃO tem keypad, modal fica centralizado normal (igual PC) */
+  body:not(.keypad-on) .modal{
+    place-items: center !important;
+    padding-top: 0 !important;
+    padding-bottom: var(--safe-bottom) !important;
+  }
+}
   .modal-box{
     width: min(94vw, 560px) !important;
     max-height: calc(100svh - var(--kb-h) - var(--safe-bottom) - 22px) !important;
@@ -843,6 +854,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
