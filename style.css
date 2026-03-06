@@ -794,6 +794,8 @@ body.keypad-on .resposta-area{
   left: 0 !important;
   right: 0 !important;
   bottom: calc(var(--kb-h) + env(safe-area-inset-bottom)) !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
   z-index: 17000 !important;
 }
 
@@ -988,6 +990,7 @@ body.modo-duelo #pilhaZerouMsg{
     height: 54px !important;
   }
 }
+
 
 
 
