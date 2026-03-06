@@ -366,20 +366,65 @@ function ensureDueloOverlay() {
     .duelo-versus::after{ content:"RING"; position:absolute; bottom: 10px; font-size: 12px; opacity: .85; letter-spacing: 2px; }
 
     @media (max-width: 520px){
-      .duelo{ place-items: start center; padding-top: 10px; }
-      .duelo-box{
-        width: min(94vw, 560px);
-        overflow:auto;
-        -webkit-overflow-scrolling: touch;
-        backdrop-filter: none;
-        background: rgba(0,0,0,.35);
-      }
-      .duelo-row{ flex-direction: column; gap: 10px; }
-      .duelo-versus{ width: 96px; height: 72px; margin: 6px auto; transform: rotate(-3deg); }
-      .duelo-foto{ width: 70px; height: 70px; }
-      .duelo-nome{ font-size: 16px; }
-      .duelo-placar{ font-size: 14px; justify-content: space-between; }
-    }
+  .duelo{
+    place-items: start center;
+    padding-top: 6px;
+  }
+
+  .duelo-box{
+    width: min(94vw, 560px);
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: none;
+    background: rgba(0,0,0,.35);
+    padding: 8px 10px;
+  }
+
+  .duelo-row{
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .duelo-card{
+    padding: 8px 10px;
+  }
+
+  .duelo-versus{
+    width: 72px;
+    height: 56px;
+    margin: 2px auto;
+    transform: rotate(-3deg);
+    font-size: 14px;
+  }
+
+  .duelo-versus::before{
+    top: 4px;
+    font-size: 14px;
+  }
+
+  .duelo-versus::after{
+    bottom: 4px;
+    font-size: 9px;
+  }
+
+  .duelo-foto{
+    width: 52px;
+    height: 52px;
+  }
+
+  .duelo-nome{
+    font-size: 13px;
+  }
+
+  .duelo-placar{
+    font-size: 12px;
+    justify-content: space-between;
+  }
+
+  .duelo-head{
+    margin-bottom: 6px;
+  }
+}
   `;
   document.head.appendChild(style);
 
@@ -1887,6 +1932,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
