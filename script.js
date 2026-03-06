@@ -1128,7 +1128,7 @@ function spawnRocket() {
   rockets.push({
     x, y,
     vx: rand(-1.2, 1.2),
-    vy: rand(-13, -10),
+    vy: rand(-14, -11),
     life: rand(45, 70),
     hue: Math.floor(rand(0, 360))
   });
@@ -1881,6 +1881,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
