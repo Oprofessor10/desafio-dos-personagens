@@ -905,6 +905,18 @@ body.modo-duelo #pilhaZerouMsg{
     margin-top: -2px !important;
   }
 }
+/* ajuste final do duelo no mobile */
+@media (max-width: 900px){
+
+  body.modo-duelo .area-cartas{
+    margin-top: -18px !important;
+  }
+
+  body.modo-duelo .resposta-area{
+    bottom: calc(var(--kb-h) + 14px + env(safe-area-inset-bottom)) !important;
+  }
+
+}
 
 
 
