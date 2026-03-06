@@ -308,26 +308,28 @@ function ensureDueloOverlay() {
   style.textContent = `
     .duelo{
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
   display: grid;
-  place-items: start center; /* ✅ fica no topo */
-  padding-top: calc(10px + env(safe-area-inset-top));
+  place-items: start center;
+  padding-top: calc(8px + env(safe-area-inset-top));
   z-index: 12000;
   pointer-events: none;
 }
     .duelo.hidden{ display:none; }
     .duelo-box{
-      pointer-events:none;
-      width: min(980px, 96vw);
-      border-radius: 18px;
-      padding: 12px 14px;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(6px);
-      box-shadow: 0 22px 70px rgba(0,0,0,.35);
-      max-height: 92svh;
-      overflow: hidden;
-    }
+  pointer-events:none;
+  width: min(980px, 96vw);
+  border-radius: 18px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,.32);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  max-height: 92svh;
+  overflow: hidden;
+}
     .duelo-row{ display:flex; align-items: stretch; justify-content: center; gap: 14px; }
     .duelo-card{
       flex: 1; min-width: 0; width: 100%;
@@ -1885,6 +1887,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
