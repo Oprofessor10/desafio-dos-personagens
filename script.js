@@ -1703,12 +1703,9 @@ function bateuMetaNormal() {
     () => resetTudoParaInicio()
   );
 
-  // ✅ deixa o modal pintar primeiro, depois dispara os fogos
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      fogosMedios();
-    });
-  });
+  setTimeout(() => {
+    fogosMedios();
+  }, 120);
 }
 function bateuMetaAleatorio() {
   setPilhaDireita(0);
@@ -1724,11 +1721,9 @@ function bateuMetaAleatorio() {
     () => { resetTudoParaInicio(); }
   );
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      fogosGrandes();
-    });
-  });
+  setTimeout(() => {
+    fogosGrandes();
+  }, 120);
 }
 // =======================
 // VERIFICAR
@@ -1890,6 +1885,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
