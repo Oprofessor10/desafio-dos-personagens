@@ -1692,7 +1692,6 @@ function avancarParaProximaTabuadaOuFase() {
 function bateuMetaNormal() {
   setPilhaDireita(0);
 
-  fogosMedios();
   clearInterval(intervalo);
   cronometroAtivo = false;
   jogoAtivo = false;
@@ -1703,24 +1702,14 @@ function bateuMetaNormal() {
     () => iniciarDesafioAleatorio(),
     () => resetTudoParaInicio()
   );
+
+  // ✅ deixa o modal pintar primeiro, depois dispara os fogos
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      fogosMedios();
+    });
+  });
 }
-
-function bateuMetaAleatorio() {
-  setPilhaDireita(0);
-
-  fogosGrandes();
-  clearInterval(intervalo);
-  cronometroAtivo = false;
-  jogoAtivo = false;
-
-  abrirModal(
-    "🚀 Você é demais!",
-    "Vamos para a próxima tabuada? (antes precisa vencer o desafiante)",
-    () => { mostrarMestreAntesDeAvancar(); },
-    () => { resetTudoParaInicio(); }
-  );
-}
-
 // =======================
 // VERIFICAR
 // =======================
@@ -1881,6 +1870,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
