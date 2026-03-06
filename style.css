@@ -892,6 +892,19 @@ body.modo-duelo .tabuleiro{
     margin-top: -8px !important;
   }
 }
+/* limpa textos extras no duelo */
+body.modo-duelo #labelTabuada,
+body.modo-duelo .pilha-topo,
+body.modo-duelo .pilha-rodape,
+body.modo-duelo #pilhaZerouMsg{
+  display: none !important;
+}
+
+@media (max-width: 900px){
+  body.modo-duelo .area-cartas{
+    margin-top: -2px !important;
+  }
+}
 
 
 
