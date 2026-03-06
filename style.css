@@ -554,7 +554,7 @@ button, select, input{ touch-action: manipulation; }
     box-shadow: 0 14px 26px rgba(0,0,0,.40);
   }
 #modal{
-    z-index: 35000 !important;
+    z-index: 20000 !important;
   }
   #fxCanvas{
     mix-blend-mode: normal !important;
@@ -589,28 +589,24 @@ button, select, input{ touch-action: manipulation; }
   .multiplicador{ width: 46px !important; height: 46px !important; }
   .x-rabisco{ width: 42px !important; height: 42px !important; }
 
-  /* modal como sheet */
-  @media (max-width: 520px){
-
-  /* ✅ modal vira “sheet” SÓ quando o keypad estiver aberto */
   body.keypad-on .modal{
     align-items: flex-start !important;
     padding-top: 12px !important;
     padding-bottom: calc(var(--kb-h) + var(--safe-bottom) + 14px) !important;
   }
 
-  /* ✅ quando NÃO tem keypad, modal fica centralizado normal (igual PC) */
   body:not(.keypad-on) .modal{
     place-items: center !important;
     padding-top: 0 !important;
     padding-bottom: var(--safe-bottom) !important;
   }
-}
+
   .modal-box{
     width: min(94vw, 560px) !important;
     max-height: calc(100svh - var(--kb-h) - var(--safe-bottom) - 22px) !important;
     overflow: hidden !important;
   }
+
   .modal-texto{
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
@@ -856,6 +852,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
