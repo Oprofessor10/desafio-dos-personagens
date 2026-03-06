@@ -1710,6 +1710,26 @@ function bateuMetaNormal() {
     });
   });
 }
+function bateuMetaAleatorio() {
+  setPilhaDireita(0);
+
+  clearInterval(intervalo);
+  cronometroAtivo = false;
+  jogoAtivo = false;
+
+  abrirModal(
+    "🚀 Você é demais!",
+    "Vamos para a próxima tabuada? (antes precisa vencer o desafiante)",
+    () => { mostrarMestreAntesDeAvancar(); },
+    () => { resetTudoParaInicio(); }
+  );
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      fogosGrandes();
+    });
+  });
+}
 // =======================
 // VERIFICAR
 // =======================
@@ -1870,6 +1890,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
