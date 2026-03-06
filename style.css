@@ -857,6 +857,41 @@ body.keypad-on .carta{
   }
 }
 
+/* =========================
+   MODO DUELO
+========================= */
+body.modo-duelo .titulo,
+body.modo-duelo .seletor,
+body.modo-duelo .painel,
+body.modo-duelo #fimJogo{
+  display: none !important;
+}
+
+/* sobe o jogo quando entra no duelo */
+body.modo-duelo .tabuleiro{
+  padding-top: 8px !important;
+}
+
+/* reduz espaço morto no topo */
+body.modo-duelo .area-cartas{
+  margin-top: 0 !important;
+}
+
+/* mantém cartas visíveis abaixo do painel do duelo */
+body.modo-duelo .tabuleiro{
+  min-height: 100dvh !important;
+}
+
+/* no mobile, dá espaço para o cabeçalho do duelo */
+@media (max-width: 900px){
+  body.modo-duelo .tabuleiro{
+    padding-top: calc(var(--dueloH, 120px) + 8px) !important;
+  }
+
+  body.modo-duelo .area-cartas{
+    margin-top: 0 !important;
+  }
+}
 
 
 
