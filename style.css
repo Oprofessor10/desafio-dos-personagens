@@ -540,11 +540,13 @@ button, select, input{ touch-action: manipulation; }
     backdrop-filter: none !important;
   }
 
-  .modal{ background: rgba(0,0,0,.55) !important; }
+  .modal{ background: rgba(0,0,0,.82) !important; }
 .keypad{ background: rgba(10,16,22,.90) !important; }
 .fim-jogo{ background: rgba(0,0,0,.40) !important; }
 .pilha-zerou{ background: rgba(0,0,0,.45) !important; }
-
+body.modal-open .tabuleiro{
+  filter: brightness(.45) !important;
+}
 .carta{
   filter: none !important;
   box-shadow: 0 14px 26px rgba(0,0,0,.40);
@@ -854,6 +856,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
