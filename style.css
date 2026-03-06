@@ -553,10 +553,12 @@ button, select, input{ touch-action: manipulation; }
     transform: none;
     box-shadow: 0 14px 26px rgba(0,0,0,.40);
   }
-
+#modal{
+    z-index: 35000 !important;
+  }
   #fxCanvas{
     mix-blend-mode: normal !important;
-    z-index: 14000 !important; /* ✅ fica ATRÁS do modal (20000) e na frente do jogo */
+    z-index: 30000 !important; /* ✅ fica ATRÁS do modal (20000) e na frente do jogo */
   }
 }
 
@@ -854,6 +856,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
