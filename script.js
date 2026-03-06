@@ -1101,7 +1101,7 @@ function fxConfig() {
     rocketIntervalGrandes: mobile ? 115 : 95,
 
     // ✅ MAIS ALTO NO MOBILE (ajuste fino aqui)
-    rocketExplodeVy: mobile ? -3.2 : -2.5
+    rocketExplodeVy: mobile ? -3.6 : -2.5
   };
 }
 
@@ -1881,6 +1881,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
