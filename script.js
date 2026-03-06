@@ -322,7 +322,7 @@ function ensureDueloOverlay() {
   pointer-events:none;
   width: min(980px, 96vw);
   border-radius: 18px;
-  padding: 10px 12px;
+  padding: 6px 10px;
   background: rgba(0,0,0,.32);
   border: 1px solid rgba(255,255,255,.12);
   backdrop-filter: blur(6px);
@@ -1932,6 +1932,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
