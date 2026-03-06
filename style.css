@@ -540,26 +540,28 @@ button, select, input{ touch-action: manipulation; }
     backdrop-filter: none !important;
   }
 
-  .modal{ background: rgba(0,0,0,.18) !important; }
-  .keypad{ background: rgba(10,16,22,.90) !important; }
-  .fim-jogo{ background: rgba(0,0,0,.40) !important; }
-  .pilha-zerou{ background: rgba(0,0,0,.45) !important; }
+  .modal{ background: rgba(0,0,0,.55) !important; }
+.keypad{ background: rgba(10,16,22,.90) !important; }
+.fim-jogo{ background: rgba(0,0,0,.40) !important; }
+.pilha-zerou{ background: rgba(0,0,0,.45) !important; }
 
-  .carta{
-    filter: none !important;
-    box-shadow: 0 14px 26px rgba(0,0,0,.40);
-  }
-  .carta:hover{
-    transform: none;
-    box-shadow: 0 14px 26px rgba(0,0,0,.40);
-  }
+.carta{
+  filter: none !important;
+  box-shadow: 0 14px 26px rgba(0,0,0,.40);
+}
+.carta:hover{
+  transform: none;
+  box-shadow: 0 14px 26px rgba(0,0,0,.40);
+}
+
 #modal{
-    z-index: 20000 !important;
-  }
-  #fxCanvas{
-    mix-blend-mode: normal !important;
-    z-index: 30000 !important; /* ✅ fica ATRÁS do modal (20000) e na frente do jogo */
-  }
+  z-index: 20000 !important;
+}
+
+#fxCanvas{
+  mix-blend-mode: screen !important;
+  z-index: 30000 !important;
+  background: transparent !important;
 }
 
 /* =========================
@@ -852,6 +854,7 @@ body.keypad-on .carta{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
 }
+
 
 
 
