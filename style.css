@@ -940,7 +940,7 @@ body.modo-duelo #pilhaZerouMsg{
   }
 
   body.modo-duelo .area-cartas{
-    margin-top: -14px !important;
+    margin-top: -4px !important;
     padding: 0 8px 70px !important;
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) !important;
     gap: 8px !important;
@@ -949,7 +949,7 @@ body.modo-duelo #pilhaZerouMsg{
     overflow: hidden !important;
     justify-items: center !important;
     align-items: center !important;
-    align-content: start !important;
+    align-content: center !important;
   }
 
   body.modo-duelo .pilha{
@@ -967,7 +967,8 @@ body.modo-duelo #pilhaZerouMsg{
 
   body.modo-duelo .multiplicador{
     width: 44px !important;
-    height: 44px !important;
+  height: 44px !important;
+  align-self: center !important;
   }
 
   body.modo-duelo .x-rabisco{
@@ -980,6 +981,7 @@ body.modo-duelo #pilhaZerouMsg{
     bottom: calc(var(--kb-h) + 10px + env(safe-area-inset-bottom)) !important;
   }
 }
+
 
 
 
