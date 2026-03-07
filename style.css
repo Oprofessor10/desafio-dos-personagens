@@ -936,11 +936,11 @@ body.modo-duelo #pilhaZerouMsg{
   }
 
   body.modo-duelo .tabuleiro{
-    padding-top: calc(var(--dueloH, 120px) + 8px) !important;
+    padding-top: calc(var(--dueloH, 120px) - 12px) !important;
   }
 
   body.modo-duelo .area-cartas{
-    margin-top: 6px !important;
+    margin-top: -14px !important;
     padding: 0 8px 70px !important;
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) !important;
     gap: 8px !important;
@@ -977,9 +977,10 @@ body.modo-duelo #pilhaZerouMsg{
 
   /* só no duelo: barra colada no keypad */
   body.modo-duelo.keypad-on .resposta-area{
-    bottom: calc(var(--kb-h) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(var(--kb-h) + 10px + env(safe-area-inset-bottom)) !important;
   }
 }
+
 
 
 
