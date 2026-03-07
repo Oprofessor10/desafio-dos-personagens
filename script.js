@@ -381,13 +381,13 @@ function ensureDueloOverlay() {
   }
 
   .duelo-row{
-    flex-direction: column;
-    gap: 6px;
-  }
+  flex-direction: column;
+  gap: 2px;
+}
 
-  .duelo-card{
-    padding: 8px 10px;
-  }
+.duelo-card{
+  padding: 6px 8px;
+}
 
   .duelo-versus{
   width: 46px;
@@ -423,8 +423,8 @@ function ensureDueloOverlay() {
   }
 
   .duelo-head{
-    margin-bottom: 6px;
-  }
+  margin-bottom: 2px;
+}
 }
   `;
   document.head.appendChild(style);
@@ -1933,6 +1933,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
