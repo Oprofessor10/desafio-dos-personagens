@@ -982,6 +982,61 @@ body.modo-duelo #pilhaZerouMsg{
   }
 }
 
+/* =========================
+   DUELO AUTO-LAYOUT MOBILE
+========================= */
+
+@media (max-width: 900px){
+
+  body.modo-duelo{
+
+    --duelo-top: calc(var(--dueloH,120px) + 6px);
+    --duelo-bottom: calc(var(--kb-h) + 60px + env(safe-area-inset-bottom));
+
+  }
+
+  body.modo-duelo .area-cartas{
+
+    position: fixed !important;
+
+    top: var(--duelo-top);
+    bottom: var(--duelo-bottom);
+
+    left: 0;
+    right: 0;
+
+    margin: 0 auto !important;
+
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) 44px minmax(0,1fr) !important;
+    gap: 8px !important;
+
+    align-items: center !important;
+    align-content: center !important;
+    justify-items: center !important;
+
+    width: 100% !important;
+    padding: 0 10px !important;
+
+  }
+
+}
+
+   @media (max-width: 900px){
+
+  body.modo-duelo .resposta-area{
+    position: fixed !important;
+    left: 0;
+    right: 0;
+
+    bottom: calc(var(--kb-h) + env(safe-area-inset-bottom)) !important;
+
+    margin: 0;
+    padding: 0 12px;
+    z-index: 17000;
+  }
+
+}
 
 
 
