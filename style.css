@@ -511,16 +511,25 @@ button, select, input{ touch-action: manipulation; }
     justify-content: center;
     align-items: center;
   }
-  .seletor select{ font-size: 16px; padding: 10px 12px; }
 
-  .painel{ font-size: 18px; gap: 18px; }
+  .seletor select{
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .painel{
+    font-size: 18px;
+    gap: 18px;
+  }
 
   :root{
     --cardW: min(42vw, 180px);
     --xW: min(14vw, 60px);
   }
 
-  .numero{ font-size: clamp(64px, 18vw, 110px); }
+  .numero{
+    font-size: clamp(64px, 18vw, 110px);
+  }
 
   .pilha-direita::before,
   .pilha-direita::after{
@@ -535,42 +544,47 @@ button, select, input{ touch-action: manipulation; }
     border-radius: 14px;
   }
 
-  /* PERFORMANCE MOBILE */
-  .modal, .keypad, .fim-jogo, .pilha-zerou{
+  .modal,
+  .keypad,
+  .fim-jogo,
+  .pilha-zerou{
     backdrop-filter: none !important;
   }
 
   .modal{ background: rgba(0,0,0,.82) !important; }
-.keypad{ background: rgba(10,16,22,.90) !important; }
-.fim-jogo{ background: rgba(0,0,0,.40) !important; }
-.pilha-zerou{ background: rgba(0,0,0,.45) !important; }
-body.modal-open .tabuleiro{
-  filter: brightness(.45) !important;
-}
-.carta{
-  filter: none !important;
-  box-shadow: 0 14px 26px rgba(0,0,0,.40);
-}
-.carta:hover{
-  transform: none;
-  box-shadow: 0 14px 26px rgba(0,0,0,.40);
-}
+  .keypad{ background: rgba(10,16,22,.90) !important; }
+  .fim-jogo{ background: rgba(0,0,0,.40) !important; }
+  .pilha-zerou{ background: rgba(0,0,0,.45) !important; }
 
-#modal{
-  z-index: 20000 !important;
-}
+  body.modal-open .tabuleiro{
+    filter: brightness(.45) !important;
+  }
 
-#fxCanvas{
-  mix-blend-mode: screen !important;
-  z-index: 30000 !important;
-  background: transparent !important;
+  .carta{
+    filter: none !important;
+    box-shadow: 0 14px 26px rgba(0,0,0,.40);
+  }
+
+  .carta:hover{
+    transform: none;
+    box-shadow: 0 14px 26px rgba(0,0,0,.40);
+  }
+
+  #modal{
+    z-index: 20000 !important;
+  }
+
+  #fxCanvas{
+    mix-blend-mode: screen !important;
+    z-index: 30000 !important;
+    background: transparent !important;
+  }
 }
 
 /* =========================
    MOBILE PATCH (<=520)
 ========================= */
 @media (max-width: 520px){
-
   .area-cartas{
     width: 100% !important;
     max-width: 100% !important;
@@ -582,7 +596,10 @@ body.modal-open .tabuleiro{
     padding: 6px 0 0 !important;
   }
 
-  .pilha{ width: 100% !important; min-width: 0 !important; }
+  .pilha{
+    width: 100% !important;
+    min-width: 0 !important;
+  }
 
   .carta{
     width: 100% !important;
@@ -590,8 +607,15 @@ body.modal-open .tabuleiro{
     aspect-ratio: 3 / 4 !important;
   }
 
-  .multiplicador{ width: 46px !important; height: 46px !important; }
-  .x-rabisco{ width: 42px !important; height: 42px !important; }
+  .multiplicador{
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .x-rabisco{
+    width: 42px !important;
+    height: 42px !important;
+  }
 
   body.keypad-on .modal{
     align-items: flex-start !important;
@@ -621,20 +645,35 @@ body.modal-open .tabuleiro{
 
 /* EXTRA: telas bem pequenas (<=390) */
 @media (max-width: 390px){
-  .area-cartas{ grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) !important; }
-  .multiplicador{ width: 40px !important; height: 40px !important; }
-  .x-rabisco{ width: 36px !important; height: 36px !important; }
+  .area-cartas{
+    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr) !important;
+  }
+
+  .multiplicador{
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .x-rabisco{
+    width: 36px !important;
+    height: 36px !important;
+  }
 }
 
 /* quando modal abre no celular, esconda keypad */
-body.modal-open .keypad{ display:none !important; }
+body.modal-open .keypad{
+  display: none !important;
+}
+
 @media (max-width: 520px){
   body.modal-open .modal{
     padding-bottom: var(--safe-bottom) !important;
   }
+
   body.modal-open .modal-box{
     max-height: calc(100svh - var(--safe-bottom) - 16px) !important;
   }
+
   body.modal-open .modal-texto{
     max-height: calc(100svh - 190px) !important;
   }
@@ -647,10 +686,19 @@ body.modal-open .keypad{ display:none !important; }
     --xW: min(10vh, 44px);
   }
 
-  .titulo{ font-size: 22px; margin: 6px 0 6px; }
-  .painel{ font-size: 16px; margin: 6px 0 8px; }
+  .titulo{
+    font-size: 22px;
+    margin: 6px 0 6px;
+  }
 
-  .numero{ font-size: clamp(40px, 12vh, 90px); }
+  .painel{
+    font-size: 16px;
+    margin: 6px 0 8px;
+  }
+
+  .numero{
+    font-size: clamp(40px, 12vh, 90px);
+  }
 
   body.keypad-on .keypad{
     left: auto;
@@ -669,15 +717,15 @@ body.modal-open .keypad{ display:none !important; }
     margin: 0;
     padding: 0;
   }
+
   body.keypad-on .resposta-area input{
     width: 100%;
     max-width: none;
   }
 }
 
+/* MOBILE RETRATO NORMAL */
 @media (max-width: 900px) and (orientation: portrait){
-
-  /* Só quando o keypad estiver aberto */
   body.keypad-on{
     overflow: hidden !important;
     height: 100dvh !important;
@@ -703,7 +751,6 @@ body.modal-open .keypad{ display:none !important; }
     padding-bottom: 0 !important;
   }
 
-  /* PILHAS */
   body.keypad-on .pilha{
     display: flex !important;
     flex-direction: column !important;
@@ -712,11 +759,10 @@ body.modal-open .keypad{ display:none !important; }
     min-width: 0 !important;
     gap: 6px !important;
     overflow: visible !important;
-    position: relative !important; /* necessário para ::before */
-    height: calc(var(--cardH) + 44px) !important; /* ajuste fino se quiser */
+    position: relative !important;
+    height: calc(var(--cardH) + 44px) !important;
   }
 
-  /* Topo menor */
   body.keypad-on .pilha-topo{
     width: 100% !important;
     min-height: 28px !important;
@@ -730,7 +776,6 @@ body.modal-open .keypad{ display:none !important; }
     font-size: 12px !important;
   }
 
-  /* PILHA DIREITA */
   body.keypad-on #pilhaDireita .pilha-topo{
     justify-content: center !important;
     position: relative !important;
@@ -748,89 +793,49 @@ body.modal-open .keypad{ display:none !important; }
     top: 0 !important;
     transform: translate(20%, -10%) !important;
     z-index: 5 !important;
-
     min-width: 40px !important;
     padding: 6px 8px !important;
     line-height: 1 !important;
     border-radius: 999px !important;
   }
 
-  /* Mesa esquerda (igual à direita) */
-  /* Mesa esquerda alinhada igual à direita */
-body.keypad-on .pilha-esquerda::before,
-body.keypad-on .pilha-esquerda::after{
-  content:"";
-  position:absolute;
-  inset: 64px 18px 10px 18px !important;  /* bottom menor = desce mais */
-
-  border-radius: 22px;
-  background-image: url("costa_carta_borda_azul_transparente.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-
-  opacity: 0.06 !important;
-  filter: none !important;
-  z-index: 0;
-  pointer-events: none;
-}
-
-  body.keypad-on .pilha-esquerda .carta{
-    position: relative !important;
-    z-index: 1 !important;
+  body.keypad-on .resposta-area{
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(var(--kb-h) + 8px + env(safe-area-inset-bottom)) !important;
+    margin: 0 !important;
+    padding: 0 14px !important;
+    z-index: 17000 !important;
   }
 
-  /* Mesa direita */
+  body.keypad-on .resposta-area input{
+    display: block !important;
+    width: min(360px, 92vw) !important;
+    margin: 0 auto !important;
+    height: 54px !important;
+    border-radius: 14px !important;
+  }
+
+  body.keypad-on .pilha-esquerda::before,
+  body.keypad-on .pilha-esquerda::after,
   body.keypad-on .pilha-direita::before,
   body.keypad-on .pilha-direita::after{
-    opacity: 0.06 !important;
-    inset: 64px 18px 76px 18px !important;
-    filter: none !important;
+    display: none !important;
   }
 
-  /* Barra */
-body.keypad-on .resposta-area{
-  position: fixed !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: calc(var(--kb-h) + 8px + env(safe-area-inset-bottom)) !important;
-  margin: 0 !important;
-  padding: 0 14px !important;
-  z-index: 17000 !important;
-}
-
-body.keypad-on .resposta-area input{
-  display: block !important;
-  width: min(360px, 92vw) !important;
-  margin: 0 auto !important;
-  height: 54px !important;
-  border-radius: 14px !important;
-}
-   /* ✅ some com a “sobra de cartas” (monte fake) só no mobile keypad-on */
-body.keypad-on .pilha-esquerda::before,
-body.keypad-on .pilha-esquerda::after,
-body.keypad-on .pilha-direita::before,
-body.keypad-on .pilha-direita::after{
-  display: none !important;
-}
-
-  /* Área cartas */
   body.keypad-on .area-cartas{
     flex: 1 !important;
     width: 100% !important;
     margin: -10px auto 0 !important;
-
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) var(--xW) minmax(0, 1fr) !important;
     gap: 10px !important;
-
     align-items: center !important;
     justify-items: center !important;
     align-content: start !important;
-
     padding-top: 4px !important;
     padding-bottom: calc(var(--answer-h) + var(--gap)) !important;
-
     overflow: visible !important;
   }
 
@@ -846,12 +851,10 @@ body.keypad-on .pilha-direita::after{
     height: var(--cardH) !important;
     max-width: none !important;
     aspect-ratio: 3 / 4 !important;
+    filter: none !important;
+    box-shadow: none !important;
   }
-/* 🔥 Remove sombra das cartas somente no mobile com keypad aberto */
-body.keypad-on .carta{
-  filter: none !important;
-  box-shadow: none !important;
-}
+
   body.keypad-on .fim-jogo{
     bottom: calc(var(--kb-h) + 80px) !important;
   }
@@ -863,36 +866,7 @@ body.keypad-on .carta{
 body.modo-duelo .titulo,
 body.modo-duelo .seletor,
 body.modo-duelo .painel,
-body.modo-duelo #fimJogo{
-  display: none !important;
-}
-
-/* sobe o jogo quando entra no duelo */
-body.modo-duelo .tabuleiro{
-  padding-top: 8px !important;
-}
-
-/* reduz espaço morto no topo */
-body.modo-duelo .area-cartas{
-  margin-top: 0 !important;
-}
-
-/* mantém cartas visíveis abaixo do painel do duelo */
-body.modo-duelo .tabuleiro{
-  min-height: 100dvh !important;
-}
-
-/* no mobile, dá espaço para o cabeçalho do duelo */
-@media (max-width: 900px){
-  body.modo-duelo .tabuleiro{
-    padding-top: calc(var(--dueloH, 120px) - 36px) !important;
-  }
-
-  body.modo-duelo .area-cartas{
-    margin-top: -8px !important;
-  }
-}
-/* limpa textos extras no duelo */
+body.modo-duelo #fimJogo,
 body.modo-duelo #labelTabuada,
 body.modo-duelo .pilha-topo,
 body.modo-duelo .pilha-rodape,
@@ -900,47 +874,17 @@ body.modo-duelo #pilhaZerouMsg{
   display: none !important;
 }
 
-@media (max-width: 900px){
-  body.modo-duelo .area-cartas{
-    margin-top: -2px !important;
-  }
+body.modo-duelo .tabuleiro{
+  min-height: 100dvh !important;
 }
-/* ajuste final do duelo no mobile */
+
 @media (max-width: 900px){
-
-  body.modo-duelo .area-cartas{
-    margin-top: -18px !important;
-  }
-
-  body.modo-duelo .resposta-area{
-    bottom: calc(var(--kb-h) + 14px + env(safe-area-inset-bottom)) !important;
-  }
-
-}
-/* =========================
-   DUELO LAYOUT FIX MOBILE
-========================= */
-/* =========================
-   DUELO MOBILE - AJUSTE FINAL
-========================= */
-@media (max-width: 900px){
-
-  body.modo-duelo .titulo,
-  body.modo-duelo .seletor,
-  body.modo-duelo .painel,
-  body.modo-duelo #fimJogo,
-  body.modo-duelo .pilha-topo,
-  body.modo-duelo .pilha-rodape,
-  body.modo-duelo #pilhaZerouMsg{
-    display: none !important;
-  }
-
   body.modo-duelo .tabuleiro{
-    padding-top: calc(var(--dueloH, 120px) - 12px) !important;
+    padding-top: calc(var(--dueloH, 120px) - 28px) !important;
   }
 
   body.modo-duelo .area-cartas{
-    margin-top: 8px !important;
+    margin-top: -26px !important;
     padding: 0 8px 70px !important;
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) !important;
     gap: 8px !important;
@@ -967,8 +911,12 @@ body.modo-duelo #pilhaZerouMsg{
 
   body.modo-duelo .multiplicador{
     width: 44px !important;
-  height: 44px !important;
-  align-self: center !important;
+    height: 44px !important;
+    align-self: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transform: translateY(-10px) !important;
   }
 
   body.modo-duelo .x-rabisco{
@@ -976,9 +924,7 @@ body.modo-duelo #pilhaZerouMsg{
     height: 36px !important;
   }
 
-  /* só no duelo: barra colada no keypad */
   body.modo-duelo.keypad-on .resposta-area{
     bottom: calc(var(--kb-h) + 10px + env(safe-area-inset-bottom)) !important;
   }
 }
-
