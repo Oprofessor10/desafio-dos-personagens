@@ -884,7 +884,7 @@ body.modo-duelo .tabuleiro{
   }
 
   body.modo-duelo .area-cartas{
-    margin-top: -46px !important;
+    margin-top: -66px !important;
     padding: 0 8px 70px !important;
     grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) !important;
     gap: 8px !important;
@@ -916,7 +916,7 @@ body.modo-duelo .multiplicador{
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transform: translateY(-8px) !important;
+  transform: translateY(-28px) !important;
 }
 
   body.modo-duelo .x-rabisco{
@@ -928,5 +928,6 @@ body.modo-duelo .multiplicador{
     bottom: calc(var(--kb-h) + 10px + env(safe-area-inset-bottom)) !important;
   }
 }
+
 
 
