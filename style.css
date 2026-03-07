@@ -916,7 +916,7 @@ body.modo-duelo .multiplicador{
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transform: translateY(-28px) !important;
+  transform: translateY(-54px) !important;
 }
 
   body.modo-duelo .x-rabisco{
@@ -928,6 +928,7 @@ body.modo-duelo .multiplicador{
     bottom: calc(var(--kb-h) + 10px + env(safe-area-inset-bottom)) !important;
   }
 }
+
 
 
 
