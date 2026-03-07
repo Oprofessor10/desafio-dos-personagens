@@ -390,22 +390,23 @@ function ensureDueloOverlay() {
   }
 
   .duelo-versus{
-    width: 72px;
-    height: 56px;
-    margin: 2px auto;
-    transform: rotate(-3deg);
-    font-size: 14px;
-  }
+  width: 46px;
+  height: 36px;
+  margin: 0 auto;
+  transform: rotate(-3deg);
+  font-size: 10px;
+  border-radius: 14px;
+}
 
-  .duelo-versus::before{
-    top: 4px;
-    font-size: 14px;
-  }
+.duelo-versus::before{
+  top: 1px;
+  font-size: 10px;
+}
 
-  .duelo-versus::after{
-    bottom: 4px;
-    font-size: 9px;
-  }
+.duelo-versus::after{
+  bottom: 1px;
+  font-size: 6px;
+}
 
   .duelo-foto{
     width: 52px;
@@ -1932,6 +1933,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
