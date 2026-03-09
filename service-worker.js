@@ -1,14 +1,14 @@
 /* =========================
    SW MOBILE 2 - ATUALIZAÇÃO FORÇADA
 ========================= */
-const VERSION = "v109";
+const VERSION = "v110";
 const CACHE_NAME = `60-segundos-${VERSION}`;
 
 const urlsToCache = [
   "./",
   "./index.html",
-  "./style.css?v=109",
-  "./script.js?v=109",
+  "./style.css?v=110",
+  "./script.js?v=110",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -33,12 +33,10 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Network-first para HTML/CSS/JS/JSON
-// Cache-first para imagens
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
-  const isSameOrigin = url.origin === location.origin;
+  const isSameOrigin = url.origin === self.location.origin;
 
   const isAsset =
     url.pathname.endsWith(".js") ||
@@ -67,15 +65,17 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (isSameOrigin && isImage) {
-    event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
+    event.respondWith(
+      caches.match(req).then((cached) => cached || fetch(req))
+    );
     return;
   }
 
-  event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
+  event.respondWith(
+    caches.match(req).then((cached) => cached || fetch(req))
+  );
 });
 
-  event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
-});
 
 
 
