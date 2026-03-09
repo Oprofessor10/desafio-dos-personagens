@@ -52,7 +52,7 @@ let numeroAtual = 1;
 let fase = "facil";
 let meta = 20;
 
-let etapa = "normal"; // "normal" ou "aleatorio"
+let etapa = "normal";
 
 let tempo = 60;
 let intervalo = null;
@@ -67,8 +67,16 @@ let aguardandoDecisao = false;
 let tabuadaAtual = 1;
 let faseAtual = "facil";
 
-let modalArmedAt = 0; // trava Enter logo após abrir modal
+let modalArmedAt = 0;
 
+let modoVerificacao = "normal";
+let estadoOprofessor = null;
+let vozPodeResponder = true;
+let vozCooldownAte = 0;
+let numeroDetectado = null;
+let numeroDetectadoAt = 0;
+let aguardandoProcessamentoVozAte = 0;
+let estabilidadeMinima = 10; // ms
 // =======================
 // ELEMENTOS
 // =======================
@@ -81,6 +89,9 @@ const numEsquerda = document.getElementById("numEsquerda");
 const numDireita = document.getElementById("numDireita");
 
 const respostaInput = document.getElementById("respostaInput");
+const btnVoz = document.getElementById("btnVoz");
+const vozStatus = document.getElementById("vozStatus");
+
 const tempoSpan = document.getElementById("tempo");
 const acertosSpan = document.getElementById("acertos");
 const errosSpan = document.getElementById("erros");
@@ -105,20 +116,14 @@ const fxCtx = fxCanvas ? fxCanvas.getContext("2d") : null;
 // =======================
 const keypad = document.getElementById("keypad");
 
-/*
-  ✅ PONTO EXATO DO "syncKeypadState"
-  Fica AQUI, logo depois do const keypad = ...
-*/
 function syncKeypadState() {
   if (!keypad) return;
   const aberto = !keypad.classList.contains("hidden");
   document.body.classList.toggle("keypad-on", !!aberto);
 }
 
-// sincroniza ao carregar
 syncKeypadState();
 
-// observa mudanças na classe do keypad (abre/fecha)
 if (keypad) {
   const obs = new MutationObserver(syncKeypadState);
   obs.observe(keypad, { attributes: true, attributeFilter: ["class"] });
@@ -139,7 +144,7 @@ function showKeypad() {
   keypad.classList.remove("hidden");
   keypad.setAttribute("aria-hidden", "false");
   setKeypadLayoutFlags();
-  syncKeypadState(); // ✅ garante body.keypad-on correto
+  syncKeypadState();
 }
 
 function hideKeypad() {
@@ -147,7 +152,7 @@ function hideKeypad() {
   keypad.classList.add("hidden");
   keypad.setAttribute("aria-hidden", "true");
   setKeypadLayoutFlags();
-  syncKeypadState(); // ✅ garante body.keypad-on correto
+  syncKeypadState();
 }
 
 function focusRespostaSeguro() {
@@ -208,7 +213,7 @@ function autoStartIfNeeded() {
 }
 
 // =======================
-// DESAFIO DOS MESTRES (POOL SEM REPETIR)
+// DESAFIO DOS MESTRES
 // =======================
 let mestresPool = [];
 let mestresAtivos = true;
@@ -230,7 +235,7 @@ function pegarProximoMestre() {
 }
 
 // =======================
-// DUELO (overlay criado via JS) - POR TEMPO
+// DUELO
 // =======================
 let dueloEl = null;
 let dueloAtivo = false;
@@ -241,15 +246,12 @@ let duelo = {
   pontosMestre: 0,
   errosAluno: 0,
   errosMestre: 0,
-
-  duracaoMs: 10000, // teste 10s
+  duracaoMs: 10000,
   fimEm: 0,
   tickTimer: null,
-
   mestreTimer: null,
   mestreTentativas: 0,
   mestreMaxTentativas: 25,
-
   perguntaToken: 0,
   chanceErro: 0.12
 };
@@ -306,7 +308,7 @@ function ensureDueloOverlay() {
 
   const style = document.createElement("style");
   style.textContent = `
-    .duelo{
+.duelo{
   position: fixed;
   left: 0;
   right: 0;
@@ -317,8 +319,8 @@ function ensureDueloOverlay() {
   z-index: 12000;
   pointer-events: none;
 }
-    .duelo.hidden{ display:none; }
-    .duelo-box{
+.duelo.hidden{ display:none; }
+.duelo-box{
   pointer-events:none;
   width: min(980px, 96vw);
   border-radius: 18px;
@@ -330,47 +332,46 @@ function ensureDueloOverlay() {
   max-height: 92svh;
   overflow: hidden;
 }
-    .duelo-row{ display:flex; align-items: stretch; justify-content: center; gap: 14px; }
-    .duelo-card{
-      flex: 1; min-width: 0; width: 100%;
-      border-radius: 16px; padding: 12px 14px;
-      background: rgba(0,0,0,.28);
-      border: 1px solid rgba(255,255,255,.10);
-      font-weight: 900; overflow: hidden;
-    }
-    .duelo-head{ display:flex; align-items:center; gap:12px; margin-bottom: 10px; min-width: 0; }
-    .duelo-foto{
-      width: 86px; height: 86px; border-radius: 999px;
-      object-fit: contain; background: rgba(255,255,255,.06); padding: 6px;
-      border: 3px solid rgba(255,255,255,.25);
-      box-shadow: 0 14px 30px rgba(0,0,0,.35); flex: 0 0 auto;
-    }
-    .duelo-nome{
-      font-size: 20px; letter-spacing: 1px; text-transform: uppercase;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100%;
-    }
-    .duelo-placar{
-      display:flex; gap: 18px; font-size: 18px; align-items:center;
-      flex-wrap: wrap; justify-content:flex-end; text-align:right;
-    }
-    .duelo-versus{
-      align-self: center; width: 86px; height: 86px; display:grid; place-items:center;
-      border-radius: 22px;
-      background: linear-gradient(135deg, rgba(255,60,60,.35), rgba(0,255,160,.25));
-      border: 2px solid rgba(255,255,255,.18);
-      box-shadow: 0 18px 45px rgba(0,0,0,.35);
-      font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
-      transform: rotate(-6deg); position: relative; flex: 0 0 auto;
-    }
-    .duelo-versus::before{ content:"⚔️"; position:absolute; top: 10px; font-size: 20px; opacity: .95; }
-    .duelo-versus::after{ content:"RING"; position:absolute; bottom: 10px; font-size: 12px; opacity: .85; letter-spacing: 2px; }
+.duelo-row{ display:flex; align-items: stretch; justify-content: center; gap: 14px; }
+.duelo-card{
+  flex: 1; min-width: 0; width: 100%;
+  border-radius: 16px; padding: 12px 14px;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.10);
+  font-weight: 900; overflow: hidden;
+}
+.duelo-head{ display:flex; align-items:center; gap:12px; margin-bottom: 10px; min-width: 0; }
+.duelo-foto{
+  width: 86px; height: 86px; border-radius: 999px;
+  object-fit: contain; background: rgba(255,255,255,.06); padding: 6px;
+  border: 3px solid rgba(255,255,255,.25);
+  box-shadow: 0 14px 30px rgba(0,0,0,.35); flex: 0 0 auto;
+}
+.duelo-nome{
+  font-size: 20px; letter-spacing: 1px; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100%;
+}
+.duelo-placar{
+  display:flex; gap: 18px; font-size: 18px; align-items:center;
+  flex-wrap: wrap; justify-content:flex-end; text-align:right;
+}
+.duelo-versus{
+  align-self: center; width: 86px; height: 86px; display:grid; place-items:center;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255,60,60,.35), rgba(0,255,160,.25));
+  border: 2px solid rgba(255,255,255,.18);
+  box-shadow: 0 18px 45px rgba(0,0,0,.35);
+  font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+  transform: rotate(-6deg); position: relative; flex: 0 0 auto;
+}
+.duelo-versus::before{ content:"⚔️"; position:absolute; top: 10px; font-size: 20px; opacity: .95; }
+.duelo-versus::after{ content:"RING"; position:absolute; bottom: 10px; font-size: 12px; opacity: .85; letter-spacing: 2px; }
 
-    @media (max-width: 520px){
+@media (max-width: 520px){
   .duelo{
     place-items: start center;
     padding-top: 6px;
   }
-
   .duelo-box{
     width: min(94vw, 560px);
     overflow: hidden;
@@ -379,52 +380,22 @@ function ensureDueloOverlay() {
     background: rgba(0,0,0,.35);
     padding: 8px 10px;
   }
-
-  .duelo-row{
-  flex-direction: column;
-  gap: 2px;
-}
-
-.duelo-card{
-  padding: 6px 8px;
-}
-
+  .duelo-row{ flex-direction: column; gap: 2px; }
+  .duelo-card{ padding: 6px 8px; }
   .duelo-versus{
-  width: 46px;
-  height: 36px;
-  margin: 0 auto;
-  transform: rotate(-3deg);
-  font-size: 10px;
-  border-radius: 14px;
-}
-
-.duelo-versus::before{
-  top: 1px;
-  font-size: 10px;
-}
-
-.duelo-versus::after{
-  bottom: 1px;
-  font-size: 6px;
-}
-
-  .duelo-foto{
-    width: 52px;
-    height: 52px;
+    width: 46px;
+    height: 36px;
+    margin: 0 auto;
+    transform: rotate(-3deg);
+    font-size: 10px;
+    border-radius: 14px;
   }
-
-  .duelo-nome{
-    font-size: 13px;
-  }
-
-  .duelo-placar{
-    font-size: 12px;
-    justify-content: space-between;
-  }
-
-  .duelo-head{
-  margin-bottom: 2px;
-}
+  .duelo-versus::before{ top: 1px; font-size: 10px; }
+  .duelo-versus::after{ bottom: 1px; font-size: 6px; }
+  .duelo-foto{ width: 52px; height: 52px; }
+  .duelo-nome{ font-size: 13px; }
+  .duelo-placar{ font-size: 12px; justify-content: space-between; }
+  .duelo-head{ margin-bottom: 2px; }
 }
   `;
   document.head.appendChild(style);
@@ -519,6 +490,9 @@ function configurarDueloPorFase() {
 function gerarPerguntaDueloNova() {
   numeroAtual = Math.floor(Math.random() * 10) + 1;
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
+
+  vozPodeResponder = true;
+  
 }
 
 function iniciarTickDuelo() {
@@ -560,6 +534,9 @@ function abrirDuelo(mestre) {
 
   jogoAtivo = true;
   focusRespostaSeguro();
+  if (!ouvindoVoz && !aguardandoDecisao) {
+    iniciarReconhecimentoVoz();
+  }
 }
 
 function finalizarDueloTempo() {
@@ -739,7 +716,9 @@ function keypadOk() {
     confirmarSim();
     return;
   }
-  if (typeof window.verificar === "function") window.verificar();
+
+  if (!respostaInput) return;
+  enviarResposta(respostaInput.value);
 }
 
 if (keypad) {
@@ -764,19 +743,354 @@ function atualizarPlaceholder() {
   respostaInput.placeholder = (respostaInput.value && respostaInput.value.length > 0) ? "" : "Digite a resposta";
 }
 
-// ✅ resize mais leve
-let _resizeRaf = 0;
-window.addEventListener("resize", () => {
-  if (_resizeRaf) cancelAnimationFrame(_resizeRaf);
-  _resizeRaf = requestAnimationFrame(() => {
-    ensureMobileInputMode();
-    setKeypadLayoutFlags();
-    resizeFx();
-  });
-}, { passive: true });
+function enviarResposta(valor) {
+  if (!respostaInput) return;
+  if (aguardandoDecisao) return;
+  if (valor === null || valor === undefined) return;
 
-ensureMobileInputMode();
-setKeypadLayoutFlags();
+  const valorTexto = String(valor).trim();
+  if (valorTexto === "") return;
+
+  if (respostaInput.value === valorTexto && vozCooldownAte > performance.now()) {
+    return;
+  }
+
+  respostaInput.value = valorTexto;
+  atualizarPlaceholder();
+
+  if (!jogoAtivo && tabuadaSelecionadaValida()) {
+    window.iniciarJogo(true);
+    respostaInput.value = valorTexto;
+    atualizarPlaceholder();
+  }
+
+  if (typeof window.verificar === "function") {
+    window.verificar();
+  }
+}
+// =======================
+// CONVERTER VOZ EM NÚMERO
+// =======================
+function textoFaladoParaNumero(txt) {
+  if (!txt) return null;
+
+  txt = String(txt).toLowerCase().trim();
+
+  txt = txt
+    .replace(/[.,;!?]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const matchNumero = txt.match(/\d+/);
+  if (matchNumero) {
+    const n = parseInt(matchNumero[0], 10);
+    if (!isNaN(n)) return n;
+  }
+
+  const unidades = {
+    "zero": 0,
+    "um": 1, "uma": 1,
+    "dois": 2, "duas": 2,
+    "tres": 3, "três": 3,
+    "quatro": 4,
+    "cinco": 5,
+    "seis": 6, "meia": 6,
+    "sete": 7,
+    "oito": 8,
+    "nove": 9
+  };
+
+  const especiais = {
+    "dez": 10,
+    "onze": 11,
+    "doze": 12,
+    "treze": 13,
+    "catorze": 14, "quatorze": 14,
+    "quinze": 15,
+    "dezesseis": 16, "dezasseis": 16,
+    "dezessete": 17, "dezassete": 17,
+    "dezoito": 18,
+    "dezenove": 19
+  };
+
+  const dezenas = {
+    "vinte": 20,
+    "trinta": 30,
+    "quarenta": 40,
+    "cinquenta": 50,
+    "sessenta": 60,
+    "setenta": 70,
+    "oitenta": 80,
+    "noventa": 90
+  };
+
+  const limpo = txt
+    .replace(/\bé\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (unidades.hasOwnProperty(limpo)) return unidades[limpo];
+  if (especiais.hasOwnProperty(limpo)) return especiais[limpo];
+  if (dezenas.hasOwnProperty(limpo)) return dezenas[limpo];
+  if (limpo === "cem" || limpo === "cento") return 100;
+
+  const tokens = limpo.split(" ").filter(Boolean);
+
+  let total = 0;
+  let reconheceu = false;
+
+  for (const t of tokens) {
+    if (dezenas.hasOwnProperty(t)) {
+      total += dezenas[t];
+      reconheceu = true;
+      continue;
+    }
+    if (especiais.hasOwnProperty(t)) {
+      total += especiais[t];
+      reconheceu = true;
+      continue;
+    }
+    if (unidades.hasOwnProperty(t)) {
+      total += unidades[t];
+      reconheceu = true;
+      continue;
+    }
+    if (t === "cem" || t === "cento") {
+      total += 100;
+      reconheceu = true;
+      continue;
+    }
+  }
+
+  if (reconheceu && total >= 0 && total <= 100) return total;
+
+  return null;
+}
+function numeroParaPalavrasBR(n) {
+  const unidades = ["zero","um","dois","três","quatro","cinco","seis","sete","oito","nove"];
+  const especiais = {
+    10:"dez", 11:"onze", 12:"doze", 13:"treze", 14:"quatorze", 15:"quinze",
+    16:"dezesseis", 17:"dezessete", 18:"dezoito", 19:"dezenove"
+  };
+  const dezenas = {
+    20:"vinte", 30:"trinta", 40:"quarenta", 50:"cinquenta",
+    60:"sessenta", 70:"setenta", 80:"oitenta", 90:"noventa"
+  };
+
+  if (n < 10) return unidades[n];
+  if (especiais[n]) return especiais[n];
+  if (dezenas[n]) return dezenas[n];
+  if (n === 100) return "cem";
+
+  const d = Math.floor(n / 10) * 10;
+  const u = n % 10;
+  if (dezenas[d] && u > 0) return `${dezenas[d]} e ${unidades[u]}`;
+  return String(n);
+}
+
+function normalizarTextoVoz(txt) {
+  return String(txt || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[.,;!?]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extrairNumeroEsperadoDoTexto(txt, esperado) {
+  const t = normalizarTextoVoz(txt);
+  const alvoNum = String(esperado);
+  const alvoPalavra = normalizarTextoVoz(numeroParaPalavrasBR(esperado));
+
+  if (t === alvoNum) return esperado;
+  if (t.includes(` ${alvoNum} `) || t.startsWith(`${alvoNum} `) || t.endsWith(` ${alvoNum}`)) return esperado;
+  if (t === alvoPalavra) return esperado;
+  if (t.includes(alvoPalavra)) return esperado;
+
+  const parseado = textoFaladoParaNumero(t);
+  if (parseado === esperado) return esperado;
+
+  return null;
+}
+// =======================
+// SUPORTE MICROFONE
+// =======================
+
+function browserTemReconhecimentoVoz() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+let reconhecimento = null;
+let ouvindoVoz = false;
+
+const TURBO_ESTABILIDADE = 12;
+const TURBO_COOLDOWN = 40;
+
+function setBotaoVozOuvindo(on) {
+  if (!btnVoz) return;
+  btnVoz.classList.toggle("ouvindo", !!on);
+}
+
+function setVozStatus(txt) {
+  if (!vozStatus) return;
+  vozStatus.textContent = txt || "";
+}
+
+function pararReconhecimentoVoz() {
+  try {
+    if (reconhecimento) {
+      reconhecimento.onresult = null;
+      reconhecimento.onerror = null;
+      reconhecimento.onend = null;
+      reconhecimento.stop();
+    }
+  } catch (e) {}
+
+  reconhecimento = null;
+  ouvindoVoz = false;
+
+  numeroDetectado = null;
+  numeroDetectadoAt = 0;
+  vozCooldownAte = 0;
+  vozPodeResponder = true;
+  aguardandoProcessamentoVozAte = 0;
+
+  setBotaoVozOuvindo(false);
+}
+
+function iniciarReconhecimentoVoz() {
+  if (!browserTemReconhecimentoVoz()) {
+    setVozStatus("Voz não suportada");
+    return;
+  }
+
+  if (aguardandoDecisao) return;
+  if (reconhecimento || ouvindoVoz) return;
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  reconhecimento = new SR();
+  reconhecimento.lang = "pt-BR";
+  reconhecimento.continuous = true;
+  reconhecimento.interimResults = true;
+  reconhecimento.maxAlternatives = 1;
+
+  numeroDetectado = null;
+  numeroDetectadoAt = 0;
+  vozCooldownAte = 0;
+  vozPodeResponder = true;
+  aguardandoProcessamentoVozAte = 0;
+
+  ouvindoVoz = true;
+  setBotaoVozOuvindo(true);
+  setVozStatus("🎤 Ouvindo...");
+
+  reconhecimento.onresult = (event) => {
+    const agora = performance.now();
+
+    if (agora < vozCooldownAte) return;
+    if (!vozPodeResponder) return;
+    if (!event.results || !event.results.length) return;
+
+    const r = event.results[event.results.length - 1];
+    if (!r || !r.length) return;
+
+    const texto = (r[0] && r[0].transcript) ? r[0].transcript : "";
+    const isFinal = !!r.isFinal;
+    const corretaAtual = tabuada * numeroAtual;
+
+    const numeroEsperado = extrairNumeroEsperadoDoTexto(texto, corretaAtual);
+    if (numeroEsperado !== null) {
+      vozPodeResponder = false;
+      vozCooldownAte = agora + TURBO_COOLDOWN;
+      numeroDetectado = null;
+      numeroDetectadoAt = 0;
+      aguardandoProcessamentoVozAte = 0;
+
+      setVozStatus(`🎤 ${numeroEsperado}`);
+      enviarResposta(numeroEsperado);
+
+      requestAnimationFrame(() => {
+        vozPodeResponder = true;
+      });
+      return;
+    }
+
+    const numero = textoFaladoParaNumero(texto);
+    if (numero === null) return;
+
+    if (numero !== numeroDetectado) {
+      numeroDetectado = numero;
+      numeroDetectadoAt = agora;
+
+      if (isFinal) {
+        vozPodeResponder = false;
+        vozCooldownAte = agora + TURBO_COOLDOWN;
+        numeroDetectado = null;
+        numeroDetectadoAt = 0;
+        aguardandoProcessamentoVozAte = 0;
+
+        setVozStatus(`🎤 ${numero}`);
+        enviarResposta(numero);
+
+        requestAnimationFrame(() => {
+          vozPodeResponder = true;
+        });
+      }
+      return;
+    }
+
+    const tempoEstavel = agora - numeroDetectadoAt;
+
+    if (!isFinal && tempoEstavel < TURBO_ESTABILIDADE) return;
+    if (isFinal && tempoEstavel < 4) return;
+
+    vozPodeResponder = false;
+    vozCooldownAte = agora + TURBO_COOLDOWN;
+    numeroDetectado = null;
+    numeroDetectadoAt = 0;
+    aguardandoProcessamentoVozAte = 0;
+
+    setVozStatus(`🎤 ${numero}`);
+    enviarResposta(numero);
+
+    requestAnimationFrame(() => {
+      vozPodeResponder = true;
+    });
+  };
+
+  reconhecimento.onerror = () => {
+    reconhecimento = null;
+    ouvindoVoz = false;
+    setBotaoVozOuvindo(false);
+
+    if ((jogoAtivo || tabuadaSelecionadaValida()) && !aguardandoDecisao) {
+      setTimeout(() => {
+        if (!reconhecimento) iniciarReconhecimentoVoz();
+      }, 120);
+    }
+  };
+
+  reconhecimento.onend = () => {
+    reconhecimento = null;
+    ouvindoVoz = false;
+    setBotaoVozOuvindo(false);
+
+    if ((jogoAtivo || tabuadaSelecionadaValida()) && !aguardandoDecisao) {
+      setTimeout(() => {
+        if (!reconhecimento) iniciarReconhecimentoVoz();
+      }, 120);
+    }
+  };
+
+  try {
+    reconhecimento.start();
+  } catch (e) {
+    reconhecimento = null;
+    ouvindoVoz = false;
+    setBotaoVozOuvindo(false);
+  }
+}
 
 // =======================
 // CARTAS
@@ -856,7 +1170,7 @@ function atualizarPilhaPorMeta() {
 // META / FASE
 // =======================
 function setMetaByFase(f) {
-  if (f === "facil") return 4;   // teste
+  if (f === "facil") return 4;
   if (f === "media") return 40;
   return 60;
 }
@@ -902,6 +1216,13 @@ function resetTudoParaInicio() {
   etapa = "normal";
   numeroAtual = 1;
 
+  modoVerificacao = "normal";
+estadoOprofessor = null;
+vozPodeResponder = true;
+
+  pararReconhecimentoVoz();
+  setVozStatus("");
+
   fecharDuelo();
 
   if (fimJogoDiv) fimJogoDiv.innerHTML = "";
@@ -924,7 +1245,7 @@ function resetTudoParaInicio() {
 }
 
 // =======================
-// CRONÔMETRO (JOGO NORMAL)
+// CRONÔMETRO
 // =======================
 function iniciarCronometro() {
   if (cronometroAtivo) return;
@@ -944,6 +1265,12 @@ function finalizarJogoTempo() {
   clearInterval(intervalo);
   jogoAtivo = false;
   cronometroAtivo = false;
+
+  modoVerificacao = "normal";
+  estadoOprofessor = null;
+
+  pararReconhecimentoVoz();
+  setVozStatus("");
 
   fecharDuelo();
 
@@ -985,16 +1312,19 @@ function abrirModal(titulo, textoHtml, simCb, naoCb) {
   onSim = simCb;
   onNao = naoCb;
 
- const temModal = (modal && modalTitulo && modalTexto);
+  pararReconhecimentoVoz();
+  setVozStatus("");
 
-if (!temModal) {
-  if (fimJogoDiv) {
-    fimJogoDiv.innerHTML =
-      `${titulo}<br>${textoHtml}<br><br><b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>`;
+  const temModal = (modal && modalTitulo && modalTexto);
+
+  if (!temModal) {
+    if (fimJogoDiv) {
+      fimJogoDiv.innerHTML =
+        `${titulo}<br>${textoHtml}<br><br><b>ENTER = SIM</b> &nbsp; | &nbsp; <b>ESC = NÃO</b>`;
+    }
+  } else {
+    if (fimJogoDiv) fimJogoDiv.innerHTML = "";
   }
-} else {
-  if (fimJogoDiv) fimJogoDiv.innerHTML = ""; // ✅ evita a “tela embaixo” no mobile
-}
 
   if (modal && modalTitulo && modalTexto) {
     modalTitulo.textContent = titulo;
@@ -1075,7 +1405,7 @@ document.addEventListener("keydown", (e) => {
 }, { passive: false });
 
 // =======================
-// SOM (reutiliza AudioContext)
+// SOM
 // =======================
 let _audioCtx = null;
 function getAudioCtx() {
@@ -1119,7 +1449,7 @@ function fanfarraGrande() {
 }
 
 // =======================
-// FX (FOGOS)
+// FX
 // =======================
 let particles = [];
 let rockets = [];
@@ -1147,8 +1477,6 @@ function fxConfig() {
     rocketsGrandes: mobile ? 10 : 16,
     rocketIntervalMedios: mobile ? 170 : 140,
     rocketIntervalGrandes: mobile ? 115 : 95,
-
-    // ✅ MAIS ALTO NO MOBILE (ajuste fino aqui)
     rocketExplodeVy: mobile ? -3.6 : -2.5
   };
 }
@@ -1218,7 +1546,7 @@ function stopFxLoop() {
   fxIdleSince = 0;
 
   if (fxCtx) {
-    fxCtx.setTransform(1,0,0,1,0,0);
+    fxCtx.setTransform(1, 0, 0, 1, 0, 0);
     fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
     resizeFx();
   }
@@ -1251,7 +1579,6 @@ function animateFx(ts) {
 
   fxCtx.globalCompositeOperation = "lighter";
 
-  // ===== ROCKETS =====
   for (let i = rockets.length - 1; i >= 0; i--) {
     const r = rockets[i];
     r.life -= 1;
@@ -1269,15 +1596,12 @@ function animateFx(ts) {
     fxCtx.stroke();
 
     const explodeVy = (typeof cfg.rocketExplodeVy === "number") ? cfg.rocketExplodeVy : -2.5;
-
-    // ✅ explode no topo (PC) e mais alto no mobile também
     if (r.life <= 0 || r.vy > explodeVy) {
       explode(r.x, r.y, r.hue);
       rockets.splice(i, 1);
     }
   }
 
-  // ===== PARTICLES =====
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.life -= 1;
@@ -1345,6 +1669,10 @@ if (tabuadaSelect) {
       cronometroAtivo = false;
       clearInterval(intervalo);
 
+      modoVerificacao = "normal";
+      estadoOprofessor = null;
+      pararReconhecimentoVoz();
+      setVozStatus("");
       return;
     }
 
@@ -1355,6 +1683,11 @@ if (tabuadaSelect) {
     jogoAtivo = false;
     cronometroAtivo = false;
     clearInterval(intervalo);
+
+    modoVerificacao = "normal";
+    estadoOprofessor = null;
+    pararReconhecimentoVoz();
+    setVozStatus("");
 
     tempo = 60;
     acertos = 0;
@@ -1374,6 +1707,11 @@ if (tabuadaSelect) {
     virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
     focusRespostaSeguro();
+    setTimeout(() => {
+  if (!ouvindoVoz && !aguardandoDecisao) {
+    iniciarReconhecimentoVoz();
+  }
+}, 0);
   });
 }
 
@@ -1400,16 +1738,22 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
 
   atualizarLabelTabuada();
 
-  etapa = "normal";
-  numeroAtual = 1;
+etapa = "normal";
+numeroAtual = 1;
 
-  tempo = 60;
-  acertos = 0;
-  erros = 0;
+vozPodeResponder = true;
+
+
+tempo = 60;
+acertos = 0;
+erros = 0;
 
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
+
+  modoVerificacao = "normal";
+  estadoOprofessor = null;
 
   fecharDuelo();
 
@@ -1426,8 +1770,13 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
     if (!preservarDigitado) respostaInput.value = "";
     atualizarPlaceholder();
     focusRespostaSeguro();
+    if (!ouvindoVoz) {
+  iniciarReconhecimentoVoz();
+}
   }
 };
+
+
 
 // =======================
 // PRÓXIMO NÚMERO
@@ -1435,6 +1784,9 @@ window.iniciarJogo = function iniciarJogo(preservarDigitado = false) {
 function proximoNumero() {
   if (etapa === "normal") numeroAtual = (numeroAtual < 10) ? (numeroAtual + 1) : 1;
   else numeroAtual = Math.floor(Math.random() * 10) + 1;
+
+ vozPodeResponder = true;
+ 
 }
 
 // =======================
@@ -1444,6 +1796,9 @@ function iniciarDesafioAleatorio() {
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
+
+  modoVerificacao = "normal";
+  estadoOprofessor = null;
 
   etapa = "aleatorio";
 
@@ -1460,19 +1815,28 @@ function iniciarDesafioAleatorio() {
 
   numeroAtual = Math.floor(Math.random() * 10) + 1;
 
+vozPodeResponder = true;
+
+
   setModoJogoCartas();
   virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
 
-  if (respostaInput) {
+    if (respostaInput) {
     respostaInput.value = "";
     focusRespostaSeguro();
+    if (!ouvindoVoz) {
+  iniciarReconhecimentoVoz();
+}
   }
 }
 
 // =======================
 // OPROFESSOR
 // =======================
-const OPROFESSOR = { nome: "Oprofessor 🐾 (Pantera)", img: "./oprofessor.png" };
+const OPROFESSOR = {
+  nome: "Oprofessor 🐾 (Pantera)",
+  img: "./oprofessor_carta.png"
+};
 
 const OP_RULES = {
   facil:   { alunoMin: 25, opMax: 24 },
@@ -1486,6 +1850,8 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
   let pontosAluno = 0;
   let pontosOp = 0;
 
+  modoVerificacao = "oprofessor";
+
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
@@ -1493,8 +1859,10 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
   if (typeof setModoJogoCartas === "function") setModoJogoCartas();
 
   function novaPerguntaGlobal() {
-    tabuada = Math.floor(Math.random() * 10) + 1;
-    numeroAtual = Math.floor(Math.random() * 10) + 1;
+tabuada = Math.floor(Math.random() * 10) + 1;
+numeroAtual = Math.floor(Math.random() * 10) + 1;
+
+vozPodeResponder = true;
 
     if (tabuadaSelect) tabuadaSelect.value = String(tabuada);
     atualizarLabelTabuada();
@@ -1505,6 +1873,10 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     if (respostaInput) respostaInput.value = "";
     atualizarPlaceholder();
     focusRespostaSeguro();
+
+    if (!ouvindoVoz && !aguardandoDecisao) {
+    iniciarReconhecimentoVoz();
+  }
   }
 
   let acabou = false;
@@ -1551,6 +1923,9 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     if (acabou) return;
     acabou = true;
 
+    modoVerificacao = "normal";
+    estadoOprofessor = null;
+
     if (tick) clearInterval(tick);
     tick = null;
 
@@ -1584,36 +1959,23 @@ function iniciarDesafioOprofessor60s(onVenceu, onPerdeu) {
     }
   }
 
-  const verificarOriginal = window.verificar;
-
-  window.verificar = function () {
-    if (acabou) return;
-    if (!respostaInput) return;
-
-    const v = respostaInput.value;
-    if (v === "") return;
-
-    const resposta = Number(v);
-    const correta = tabuada * numeroAtual;
-
-    if (resposta === correta) {
-      pontosAluno++;
-      novaPerguntaGlobal();
-    } else {
-      respostaInput.value = "";
-      atualizarPlaceholder();
-      focusRespostaSeguro();
+  estadoOprofessor = {
+    getAcabou: () => acabou,
+    addPontoAluno: () => { pontosAluno++; },
+    novaPerguntaGlobal,
+    limparResposta: () => {
+      if (respostaInput) {
+        respostaInput.value = "";
+        atualizarPlaceholder();
+        focusRespostaSeguro();
+      }
     }
   };
-
-  const restore = () => { window.verificar = verificarOriginal; };
 
   t0 = performance.now();
   iniciarTempoRegressivo();
   agendarOprofessor();
   novaPerguntaGlobal();
-
-  setTimeout(() => { restore(); }, 60500);
 }
 
 // =======================
@@ -1623,6 +1985,9 @@ function avancarParaProximaTabuadaOuFase() {
   jogoAtivo = true;
   cronometroAtivo = false;
   clearInterval(intervalo);
+
+  modoVerificacao = "normal";
+  estadoOprofessor = null;
 
   fecharDuelo();
 
@@ -1654,11 +2019,18 @@ function avancarParaProximaTabuadaOuFase() {
         <div class="op-stage">
           <div class="op-card3d">
             <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-              ${OPROFESSOR.img ? `<img class="op-img" src="${OPROFESSOR.img}" style="
-                width:230px;height:230px;border-radius:26px;object-fit:contain;
-                background: rgba(255,255,255,.06); padding: 10px;
-                border:2px solid rgba(255,255,255,.18);
-              ">` : ""}
+            ${OPROFESSOR.img ? `<img class="op-img" src="${OPROFESSOR.img}" alt="Oprofessor" style="
+  width:230px;
+  height:230px;
+  display:block;
+  margin:0 auto;
+  border-radius:26px;
+  object-fit:contain;
+  background: rgba(255,255,255,.06);
+  padding: 10px;
+  border:2px solid rgba(255,255,255,.18);
+  box-shadow: 0 14px 34px rgba(0,0,0,.35);
+" onerror="this.style.display='none'; console.log('erro ao carregar imagem do Oprofessor:', this.src);">` : ""}
 
               <div class="op-title" style="font-size:22px; font-weight:1000; letter-spacing:1px; text-align:center;">
                 🐾 OPROFESSOR CHEGOU
@@ -1715,12 +2087,16 @@ function avancarParaProximaTabuadaOuFase() {
 
   atualizarLabelTabuada();
 
-  etapa = "normal";
-  numeroAtual = 1;
+etapa = "normal";
+numeroAtual = 1;
 
-  tempo = 60;
-  acertos = 0;
-  erros = 0;
+vozPodeResponder = true;
+
+
+tempo = 60;
+acertos = 0;
+erros = 0;
+
   atualizarPainel();
   setPilhaDireita(meta);
 
@@ -1731,6 +2107,9 @@ function avancarParaProximaTabuadaOuFase() {
   if (respostaInput) {
     respostaInput.value = "";
     focusRespostaSeguro();
+    if (!ouvindoVoz) {
+  iniciarReconhecimentoVoz();
+}
   }
 }
 
@@ -1755,6 +2134,7 @@ function bateuMetaNormal() {
     fogosMedios();
   }, 120);
 }
+
 function bateuMetaAleatorio() {
   setPilhaDireita(0);
 
@@ -1773,6 +2153,7 @@ function bateuMetaAleatorio() {
     fogosGrandes();
   }, 120);
 }
+
 // =======================
 // VERIFICAR
 // =======================
@@ -1784,43 +2165,55 @@ function verificar() {
   const valor = respostaInput.value;
   if (valor === "") return;
 
+  const agora = performance.now();
+
   const resposta = Number(valor);
   const correta = tabuada * numeroAtual;
   const acertou = (resposta === correta);
 
-  // ====== DUELO ======
   if (dueloAtivo) {
     if (performance.now() >= duelo.fimEm) {
       finalizarDueloTempo();
       return;
     }
 
-    if (acertou) {
-      duelo.pontosAluno++;
-      atualizarDueloUI();
-
-      duelo.perguntaToken++;
-      gerarPerguntaDueloNova();
-
-      respostaInput.value = "";
-      atualizarPlaceholder();
-      focusRespostaSeguro();
-
-      agendarRespostaMestre();
+    if (!acertou && agora < aguardandoProcessamentoVozAte) {
       return;
     }
 
-    duelo.errosAluno++;
-    atualizarDueloUI();
+    if (acertou) duelo.pontosAluno++;
+    else duelo.errosAluno++;
 
-    respostaInput.value = "";
-    atualizarPlaceholder();
-    focusRespostaSeguro();
+    atualizarDueloUI();
+respostaInput.value = "";
+atualizarPlaceholder();
+
+duelo.perguntaToken++;
+gerarPerguntaDueloNova();
+
+focusRespostaSeguro();
+agendarRespostaMestre();
+return;
+  }
+
+  if (modoVerificacao === "oprofessor" && estadoOprofessor) {
+    if (estadoOprofessor.getAcabou()) return;
+
+    if (!acertou && agora < aguardandoProcessamentoVozAte) {
+      return;
+    }
+
+    if (acertou) estadoOprofessor.addPontoAluno();
+
+    estadoOprofessor.novaPerguntaGlobal();
     return;
   }
 
-  // ====== JOGO NORMAL ======
   if (!cronometroAtivo) iniciarCronometro();
+
+  if (!acertou && agora < aguardandoProcessamentoVozAte) {
+    return;
+  }
 
   if (acertou) acertos++;
   else erros++;
@@ -1835,10 +2228,9 @@ function verificar() {
     return;
   }
 
-  proximoNumero();
-  setModoJogoCartas();
-  virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
-  focusRespostaSeguro();
+proximoNumero();
+virarParaVersoComNumero(cartaDireita, numDireita, numeroAtual);
+focusRespostaSeguro();
 }
 
 window.verificar = verificar;
@@ -1862,38 +2254,29 @@ if ("serviceWorker" in navigator) {
 // =======================
 document.addEventListener("keydown", (e) => {
   if (aguardandoDecisao) return;
-  if (isMobileLike()) return;
-  if (!respostaInput || respostaInput.disabled) return;
+  if (!isEnterKey(e)) return;
 
-  const isDigit = /^[0-9]$/.test(e.key);
-  if (!isDigit) return;
+  if (document.activeElement === respostaInput) return;
 
-  if (!jogoAtivo && tabuadaSelecionadaValida()) {
-    e.preventDefault();
-    window.iniciarJogo(true);
-    respostaInput.value = e.key;
+  e.preventDefault();
+  if (!respostaInput) return;
+
+  if (!respostaInput.disabled && document.activeElement !== respostaInput) {
     respostaInput.focus();
   }
+
+  enviarResposta(respostaInput.value);
 }, { passive: false });
 
-// Enter no input = enviar
 if (respostaInput) {
   respostaInput.addEventListener("keydown", (e) => {
     if (!isEnterKey(e)) return;
     e.preventDefault();
-
-    const digitado = respostaInput.value;
-    if (!jogoAtivo) {
-      if (!tabuadaSelecionadaValida()) return;
-      window.iniciarJogo(true);
-      respostaInput.value = digitado;
-    }
-
-    if (typeof window.verificar === "function") window.verificar();
+    e.stopPropagation();
+    enviarResposta(respostaInput.value);
   }, { passive: false });
 }
 
-// Enter global (fora do input)
 document.addEventListener("keydown", (e) => {
   if (aguardandoDecisao) return;
   if (!isEnterKey(e)) return;
@@ -1905,14 +2288,7 @@ document.addEventListener("keydown", (e) => {
     respostaInput.focus();
   }
 
-  const digitado = respostaInput.value;
-  if (!jogoAtivo) {
-    if (!tabuadaSelecionadaValida()) return;
-    window.iniciarJogo(true);
-    respostaInput.value = digitado;
-  }
-
-  if (typeof window.verificar === "function") window.verificar();
+  enviarResposta(respostaInput.value);
 }, { passive: false });
 
 // =======================
@@ -1933,6 +2309,7 @@ document.addEventListener("keydown", (e) => {
     setModoEscolhaCartas();
   }
 })();
+
 
 
 
